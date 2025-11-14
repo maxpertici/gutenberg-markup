@@ -158,7 +158,7 @@ class BlockMarkup extends Markup {
 	}
 
 	/**
-	 * Renders the complete block markup with Gutenberg comments (echo mode).
+	 * Prints the complete block markup with Gutenberg comments (echo mode).
 	 *
 	 * Outputs the block with appropriate Gutenberg block comments directly to the buffer.
 	 * This method is optimized for performance by echoing content in streaming mode
@@ -167,13 +167,13 @@ class BlockMarkup extends Markup {
 	 * For self-closing blocks, echoes only the self-closing comment.
 	 * For regular blocks, echoes the opening comment, inner content, and closing comment separately.
 	 *
-	 * This method overrides the parent render() to add Gutenberg-specific formatting.
+	 * This method overrides the parent print() to add Gutenberg-specific formatting.
 	 *
 	 * @since 1.0.0
 	 *
 	 * @return void
 	 */
-	public function render(): void {
+	public function print(): void {
 		// Update the BlockComments instance with current attributes
 		$this->block_comments = new BlockComments( $this->block_name, $this->block_attributes );
 
@@ -186,8 +186,8 @@ class BlockMarkup extends Markup {
 		// Echo opening block comment
 		echo $this->block_comments->get_opening_comment();
 
-		// Render inner content using parent's render method
-		parent::render();
+		// Print inner content using parent's print method
+		parent::print();
 
 		// Echo closing block comment
 		echo $this->block_comments->get_closing_comment();
