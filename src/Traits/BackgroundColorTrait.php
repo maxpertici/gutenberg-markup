@@ -19,14 +19,40 @@ namespace MaxPertici\GutenbergMarkup\Traits;
 trait BackgroundColorTrait {
 
 	/**
-	 * Apply background color to the block.
+	 * Apply background color using a preset color slug.
+	 *
+	 * This method uses WordPress theme color presets and generates the appropriate
+	 * CSS classes like 'has-{color}-background-color' and 'has-background'.
 	 *
 	 * @since 1.0.0
 	 *
-	 * @param string $color The background color (hex value or slug).
+	 * @param string $color The color slug from theme preset (e.g., 'primary', 'secondary').
 	 * @return self Returns the instance for method chaining.
 	 */
 	public function background_color( string $color ): self {
+		// Set the backgroundColor attribute for preset colors
+		$this->block_attributes['backgroundColor'] = $color;
+
+		// Add the background color class
+		$this->add_class( "has-{$color}-background-color" );
+		
+		// Add the has-background class
+		$this->add_class( 'has-background' );
+
+		return $this;
+	}
+
+	/**
+	 * Apply custom background color using a direct color value.
+	 *
+	 * This method adds background color styling using inline styles.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param string $color The background color (hex value, RGB, etc.).
+	 * @return self Returns the instance for method chaining.
+	 */
+	public function custom_background_color( string $color ): self {
 		// Get the current inline style attribute if it exists
 		$current_style = $this->wrapper_attributes['style'] ?? '';
 		
@@ -41,6 +67,9 @@ trait BackgroundColorTrait {
 		// Store the background color in the block attributes for Gutenberg compatibility
 		// This follows the WordPress block style structure for color management
 		$this->block_attributes['style']['color']['background'] = $color;
+
+		// Add the has-background class
+		$this->add_class( 'has-background' );
 
 		// Return self to allow method chaining
 		return $this;

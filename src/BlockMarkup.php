@@ -142,6 +142,9 @@ class BlockMarkup extends Markup {
 	 * @return string The complete block markup including Gutenberg comment syntax.
 	 */
 	public function getMarkup(): string {
+		// Update the BlockComments instance with current attributes
+		$this->block_comments = new BlockComments( $this->block_name, $this->block_attributes );
+
 		// If self-closing block, return only the comment
 		if ( $this->is_self_closing ) {
 			return $this->block_comments->get_self_closing_comment();
@@ -171,6 +174,9 @@ class BlockMarkup extends Markup {
 	 * @return void
 	 */
 	public function render(): void {
+		// Update the BlockComments instance with current attributes
+		$this->block_comments = new BlockComments( $this->block_name, $this->block_attributes );
+
 		// If self-closing block, echo only the comment
 		if ( $this->is_self_closing ) {
 			echo $this->block_comments->get_self_closing_comment();
@@ -258,6 +264,41 @@ class BlockMarkup extends Markup {
 	 */
 	public function get_block_comments(): BlockComments {
 		return $this->block_comments;
+	}
+
+	/**
+	 * Adds a CSS class to the wrapper element.
+	 *
+	 * If the class already exists, it will not be added again.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param string $class The CSS class to add.
+	 * @return void
+	 */
+	protected function add_class( string $class ): void {
+		if ( ! in_array( $class, $this->wrapper_class, true ) ) {
+			$this->wrapper_class[] = $class;
+		}
+	}
+
+	/**
+	 * Removes a CSS class from the wrapper element.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param string $class The CSS class to remove.
+	 * @return void
+	 */
+	protected function remove_class( string $class ): void {
+		$this->wrapper_class = array_values(
+			array_filter(
+				$this->wrapper_class,
+				function ( $existing_class ) use ( $class ) {
+					return $existing_class !== $class;
+				}
+			)
+		);
 	}
 }
 
