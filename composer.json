@@ -16,8 +16,9 @@
     },
     "require": {
         "php": ">=8.0",
-        "maxpertici/markup": "dev-main"
+        "maxpertici/markup": "^1.0"
     },
-    "minimum-stability": "dev"
+    "minimum-stability": "dev",
+    "prefer-stable": true
 }
 
