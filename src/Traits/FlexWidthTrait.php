@@ -21,28 +21,28 @@ namespace MaxPertici\GutenbergMarkup\Traits;
 trait FlexWidthTrait {
 
 	/**
-	 * Set selfStretch to 'fill' - element fills available space.
-	 *
-	 * @since 1.0.0
-	 *
-	 * @return self Returns the instance for method chaining.
-	 */
-	public function fit(): self {
-		$this->block_attributes['style']['layout']['selfStretch'] = 'fill';
-		$this->block_attributes['style']['layout']['flexSize']    = null;
-
-		return $this;
-	}
-
-	/**
 	 * Set selfStretch to 'fit' - element fits to content.
 	 *
 	 * @since 1.0.0
 	 *
 	 * @return self Returns the instance for method chaining.
 	 */
-	public function grow(): self {
+	public function fit(): self {
 		$this->block_attributes['style']['layout']['selfStretch'] = 'fit';
+		$this->block_attributes['style']['layout']['flexSize']    = null;
+
+		return $this;
+	}
+
+	/**
+	 * Set selfStretch to 'fill' - element fills available space (grows).
+	 *
+	 * @since 1.0.0
+	 *
+	 * @return self Returns the instance for method chaining.
+	 */
+	public function grow(): self {
+		$this->block_attributes['style']['layout']['selfStretch'] = 'fill';
 		$this->block_attributes['style']['layout']['flexSize']    = null;
 
 		return $this;
