@@ -1,0 +1,4 @@
+# Exclude development files from Composer package
+/.gitignore export-ignore
+/.gitattributes export-ignore
+
