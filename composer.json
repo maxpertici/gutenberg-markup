@@ -16,7 +16,7 @@
     },
     "require": {
         "php": ">=8.0",
-        "maxpertici/markup": "^1.0"
+        "maxpertici/markup": "^0.1"
     },
     "minimum-stability": "dev",
     "prefer-stable": true
