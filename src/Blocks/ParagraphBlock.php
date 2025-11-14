@@ -23,6 +23,7 @@ use MaxPertici\GutenbergMarkup\Traits\LinkColorTrait;
 use MaxPertici\GutenbergMarkup\Traits\TextColorTrait;
 use MaxPertici\GutenbergMarkup\Traits\TextDecorationTrait;
 use MaxPertici\GutenbergMarkup\Traits\TextTransformTrait;
+use MaxPertici\GutenbergMarkup\Traits\FlexWidthTrait;
 
 /**
  * Paragraph Gutenberg Block implementation.
@@ -53,6 +54,7 @@ class ParagraphBlock extends BlockMarkup {
 	use TextColorTrait;
 	use TextDecorationTrait;
 	use TextTransformTrait;
+	use FlexWidthTrait;
 
 	/**
 	 * Constructor.
