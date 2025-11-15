@@ -44,7 +44,7 @@ class BlockComments {
 	 * @param array  $attributes Optional. Block attributes. Default empty array.
 	 */
 	public function __construct( string $block_name, array $attributes = [] ) {
-		$this->block_name = $this->normalize_block_name( $block_name );
+		$this->block_name = $this->normalizeBlockName( $block_name );
 		$this->attributes = $attributes;
 	}
 
@@ -56,7 +56,7 @@ class BlockComments {
 	 * @param string $block_name The block name.
 	 * @return string The normalized block name.
 	 */
-	private function normalize_block_name( string $block_name ): string {
+	private function normalizeBlockName( string $block_name ): string {
 		// Remove 'core/' prefix for core blocks
 		if ( strpos( $block_name, 'core/' ) === 0 ) {
 			return substr( $block_name, 5 );
@@ -72,7 +72,7 @@ class BlockComments {
 	 *
 	 * @return string The opening comment.
 	 */
-	public function get_opening_comment(): string {
+	public function getOpeningComment(): string {
 		$comment = '<!-- wp:' . $this->block_name;
 
 		if ( ! empty( $this->attributes ) ) {
@@ -91,7 +91,7 @@ class BlockComments {
 	 *
 	 * @return string The closing comment.
 	 */
-	public function get_closing_comment(): string {
+	public function getClosingComment(): string {
 		return '<!-- /wp:' . $this->block_name . ' -->';
 	}
 
@@ -102,7 +102,7 @@ class BlockComments {
 	 *
 	 * @return string The self-closing comment.
 	 */
-	public function get_self_closing_comment(): string {
+	public function getSelfClosingComment(): string {
 		$comment = '<!-- wp:' . $this->block_name;
 
 		if ( ! empty( $this->attributes ) ) {
@@ -122,8 +122,8 @@ class BlockComments {
 	 * @param string $content The block content to wrap.
 	 * @return string The wrapped content.
 	 */
-	public function wrap_content( string $content ): string {
-		return $this->get_opening_comment() . $content . $this->get_closing_comment();
+	public function wrapContent( string $content ): string {
+		return $this->getOpeningComment() . $content . $this->getClosingComment();
 	}
 }
 

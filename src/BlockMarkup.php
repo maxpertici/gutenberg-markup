@@ -135,26 +135,26 @@ class BlockMarkup extends Markup {
 	 * For self-closing blocks, returns only the self-closing comment.
 	 * For regular blocks, wraps the inner HTML content with opening and closing block comments.
 	 *
-	 * This method overrides the parent getMarkup() to add Gutenberg-specific formatting.
+	 * This method overrides the parent render() to add Gutenberg-specific formatting.
 	 *
 	 * @since 1.0.0
 	 *
 	 * @return string The complete block markup including Gutenberg comment syntax.
 	 */
-	public function getMarkup(): string {
+	public function render(): string {
 		// Update the BlockComments instance with current attributes
 		$this->block_comments = new BlockComments( $this->block_name, $this->block_attributes );
 
 		// If self-closing block, return only the comment
 		if ( $this->is_self_closing ) {
-			return $this->block_comments->get_self_closing_comment();
+			return $this->block_comments->getSelfClosingComment();
 		}
 
 		// Get the inner markup from parent class
-		$inner_markup = parent::getMarkup();
+		$inner_markup = parent::render();
 
 		// Wrap with block comments
-		return $this->block_comments->wrap_content( $inner_markup );
+		return $this->block_comments->wrapContent( $inner_markup );
 	}
 
 	/**
@@ -179,18 +179,18 @@ class BlockMarkup extends Markup {
 
 		// If self-closing block, echo only the comment
 		if ( $this->is_self_closing ) {
-			echo $this->block_comments->get_self_closing_comment();
+			echo $this->block_comments->getSelfClosingComment();
 			return;
 		}
 
 		// Echo opening block comment
-		echo $this->block_comments->get_opening_comment();
+		echo $this->block_comments->getOpeningComment();
 
 		// Print inner content using parent's print method
 		parent::print();
 
 		// Echo closing block comment
-		echo $this->block_comments->get_closing_comment();
+		echo $this->block_comments->getClosingComment();
 	}
 
 	/**
@@ -203,7 +203,7 @@ class BlockMarkup extends Markup {
 	 *
 	 * @return string The block name with namespace.
 	 */
-	public function get_block_name(): string {
+	public function getBlockName(): string {
 		return $this->block_name;
 	}
 
@@ -218,7 +218,7 @@ class BlockMarkup extends Markup {
 	 *
 	 * @return array The block attributes as an associative array.
 	 */
-	public function get_block_attributes(): array {
+	public function getBlockAttributes(): array {
 		return $this->block_attributes;
 	}
 
@@ -239,7 +239,7 @@ class BlockMarkup extends Markup {
 	 *                          or replace them entirely (false). Default true.
 	 * @return void
 	 */
-	public function set_block_attributes( array $attributes, bool $merge = true ): void {
+	public function setBlockAttributes( array $attributes, bool $merge = true ): void {
 		if ( $merge ) {
 			$this->block_attributes = array_merge( $this->block_attributes, $attributes );
 		} else {
@@ -262,7 +262,7 @@ class BlockMarkup extends Markup {
 	 *
 	 * @return BlockComments The BlockComments instance used by this block.
 	 */
-	public function get_block_comments(): BlockComments {
+	public function getBlockComments(): BlockComments {
 		return $this->block_comments;
 	}
 
@@ -276,7 +276,7 @@ class BlockMarkup extends Markup {
 	 * @param string $class The CSS class to add.
 	 * @return void
 	 */
-	protected function add_class( string $class ): void {
+	protected function addClass( string $class ): void {
 		if ( ! in_array( $class, $this->wrapper_class, true ) ) {
 			$this->wrapper_class[] = $class;
 		}
@@ -290,7 +290,7 @@ class BlockMarkup extends Markup {
 	 * @param string $class The CSS class to remove.
 	 * @return void
 	 */
-	protected function remove_class( string $class ): void {
+	protected function removeClass( string $class ): void {
 		$this->wrapper_class = array_values(
 			array_filter(
 				$this->wrapper_class,

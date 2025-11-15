@@ -10,20 +10,20 @@
 namespace MaxPertici\GutenbergMarkup\Blocks;
 
 use MaxPertici\GutenbergMarkup\BlockMarkup;
-use MaxPertici\GutenbergMarkup\Traits\AnchorTrait;
-use MaxPertici\GutenbergMarkup\Traits\DropCapTrait;
-use MaxPertici\GutenbergMarkup\Traits\TagNameTrait;
-use MaxPertici\GutenbergMarkup\Traits\FontSizeTrait;
-use MaxPertici\GutenbergMarkup\Traits\FontStyleTrait;
-use MaxPertici\GutenbergMarkup\Traits\LinkColorTrait;
-use MaxPertici\GutenbergMarkup\Traits\TextColorTrait;
-use MaxPertici\GutenbergMarkup\Traits\FontWeightTrait;
-use MaxPertici\GutenbergMarkup\Traits\LineHeightTrait;
-use MaxPertici\GutenbergMarkup\Traits\CustomClassTrait;
-use MaxPertici\GutenbergMarkup\Traits\LetterSpacingTrait;
-use MaxPertici\GutenbergMarkup\Traits\TextTransformTrait;
-use MaxPertici\GutenbergMarkup\Traits\TextDecorationTrait;
-use MaxPertici\GutenbergMarkup\Traits\BackgroundColorTrait;
+use MaxPertici\GutenbergMarkup\Concerns\AnchorTrait;
+use MaxPertici\GutenbergMarkup\Concerns\DropCapTrait;
+use MaxPertici\GutenbergMarkup\Concerns\TagNameTrait;
+use MaxPertici\GutenbergMarkup\Concerns\FontSizeTrait;
+use MaxPertici\GutenbergMarkup\Concerns\FontStyleTrait;
+use MaxPertici\GutenbergMarkup\Concerns\LinkColorTrait;
+use MaxPertici\GutenbergMarkup\Concerns\TextColorTrait;
+use MaxPertici\GutenbergMarkup\Concerns\FontWeightTrait;
+use MaxPertici\GutenbergMarkup\Concerns\LineHeightTrait;
+use MaxPertici\GutenbergMarkup\Concerns\CustomClassTrait;
+use MaxPertici\GutenbergMarkup\Concerns\LetterSpacingTrait;
+use MaxPertici\GutenbergMarkup\Concerns\TextTransformTrait;
+use MaxPertici\GutenbergMarkup\Concerns\TextDecorationTrait;
+use MaxPertici\GutenbergMarkup\Concerns\BackgroundColorTrait;
 
 /**
  * Group Gutenberg Block implementation.
@@ -107,11 +107,11 @@ class GroupRowBlock extends BlockMarkup {
 
 		// Set tag name using the trait (this will update wrapper and block attributes)
 		if ( 'div' !== $tag_name ) {
-			$this->tag_name( $tag_name );
+			$this->tagName( $tag_name );
 		}
 
 		// Process layout with named arguments
-		$this->process_layout( $wrap, $justify_content, $orientation );
+		$this->processLayout( $wrap, $justify_content, $orientation );
 	}
 
 	/**
@@ -130,27 +130,27 @@ class GroupRowBlock extends BlockMarkup {
 	 * @param string $orientation     Layout orientation.
 	 * @return void
 	 */
-	private function process_layout( bool $wrap, string $justify_content, string $orientation ): void {
+	private function processLayout( bool $wrap, string $justify_content, string $orientation ): void {
 		// Base class for group blocks
-		$this->add_class( 'wp-block-group' );
+		$this->addClass( 'wp-block-group' );
 
 		// Always use flex layout
-		$this->add_class( 'is-layout-flex' );
-		$this->add_class( 'wp-block-group-is-layout-flex' );
+		$this->addClass( 'is-layout-flex' );
+		$this->addClass( 'wp-block-group-is-layout-flex' );
 
 		// Process orientation
 		if ( 'vertical' === $orientation ) {
-			$this->add_class( 'is-vertical' );
+			$this->addClass( 'is-vertical' );
 		}
 
 		// Process flex wrap
 		if ( $wrap ) {
-			$this->add_class( 'is-flex-wrap' );
+			$this->addClass( 'is-flex-wrap' );
 		}
 
 		// Process justify content
 		if ( ! empty( $justify_content ) ) {
-			$this->process_justify_content( $justify_content );
+			$this->processJustifyContent( $justify_content );
 		}
 	}
 
@@ -162,26 +162,26 @@ class GroupRowBlock extends BlockMarkup {
 	 * @param string $justify_content Justify content value.
 	 * @return void
 	 */
-	private function process_justify_content( string $justify_content ): void {
+	private function processJustifyContent( string $justify_content ): void {
 		switch ( $justify_content ) {
 			case 'left':
-				$this->add_class( 'is-content-justification-left' );
+				$this->addClass( 'is-content-justification-left' );
 				break;
 
 			case 'center':
-				$this->add_class( 'is-content-justification-center' );
+				$this->addClass( 'is-content-justification-center' );
 				break;
 
 			case 'right':
-				$this->add_class( 'is-content-justification-right' );
+				$this->addClass( 'is-content-justification-right' );
 				break;
 
 			case 'space-between':
-				$this->add_class( 'is-content-justification-space-between' );
+				$this->addClass( 'is-content-justification-space-between' );
 				break;
 
 			case 'stretch':
-				$this->add_class( 'is-content-justification-stretch' );
+				$this->addClass( 'is-content-justification-stretch' );
 				break;
 		}
 	}
