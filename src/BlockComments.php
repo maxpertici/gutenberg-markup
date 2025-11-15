@@ -72,7 +72,7 @@ class BlockComments {
 	 *
 	 * @return string The opening comment.
 	 */
-	public function getOpeningComment(): string {
+	public function openingComment(): string {
 		$comment = '<!-- wp:' . $this->block_name;
 
 		if ( ! empty( $this->attributes ) ) {
@@ -91,7 +91,7 @@ class BlockComments {
 	 *
 	 * @return string The closing comment.
 	 */
-	public function getClosingComment(): string {
+	public function closingComment(): string {
 		return '<!-- /wp:' . $this->block_name . ' -->';
 	}
 
@@ -102,7 +102,7 @@ class BlockComments {
 	 *
 	 * @return string The self-closing comment.
 	 */
-	public function getSelfClosingComment(): string {
+	public function selfClosingComment(): string {
 		$comment = '<!-- wp:' . $this->block_name;
 
 		if ( ! empty( $this->attributes ) ) {
@@ -123,7 +123,7 @@ class BlockComments {
 	 * @return string The wrapped content.
 	 */
 	public function wrapContent( string $content ): string {
-		return $this->getOpeningComment() . $content . $this->getClosingComment();
+		return $this->openingComment() . $content . $this->closingComment();
 	}
 }
 

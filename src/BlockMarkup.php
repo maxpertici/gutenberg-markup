@@ -147,7 +147,7 @@ class BlockMarkup extends Markup {
 
 		// If self-closing block, return only the comment
 		if ( $this->is_self_closing ) {
-			return $this->block_comments->getSelfClosingComment();
+			return $this->block_comments->selfClosingComment();
 		}
 
 		// Get the inner markup from parent class
@@ -179,18 +179,18 @@ class BlockMarkup extends Markup {
 
 		// If self-closing block, echo only the comment
 		if ( $this->is_self_closing ) {
-			echo $this->block_comments->getSelfClosingComment();
+			echo $this->block_comments->selfClosingComment();
 			return;
 		}
 
 		// Echo opening block comment
-		echo $this->block_comments->getOpeningComment();
+		echo $this->block_comments->openingComment();
 
 		// Print inner content using parent's print method
 		parent::print();
 
 		// Echo closing block comment
-		echo $this->block_comments->getClosingComment();
+		echo $this->block_comments->closingComment();
 	}
 
 	/**
@@ -203,7 +203,7 @@ class BlockMarkup extends Markup {
 	 *
 	 * @return string The block name with namespace.
 	 */
-	public function getBlockName(): string {
+	public function blockName(): string {
 		return $this->block_name;
 	}
 
@@ -218,7 +218,7 @@ class BlockMarkup extends Markup {
 	 *
 	 * @return array The block attributes as an associative array.
 	 */
-	public function getBlockAttributes(): array {
+	public function blockAttributes(): array {
 		return $this->block_attributes;
 	}
 
