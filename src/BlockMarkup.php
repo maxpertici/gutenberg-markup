@@ -262,43 +262,9 @@ class BlockMarkup extends Markup {
 	 *
 	 * @return BlockComments The BlockComments instance used by this block.
 	 */
-	public function getBlockComments(): BlockComments {
+	public function blockComments(): BlockComments {
 		return $this->block_comments;
 	}
 
-	/**
-	 * Adds a CSS class to the wrapper element.
-	 *
-	 * If the class already exists, it will not be added again.
-	 *
-	 * @since 1.0.0
-	 *
-	 * @param string $class The CSS class to add.
-	 * @return void
-	 */
-	protected function addClass( string $class ): void {
-		if ( ! in_array( $class, $this->wrapper_class, true ) ) {
-			$this->wrapper_class[] = $class;
-		}
-	}
-
-	/**
-	 * Removes a CSS class from the wrapper element.
-	 *
-	 * @since 1.0.0
-	 *
-	 * @param string $class The CSS class to remove.
-	 * @return void
-	 */
-	protected function removeClass( string $class ): void {
-		$this->wrapper_class = array_values(
-			array_filter(
-				$this->wrapper_class,
-				function ( $existing_class ) use ( $class ) {
-					return $existing_class !== $class;
-				}
-			)
-		);
-	}
 }
 
