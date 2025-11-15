@@ -4,10 +4,10 @@
  *
  * Provides letter spacing functionality for Gutenberg blocks.
  *
- * @package MaxPertici\GutenbergMarkup\Concerns
+ * @package MaxPertici\GutenbergMarkup\Concerns\Typography
  */
 
-namespace MaxPertici\GutenbergMarkup\Concerns;
+namespace MaxPertici\GutenbergMarkup\Concerns\Typography;
 
 /**
  * Letter Spacing Trait.

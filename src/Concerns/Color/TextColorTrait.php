@@ -5,10 +5,10 @@
  * This trait provides functionality to apply text color styling to Gutenberg blocks.
  * It handles both inline styles and block attributes for proper color management.
  *
- * @package MaxPertici\GutenbergMarkup\Concerns
+ * @package MaxPertici\GutenbergMarkup\Concerns\Color
  */
 
-namespace MaxPertici\GutenbergMarkup\Concerns;
+namespace MaxPertici\GutenbergMarkup\Concerns\Color;
 
 /**
  * Text Color Trait.

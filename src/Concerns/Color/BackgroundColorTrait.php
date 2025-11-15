@@ -4,10 +4,10 @@
  *
  * Provides background color functionality for Gutenberg blocks.
  *
- * @package MaxPertici\GutenbergMarkup\Concerns
+ * @package MaxPertici\GutenbergMarkup\Concerns\Color
  */
 
-namespace MaxPertici\GutenbergMarkup\Concerns;
+namespace MaxPertici\GutenbergMarkup\Concerns\Color;
 
 /**
  * Background Color Trait.

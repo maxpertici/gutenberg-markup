@@ -4,10 +4,10 @@
  *
  * Provides width and flex functionality for Gutenberg blocks using native selfStretch and flexSize.
  *
- * @package MaxPertici\GutenbergMarkup\Concerns
+ * @package MaxPertici\GutenbergMarkup\Concerns\Flex
  */
 
-namespace MaxPertici\GutenbergMarkup\Concerns;
+namespace MaxPertici\GutenbergMarkup\Concerns\Flex;
 
 /**
  * Flex Width Trait.

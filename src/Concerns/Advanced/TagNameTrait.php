@@ -4,10 +4,10 @@
  *
  * Provides HTML tag name functionality for Gutenberg blocks.
  *
- * @package MaxPertici\GutenbergMarkup\Concerns
+ * @package MaxPertici\GutenbergMarkup\Concerns\Advanced
  */
 
-namespace MaxPertici\GutenbergMarkup\Concerns;
+namespace MaxPertici\GutenbergMarkup\Concerns\Advanced;
 
 /**
  * TagName Trait.

@@ -10,20 +10,20 @@
 namespace MaxPertici\GutenbergMarkup\Blocks;
 
 use MaxPertici\GutenbergMarkup\BlockMarkup;
-use MaxPertici\GutenbergMarkup\Concerns\AnchorTrait;
-use MaxPertici\GutenbergMarkup\Concerns\DropCapTrait;
-use MaxPertici\GutenbergMarkup\Concerns\TagNameTrait;
-use MaxPertici\GutenbergMarkup\Concerns\FontSizeTrait;
-use MaxPertici\GutenbergMarkup\Concerns\FontStyleTrait;
-use MaxPertici\GutenbergMarkup\Concerns\LinkColorTrait;
-use MaxPertici\GutenbergMarkup\Concerns\TextColorTrait;
-use MaxPertici\GutenbergMarkup\Concerns\FontWeightTrait;
-use MaxPertici\GutenbergMarkup\Concerns\LineHeightTrait;
-use MaxPertici\GutenbergMarkup\Concerns\CustomClassTrait;
-use MaxPertici\GutenbergMarkup\Concerns\LetterSpacingTrait;
-use MaxPertici\GutenbergMarkup\Concerns\TextTransformTrait;
-use MaxPertici\GutenbergMarkup\Concerns\TextDecorationTrait;
-use MaxPertici\GutenbergMarkup\Concerns\BackgroundColorTrait;
+use MaxPertici\GutenbergMarkup\Concerns\Advanced\AnchorTrait;
+use MaxPertici\GutenbergMarkup\Concerns\Advanced\CustomClassTrait;
+use MaxPertici\GutenbergMarkup\Concerns\Advanced\TagNameTrait;
+use MaxPertici\GutenbergMarkup\Concerns\Color\BackgroundColorTrait;
+use MaxPertici\GutenbergMarkup\Concerns\Color\LinkColorTrait;
+use MaxPertici\GutenbergMarkup\Concerns\Color\TextColorTrait;
+use MaxPertici\GutenbergMarkup\Concerns\Typography\DropCapTrait;
+use MaxPertici\GutenbergMarkup\Concerns\Typography\FontSizeTrait;
+use MaxPertici\GutenbergMarkup\Concerns\Typography\FontStyleTrait;
+use MaxPertici\GutenbergMarkup\Concerns\Typography\FontWeightTrait;
+use MaxPertici\GutenbergMarkup\Concerns\Typography\LetterSpacingTrait;
+use MaxPertici\GutenbergMarkup\Concerns\Typography\LineHeightTrait;
+use MaxPertici\GutenbergMarkup\Concerns\Typography\TextDecorationTrait;
+use MaxPertici\GutenbergMarkup\Concerns\Typography\TextTransformTrait;
 
 /**
  * Group Gutenberg Block implementation.
