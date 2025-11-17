@@ -29,7 +29,7 @@ trait LinkColorTrait {
 	 */
 	public function linkColor( string $color ): self {
 		// Set the link color in block attributes
-		$this->block_attributes['style']['elements']['link']['color']['text'] = "var:preset|color|{$color}";
+		$this->blockAttributes['style']['elements']['link']['color']['text'] = "var:preset|color|{$color}";
 
 		// Add the has-link-color class
 		$this->addClass( 'has-link-color' );
@@ -47,7 +47,7 @@ trait LinkColorTrait {
 	 */
 	public function customLinkColor( string $color ): self {
 		// Set the link color in block attributes
-		$this->block_attributes['style']['elements']['link']['color']['text'] = $color;
+		$this->blockAttributes['style']['elements']['link']['color']['text'] = $color;
 
 		// Add the has-link-color class
 		$this->addClass( 'has-link-color' );

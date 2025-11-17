@@ -31,7 +31,7 @@ trait BackgroundColorTrait {
 	 */
 	public function backgroundColor( string $color ): self {
 		// Set the backgroundColor attribute for preset colors
-		$this->block_attributes['backgroundColor'] = $color;
+		$this->blockAttributes['backgroundColor'] = $color;
 
 		// Add the background color class
 		$this->addClass( "has-{$color}-background-color" );
@@ -54,7 +54,7 @@ trait BackgroundColorTrait {
 	 */
 	public function customBackgroundColor( string $color ): self {
 		// Get the current inline style attribute if it exists
-		$current_style = $this->wrapper_attributes['style'] ?? '';
+		$current_style = $this->wrapperAttributes['style'] ?? '';
 		
 		// If there's already a style, add a semicolon separator
 		if ( ! empty( $current_style ) ) {
@@ -62,11 +62,11 @@ trait BackgroundColorTrait {
 		}
 		
 		// Append the background-color CSS property to the wrapper's inline style
-		$this->wrapper_attributes['style'] = $current_style . 'background-color:' . $color;
+		$this->wrapperAttributes['style'] = $current_style . 'background-color:' . $color;
 		
 		// Store the background color in the block attributes for Gutenberg compatibility
 		// This follows the WordPress block style structure for color management
-		$this->block_attributes['style']['color']['background'] = $color;
+		$this->blockAttributes['style']['color']['background'] = $color;
 
 		// Add the has-background class
 		$this->addClass( 'has-background' );

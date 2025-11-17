@@ -24,15 +24,15 @@ trait CustomClassTrait {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @param string $class_name One or more CSS classes separated by spaces.
+	 * @param string $className One or more CSS classes separated by spaces.
 	 * @return self Returns the instance for method chaining.
 	 */
-	public function customClass( string $class_name ): self {
+	public function customClass( string $className ): self {
 		// Set the className attribute
-		$this->block_attributes['className'] = $class_name;
+		$this->blockAttributes['className'] = $className;
 
 		// Add the classes to the wrapper
-		$classes = explode( ' ', $class_name );
+		$classes = explode( ' ', $className );
 		foreach ( $classes as $class ) {
 			$class = trim( $class );
 			if ( ! empty( $class ) ) {

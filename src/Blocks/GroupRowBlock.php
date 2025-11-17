@@ -65,53 +65,53 @@ class GroupRowBlock extends BlockMarkup {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @param array  $children         Array of child blocks (Markup objects or strings).
-	 * @param bool   $wrap             Optional. Enable flex wrap. Default false.
-	 * @param string $justify_content  Optional. Justify content alignment (left, center, right, space-between, stretch). Default empty.
-	 * @param string $orientation      Optional. Layout orientation (horizontal or vertical). Default 'horizontal'.
-	 * @param string $tag_name         Optional. HTML tag name for the wrapper (div, header, main, section, article, aside, footer). Default 'div'.
+	 * @param array  $children        Array of child blocks (Markup objects or strings).
+	 * @param bool   $wrap            Optional. Enable flex wrap. Default false.
+	 * @param string $justifyContent  Optional. Justify content alignment (left, center, right, space-between, stretch). Default empty.
+	 * @param string $orientation     Optional. Layout orientation (horizontal or vertical). Default 'horizontal'.
+	 * @param string $tagName         Optional. HTML tag name for the wrapper (div, header, main, section, article, aside, footer). Default 'div'.
 	 */
 	public function __construct(
 		array $children = [],
 		bool $wrap = false,
-		string $justify_content = '',
+		string $justifyContent = '',
 		string $orientation = 'horizontal',
-		string $tag_name = 'div'
+		string $tagName = 'div'
 	) {
 		// Build layout attributes
-		$layout_attributes = array(
+		$layoutAttributes = array(
 			'type' => 'flex',
 		);
 
 		// Add flexWrap if enabled
 		if ( $wrap ) {
-			$layout_attributes['flexWrap'] = 'wrap';
+			$layoutAttributes['flexWrap'] = 'wrap';
 		}
 
 		// Add justifyContent if specified
-		if ( ! empty( $justify_content ) ) {
-			$layout_attributes['justifyContent'] = $justify_content;
+		if ( ! empty( $justifyContent ) ) {
+			$layoutAttributes['justifyContent'] = $justifyContent;
 		}
 
 		// Add orientation if vertical (horizontal is default)
 		if ( 'vertical' === $orientation ) {
-			$layout_attributes['orientation'] = 'vertical';
+			$layoutAttributes['orientation'] = 'vertical';
 		}
 
 		parent::__construct(
-			block_name: 'core/group',
-			block_attributes: array( 'layout' => $layout_attributes ),
+			blockName: 'core/group',
+			blockAttributes: array( 'layout' => $layoutAttributes ),
 			wrapper: '<div class="%classes%" %attributes%>%children%</div>',
 			children: $children
 		);
 
 		// Set tag name using the trait (this will update wrapper and block attributes)
-		if ( 'div' !== $tag_name ) {
-			$this->tagName( $tag_name );
+		if ( 'div' !== $tagName ) {
+			$this->tagName( $tagName );
 		}
 
 		// Process layout with named arguments
-		$this->processLayout( $wrap, $justify_content, $orientation );
+		$this->processLayout( $wrap, $justifyContent, $orientation );
 	}
 
 	/**
@@ -125,12 +125,12 @@ class GroupRowBlock extends BlockMarkup {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @param bool   $wrap            Enable flex wrap.
-	 * @param string $justify_content Justify content alignment.
-	 * @param string $orientation     Layout orientation.
+	 * @param bool   $wrap           Enable flex wrap.
+	 * @param string $justifyContent Justify content alignment.
+	 * @param string $orientation    Layout orientation.
 	 * @return void
 	 */
-	private function processLayout( bool $wrap, string $justify_content, string $orientation ): void {
+	private function processLayout( bool $wrap, string $justifyContent, string $orientation ): void {
 		// Base class for group blocks
 		$this->addClass( 'wp-block-group' );
 
@@ -149,8 +149,8 @@ class GroupRowBlock extends BlockMarkup {
 		}
 
 		// Process justify content
-		if ( ! empty( $justify_content ) ) {
-			$this->processJustifyContent( $justify_content );
+		if ( ! empty( $justifyContent ) ) {
+			$this->processJustifyContent( $justifyContent );
 		}
 	}
 
@@ -159,11 +159,11 @@ class GroupRowBlock extends BlockMarkup {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @param string $justify_content Justify content value.
+	 * @param string $justifyContent Justify content value.
 	 * @return void
 	 */
-	private function processJustifyContent( string $justify_content ): void {
-		switch ( $justify_content ) {
+	private function processJustifyContent( string $justifyContent ): void {
+		switch ( $justifyContent ) {
 			case 'left':
 				$this->addClass( 'is-content-justification-left' );
 				break;

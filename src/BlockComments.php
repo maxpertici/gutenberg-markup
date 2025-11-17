@@ -25,7 +25,7 @@ class BlockComments {
 	 * @since 1.0.0
 	 * @var string
 	 */
-	private string $block_name;
+	private string $blockName;
 
 	/**
 	 * The block attributes as an associative array.
@@ -40,11 +40,11 @@ class BlockComments {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @param string $block_name The block name (e.g., 'core/paragraph').
+	 * @param string $blockName  The block name (e.g., 'core/paragraph').
 	 * @param array  $attributes Optional. Block attributes. Default empty array.
 	 */
-	public function __construct( string $block_name, array $attributes = [] ) {
-		$this->block_name = $this->normalizeBlockName( $block_name );
+	public function __construct( string $blockName, array $attributes = [] ) {
+		$this->blockName  = $this->normalizeBlockName( $blockName );
 		$this->attributes = $attributes;
 	}
 
@@ -53,16 +53,16 @@ class BlockComments {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @param string $block_name The block name.
+	 * @param string $blockName The block name.
 	 * @return string The normalized block name.
 	 */
-	private function normalizeBlockName( string $block_name ): string {
+	private function normalizeBlockName( string $blockName ): string {
 		// Remove 'core/' prefix for core blocks
-		if ( strpos( $block_name, 'core/' ) === 0 ) {
-			return substr( $block_name, 5 );
+		if ( strpos( $blockName, 'core/' ) === 0 ) {
+			return substr( $blockName, 5 );
 		}
 
-		return $block_name;
+		return $blockName;
 	}
 
 	/**
@@ -73,7 +73,7 @@ class BlockComments {
 	 * @return string The opening comment.
 	 */
 	public function openingComment(): string {
-		$comment = '<!-- wp:' . $this->block_name;
+		$comment = '<!-- wp:' . $this->blockName;
 
 		if ( ! empty( $this->attributes ) ) {
 			$comment .= ' ' . json_encode( $this->attributes, JSON_UNESCAPED_SLASHES );
@@ -92,7 +92,7 @@ class BlockComments {
 	 * @return string The closing comment.
 	 */
 	public function closingComment(): string {
-		return '<!-- /wp:' . $this->block_name . ' -->';
+		return '<!-- /wp:' . $this->blockName . ' -->';
 	}
 
 	/**
@@ -103,7 +103,7 @@ class BlockComments {
 	 * @return string The self-closing comment.
 	 */
 	public function selfClosingComment(): string {
-		$comment = '<!-- wp:' . $this->block_name;
+		$comment = '<!-- wp:' . $this->blockName;
 
 		if ( ! empty( $this->attributes ) ) {
 			$comment .= ' ' . json_encode( $this->attributes, JSON_UNESCAPED_SLASHES );

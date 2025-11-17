@@ -28,7 +28,7 @@ trait LineHeightTrait {
 	 */
 	public function lineHeight( string $height ): self {
 		// Get current inline style or initialize as empty string
-		$current_style = $this->wrapper_attributes['style'] ?? '';
+		$current_style = $this->wrapperAttributes['style'] ?? '';
 		
 		// Add semicolon separator if there are existing styles
 		if ( ! empty( $current_style ) ) {
@@ -36,10 +36,10 @@ trait LineHeightTrait {
 		}
 		
 		// Append the CSS property to wrapper attributes
-		$this->wrapper_attributes['style'] = $current_style . "line-height:{$height}";
+		$this->wrapperAttributes['style'] = $current_style . "line-height:{$height}";
 		
 		// Also add to block attributes for Gutenberg's typography system
-		$this->block_attributes['style']['typography']['lineHeight'] = $height;
+		$this->blockAttributes['style']['typography']['lineHeight'] = $height;
 
 		return $this;
 	}

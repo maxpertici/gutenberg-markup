@@ -25,7 +25,7 @@ trait TagNameTrait {
 	 * @since 1.0.0
 	 * @var string
 	 */
-	protected string $tag_name = 'div';
+	protected string $tagName = 'div';
 
 	/**
 	 * List of allowed HTML tag names.
@@ -33,7 +33,7 @@ trait TagNameTrait {
 	 * @since 1.0.0
 	 * @var array
 	 */
-	protected array $allowed_tag_names = array(
+	protected array $allowedTagNames = array(
 		'div',
 		'header',
 		'main',
@@ -48,25 +48,25 @@ trait TagNameTrait {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @param string $tag_name The HTML tag name (div, header, main, section, article, aside, footer).
+	 * @param string $tagName The HTML tag name (div, header, main, section, article, aside, footer).
 	 * @return self Returns the instance for method chaining.
 	 */
-	public function tagName( string $tag_name ): self {
+	public function tagName( string $tagName ): self {
 		// Validate and sanitize tag name
-		$tag_name = strtolower( trim( $tag_name ) );
+		$tagName = strtolower( trim( $tagName ) );
 
-		if ( ! in_array( $tag_name, $this->allowed_tag_names, true ) ) {
-			$tag_name = 'div'; // Fallback to default
+		if ( ! in_array( $tagName, $this->allowedTagNames, true ) ) {
+			$tagName = 'div'; // Fallback to default
 		}
 
-		$this->tag_name = $tag_name;
+		$this->tagName = $tagName;
 
 		// Add tagName to block attributes if not default 'div'
-		if ( 'div' !== $tag_name ) {
-			$this->block_attributes['tagName'] = $tag_name;
+		if ( 'div' !== $tagName ) {
+			$this->blockAttributes['tagName'] = $tagName;
 		} else {
 			// Remove tagName from attributes if set back to default
-			unset( $this->block_attributes['tagName'] );
+			unset( $this->blockAttributes['tagName'] );
 		}
 
 		// Update the wrapper with the new tag name
@@ -83,7 +83,7 @@ trait TagNameTrait {
 	 * @return string The current tag name.
 	 */
 	public function getTagName(): string {
-		return $this->tag_name;
+		return $this->tagName;
 	}
 
 	/**
@@ -95,7 +95,7 @@ trait TagNameTrait {
 	 */
 	protected function updateWrapperTag(): void {
 		// Update wrapper with current tag name
-		$this->wrapper = '<' . $this->tag_name . ' class="%classes%" %attributes%>%children%</' . $this->tag_name . '>';
+		$this->wrapper = '<' . $this->tagName . ' class="%classes%" %attributes%>%children%</' . $this->tagName . '>';
 	}
 
 	/**
@@ -106,7 +106,7 @@ trait TagNameTrait {
 	 * @return string The wrapper template.
 	 */
 	protected function getWrapperWithTag(): string {
-		return '<' . $this->tag_name . ' class="%classes%" %attributes%>%children%</' . $this->tag_name . '>';
+		return '<' . $this->tagName . ' class="%classes%" %attributes%>%children%</' . $this->tagName . '>';
 	}
 }
 

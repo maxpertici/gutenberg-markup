@@ -28,8 +28,8 @@ trait FlexWidthTrait {
 	 * @return self Returns the instance for method chaining.
 	 */
 	public function fit(): self {
-		$this->block_attributes['style']['layout']['selfStretch'] = 'fit';
-		$this->block_attributes['style']['layout']['flexSize']    = null;
+		$this->blockAttributes['style']['layout']['selfStretch'] = 'fit';
+		$this->blockAttributes['style']['layout']['flexSize']    = null;
 
 		return $this;
 	}
@@ -42,8 +42,8 @@ trait FlexWidthTrait {
 	 * @return self Returns the instance for method chaining.
 	 */
 	public function grow(): self {
-		$this->block_attributes['style']['layout']['selfStretch'] = 'fill';
-		$this->block_attributes['style']['layout']['flexSize']    = null;
+		$this->blockAttributes['style']['layout']['selfStretch'] = 'fill';
+		$this->blockAttributes['style']['layout']['flexSize']    = null;
 
 		return $this;
 	}
@@ -57,8 +57,8 @@ trait FlexWidthTrait {
 	 * @return self Returns the instance for method chaining.
 	 */
 	public function fixed( string $size ): self {
-		$this->block_attributes['style']['layout']['selfStretch'] = 'fixed';
-		$this->block_attributes['style']['layout']['flexSize']    = $size;
+		$this->blockAttributes['style']['layout']['selfStretch'] = 'fixed';
+		$this->blockAttributes['style']['layout']['flexSize']    = $size;
 
 		return $this;
 	}

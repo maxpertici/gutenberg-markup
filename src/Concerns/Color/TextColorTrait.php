@@ -34,7 +34,7 @@ trait TextColorTrait {
 	 */
 	public function textColor( string $color ): self {
 		// Set the textColor attribute for preset colors
-		$this->block_attributes['textColor'] = $color;
+		$this->blockAttributes['textColor'] = $color;
 
 		// Add the color class
 		$this->addClass( "has-{$color}-color" );
@@ -64,7 +64,7 @@ trait TextColorTrait {
 	 */
 	public function customTextColor( string $color ): self {
 		// Get current inline style or initialize as empty string
-		$current_style = $this->wrapper_attributes['style'] ?? '';
+		$current_style = $this->wrapperAttributes['style'] ?? '';
 		
 		// Add semicolon separator if there are existing styles
 		if ( ! empty( $current_style ) ) {
@@ -72,11 +72,11 @@ trait TextColorTrait {
 		}
 		
 		// Append the color style to wrapper attributes
-		$this->wrapper_attributes['style'] = $current_style . 'color:' . $color;
+		$this->wrapperAttributes['style'] = $current_style . 'color:' . $color;
 		
 		// Also add to block attributes for Gutenberg's color system
 		// This ensures compatibility with the block editor's color palette
-		$this->block_attributes['style']['color']['text'] = $color;
+		$this->blockAttributes['style']['color']['text'] = $color;
 
 		// Add the has-text-color class
 		$this->addClass( 'has-text-color' );

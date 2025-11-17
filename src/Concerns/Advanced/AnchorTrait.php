@@ -29,10 +29,10 @@ trait AnchorTrait {
 	 */
 	public function anchor( string $anchor ): self {
 		// Set the anchor attribute
-		$this->block_attributes['anchor'] = $anchor;
+		$this->blockAttributes['anchor'] = $anchor;
 
 		// Add the ID to the wrapper attributes
-		$this->wrapper_attributes['id'] = $anchor;
+		$this->wrapperAttributes['id'] = $anchor;
 
 		return $this;
 	}

@@ -30,7 +30,7 @@ trait FontWeightTrait {
 		$weight = (string) $weight;
 
 		// Get current inline style or initialize as empty string
-		$current_style = $this->wrapper_attributes['style'] ?? '';
+		$current_style = $this->wrapperAttributes['style'] ?? '';
 		
 		// Add semicolon separator if there are existing styles
 		if ( ! empty( $current_style ) ) {
@@ -38,10 +38,10 @@ trait FontWeightTrait {
 		}
 		
 		// Append the CSS property to wrapper attributes
-		$this->wrapper_attributes['style'] = $current_style . "font-weight:{$weight}";
+		$this->wrapperAttributes['style'] = $current_style . "font-weight:{$weight}";
 		
 		// Also add to block attributes for Gutenberg's typography system
-		$this->block_attributes['style']['typography']['fontWeight'] = $weight;
+		$this->blockAttributes['style']['typography']['fontWeight'] = $weight;
 
 		return $this;
 	}

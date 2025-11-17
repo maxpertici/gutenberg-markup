@@ -30,7 +30,7 @@ trait DropCapTrait {
 	 */
 	public function dropCap( bool $enable = true ): self {
 		// Set the dropCap attribute
-		$this->block_attributes['dropCap'] = $enable;
+		$this->blockAttributes['dropCap'] = $enable;
 
 		// Add or remove the has-drop-cap class
 		if ( $enable ) {

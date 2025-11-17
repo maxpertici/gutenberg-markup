@@ -28,7 +28,7 @@ trait TextDecorationTrait {
 	 */
 	public function textDecoration( string $decoration ): self {
 		// Get current inline style or initialize as empty string
-		$current_style = $this->wrapper_attributes['style'] ?? '';
+		$current_style = $this->wrapperAttributes['style'] ?? '';
 		
 		// Add semicolon separator if there are existing styles
 		if ( ! empty( $current_style ) ) {
@@ -36,10 +36,10 @@ trait TextDecorationTrait {
 		}
 		
 		// Append the CSS property to wrapper attributes
-		$this->wrapper_attributes['style'] = $current_style . "text-decoration:{$decoration}";
+		$this->wrapperAttributes['style'] = $current_style . "text-decoration:{$decoration}";
 		
 		// Also add to block attributes for Gutenberg's typography system
-		$this->block_attributes['style']['typography']['textDecoration'] = $decoration;
+		$this->blockAttributes['style']['typography']['textDecoration'] = $decoration;
 
 		return $this;
 	}

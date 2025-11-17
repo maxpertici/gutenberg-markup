@@ -42,7 +42,7 @@ class BlockMarkup extends Markup {
 	 * @since 1.0.0
 	 * @var string
 	 */
-	protected string $block_name;
+	protected string $blockName;
 
 	/**
 	 * The block attributes.
@@ -54,7 +54,7 @@ class BlockMarkup extends Markup {
 	 * @since 1.0.0
 	 * @var array
 	 */
-	protected array $block_attributes;
+	protected array $blockAttributes;
 
 	/**
 	 * Whether this is a self-closing block (no inner content).
@@ -66,7 +66,7 @@ class BlockMarkup extends Markup {
 	 * @since 1.0.0
 	 * @var bool
 	 */
-	protected bool $is_self_closing;
+	protected bool $isSelfClosing;
 
 	/**
 	 * The BlockComments instance.
@@ -77,7 +77,7 @@ class BlockMarkup extends Markup {
 	 * @since 1.0.0
 	 * @var BlockComments
 	 */
-	private BlockComments $block_comments;
+	private BlockComments $blockComments;
 
 	/**
 	 * Constructor.
@@ -88,44 +88,41 @@ class BlockMarkup extends Markup {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @param string $block_name         The Gutenberg block name (e.g., 'core/paragraph', 'acf/hero-block').
-	 * @param array  $block_attributes   Optional. Block attributes as key-value pairs. Default empty array.
-	 * @param bool   $is_self_closing    Optional. Whether block is self-closing (no inner content). Default false.
-	 * @param string $wrapper            Optional. HTML wrapper template with {children} placeholder. Default empty string.
-	 * @param array  $wrapper_class      Optional. CSS classes to apply to the wrapper element. Default empty array.
-	 * @param array  $wrapper_attributes Optional. HTML attributes for the wrapper element. Default empty array.
-	 * @param string $children_wrapper   Optional. HTML wrapper template for children elements. Default empty string.
-	 * @param array  $children           Optional. Array of child Markup objects or strings. Default empty array.
-	 * @param string $path               Optional. Path identifier for tree walking and debugging. Default empty string.
+	 * @param string $blockName         The Gutenberg block name (e.g., 'core/paragraph', 'acf/hero-block').
+	 * @param array  $blockAttributes   Optional. Block attributes as key-value pairs. Default empty array.
+	 * @param bool   $isSelfClosing     Optional. Whether block is self-closing (no inner content). Default false.
+	 * @param string $wrapper           Optional. HTML wrapper template with {children} placeholder. Default empty string.
+	 * @param array  $wrapperClass      Optional. CSS classes to apply to the wrapper element. Default empty array.
+	 * @param array  $wrapperAttributes Optional. HTML attributes for the wrapper element. Default empty array.
+	 * @param string $childrenWrapper   Optional. HTML wrapper template for children elements. Default empty string.
+	 * @param array  $children          Optional. Array of child Markup objects or strings. Default empty array.
 	 */
 	public function __construct(
-		string $block_name,
-		array $block_attributes = [],
-		bool $is_self_closing = false,
+		string $blockName,
+		array $blockAttributes = [],
+		bool $isSelfClosing = false,
 		string $wrapper = '',
-		array $wrapper_class = [],
-		array $wrapper_attributes = [],
-		string $children_wrapper = '',
-		array $children = [],
-		string $path = ''
+		array $wrapperClass = [],
+		array $wrapperAttributes = [],
+		string $childrenWrapper = '',
+		array $children = []
 	) {
 		// Initialize parent Markup
 		parent::__construct(
 			$wrapper,
-			$wrapper_class,
-			$wrapper_attributes,
-			$children_wrapper,
-			$children,
-			$path
+			$wrapperClass,
+			$wrapperAttributes,
+			$childrenWrapper,
+			$children
 		);
 
 		// Initialize block-specific properties
-		$this->block_name       = $block_name;
-		$this->block_attributes = $block_attributes;
-		$this->is_self_closing  = $is_self_closing;
+		$this->blockName       = $blockName;
+		$this->blockAttributes = $blockAttributes;
+		$this->isSelfClosing   = $isSelfClosing;
 
 		// Create BlockComments instance
-		$this->block_comments = new BlockComments( $block_name, $block_attributes );
+		$this->blockComments = new BlockComments( $blockName, $blockAttributes );
 	}
 
 	/**
@@ -143,18 +140,18 @@ class BlockMarkup extends Markup {
 	 */
 	public function render(): string {
 		// Update the BlockComments instance with current attributes
-		$this->block_comments = new BlockComments( $this->block_name, $this->block_attributes );
+		$this->blockComments = new BlockComments( $this->blockName, $this->blockAttributes );
 
 		// If self-closing block, return only the comment
-		if ( $this->is_self_closing ) {
-			return $this->block_comments->selfClosingComment();
+		if ( $this->isSelfClosing ) {
+			return $this->blockComments->selfClosingComment();
 		}
 
 		// Get the inner markup from parent class
-		$inner_markup = parent::render();
+		$innerMarkup = parent::render();
 
 		// Wrap with block comments
-		return $this->block_comments->wrapContent( $inner_markup );
+		return $this->blockComments->wrapContent( $innerMarkup );
 	}
 
 	/**
@@ -175,22 +172,22 @@ class BlockMarkup extends Markup {
 	 */
 	public function print(): void {
 		// Update the BlockComments instance with current attributes
-		$this->block_comments = new BlockComments( $this->block_name, $this->block_attributes );
+		$this->blockComments = new BlockComments( $this->blockName, $this->blockAttributes );
 
 		// If self-closing block, echo only the comment
-		if ( $this->is_self_closing ) {
-			echo $this->block_comments->selfClosingComment();
+		if ( $this->isSelfClosing ) {
+			echo $this->blockComments->selfClosingComment();
 			return;
 		}
 
 		// Echo opening block comment
-		echo $this->block_comments->openingComment();
+		echo $this->blockComments->openingComment();
 
 		// Print inner content using parent's print method
 		parent::print();
 
 		// Echo closing block comment
-		echo $this->block_comments->closingComment();
+		echo $this->blockComments->closingComment();
 	}
 
 	/**
@@ -204,7 +201,7 @@ class BlockMarkup extends Markup {
 	 * @return string The block name with namespace.
 	 */
 	public function blockName(): string {
-		return $this->block_name;
+		return $this->blockName;
 	}
 
 	/**
@@ -219,7 +216,7 @@ class BlockMarkup extends Markup {
 	 * @return array The block attributes as an associative array.
 	 */
 	public function blockAttributes(): array {
-		return $this->block_attributes;
+		return $this->blockAttributes;
 	}
 
 	/**
@@ -241,13 +238,13 @@ class BlockMarkup extends Markup {
 	 */
 	public function setBlockAttributes( array $attributes, bool $merge = true ): void {
 		if ( $merge ) {
-			$this->block_attributes = array_merge( $this->block_attributes, $attributes );
+			$this->blockAttributes = array_merge( $this->blockAttributes, $attributes );
 		} else {
-			$this->block_attributes = $attributes;
+			$this->blockAttributes = $attributes;
 		}
 
 		// Update the BlockComments instance
-		$this->block_comments = new BlockComments( $this->block_name, $this->block_attributes );
+		$this->blockComments = new BlockComments( $this->blockName, $this->blockAttributes );
 	}
 
 	/**
@@ -263,7 +260,7 @@ class BlockMarkup extends Markup {
 	 * @return BlockComments The BlockComments instance used by this block.
 	 */
 	public function blockComments(): BlockComments {
-		return $this->block_comments;
+		return $this->blockComments;
 	}
 
 }
