@@ -263,5 +263,72 @@ class BlockMarkup extends Markup {
 		return $this->blockComments;
 	}
 
+	/**
+	 * Gets the block markup and processes it through WordPress do_blocks().
+	 *
+	 * This method first renders the block markup (with Gutenberg comments) using render(),
+	 * then processes it through WordPress's do_blocks() function to transform the block
+	 * markup into final rendered HTML output.
+	 *
+	 * This is similar to print() but returns the fully processed HTML instead of echoing it.
+	 * It combines the block generation with WordPress block rendering in one step.
+	 *
+	 * Example usage:
+	 * ```php
+	 * $block = new BlockMarkup(
+	 *     'core/paragraph',
+	 *     ['align' => 'center'],
+	 *     false,
+	 *     '<p>{children}</p>'
+	 * );
+	 * $html = $block->renderBlocks();
+	 * ```
+	 *
+	 * @since 1.0.0
+	 *
+	 * @return string The fully rendered HTML output after do_blocks() processing.
+	 */
+	public function renderBlocks(): string {
+		// Get the block markup with Gutenberg comments
+		$markup = $this->render();
+
+		// Process through WordPress do_blocks if available
+		if ( \function_exists( 'do_blocks' ) ) {
+			// @phpstan-ignore-next-line
+			return \do_blocks( $markup );
+		}
+
+		// Fallback if do_blocks is not available
+		return $markup;
+	}
+
+	/**
+	 * Prints the fully rendered block HTML (echo mode).
+	 *
+	 * Outputs the block markup after processing through WordPress's do_blocks() function.
+	 * This method echoes the result of renderBlocks() directly to the output buffer.
+	 *
+	 * This is the echo equivalent of renderBlocks(), similar to how print() is
+	 * the echo equivalent of render().
+	 *
+	 * Example usage:
+	 * ```php
+	 * $block = new BlockMarkup(
+	 *     'core/paragraph',
+	 *     ['align' => 'center'],
+	 *     false,
+	 *     '<p>{children}</p>'
+	 * );
+	 * $block->printBlocks();
+	 * ```
+	 *
+	 * @since 1.0.0
+	 *
+	 * @return void
+	 */
+	public function printBlocks(): void {
+		echo $this->renderBlocks();
+	}
+
 }
 
