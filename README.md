@@ -26,3 +26,7 @@ echo $block->render();
 ```
 
 > Remarque : l’API exacte peut évoluer. Consultez les classes dans `src/Blocks` pour les options disponibles.
+
+## Dépendance
+
+Cette bibliothèque s’appuie sur le package Markup : https://github.com/maxpertici/markup
