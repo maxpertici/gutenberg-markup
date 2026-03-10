@@ -12,6 +12,7 @@ namespace MaxPertici\GutenbergMarkup\Blocks;
 use MaxPertici\GutenbergMarkup\BlockMarkup;
 use MaxPertici\GutenbergMarkup\Concerns\Advanced\CustomClassTrait;
 use MaxPertici\GutenbergMarkup\Concerns\Block\BlockStyleTrait;
+use MaxPertici\GutenbergMarkup\Concerns\Block\HtmlElementTrait;
 use MaxPertici\GutenbergMarkup\Concerns\Color\BackgroundColorTrait;
 use MaxPertici\GutenbergMarkup\Concerns\Layout\AlignTrait;
 
@@ -32,6 +33,7 @@ class SeparatorBlock extends BlockMarkup {
 	use BackgroundColorTrait;
 	use CustomClassTrait;
 	use BlockStyleTrait;
+	use HtmlElementTrait;
 
 	/**
 	 * Whether to include the alpha channel opacity class.
@@ -55,7 +57,7 @@ class SeparatorBlock extends BlockMarkup {
 		parent::__construct(
 			blockName: 'core/separator',
 			blockAttributes: $attributes,
-			wrapper: '<hr class="wp-block-separator %classes%" %attributes%/>',
+			wrapper: '<hr class="%classes%" %attributes%/>',
 			children: []
 		);
 	}
@@ -91,13 +93,15 @@ class SeparatorBlock extends BlockMarkup {
 	 * @return void
 	 */
 	protected function buildWrapper(): void {
+		$this->wrapperClass[] = 'wp-block-separator';
+
 		// Add alpha channel opacity class if enabled
 		if ( $this->hasAlphaChannelOpacity ) {
 			$this->wrapperClass[] = 'has-alpha-channel-opacity';
 		}
 
 		// Rebuild wrapper with classes
-		$this->wrapper = '<hr class="wp-block-separator %classes%" %attributes%/>';
+		$this->wrapper = '<hr class="%classes%" %attributes%/>';
 	}
 
 	/**

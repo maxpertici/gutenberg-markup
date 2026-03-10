@@ -134,10 +134,12 @@ class HeadingBlock extends BlockMarkup {
 			// Remove level attribute if it's the default (2)
 			unset( $this->blockAttributes['level'] );
 		}
+		
+		$this->wrapperClass[] = "wp-block-heading";
 
 		// Build wrapper with current level
 		$this->wrapper = sprintf(
-			'<h%d class="wp-block-heading %%classes%%" %%attributes%%>%%children%%</h%d>',
+			'<h%d class="%%classes%%" %%attributes%%>%%children%%</h%d>',
 			$this->level,
 			$this->level
 		);
