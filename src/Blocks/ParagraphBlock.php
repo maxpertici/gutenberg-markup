@@ -12,6 +12,7 @@ namespace MaxPertici\GutenbergMarkup\Blocks;
 use MaxPertici\GutenbergMarkup\BlockMarkup;
 use MaxPertici\GutenbergMarkup\Concerns\Advanced\AnchorTrait;
 use MaxPertici\GutenbergMarkup\Concerns\Advanced\CustomClassTrait;
+use MaxPertici\GutenbergMarkup\Concerns\Block\BlockStyleTrait;
 use MaxPertici\GutenbergMarkup\Concerns\Color\BackgroundColorTrait;
 use MaxPertici\GutenbergMarkup\Concerns\Color\LinkColorTrait;
 use MaxPertici\GutenbergMarkup\Concerns\Color\TextColorTrait;
@@ -57,6 +58,7 @@ class ParagraphBlock extends BlockMarkup {
 	use TextDecorationTrait;
 	use TextTransformTrait;
 	use FlexWidthTrait;
+	use BlockStyleTrait;
 
 	/**
 	 * Constructor.

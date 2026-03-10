@@ -10,22 +10,23 @@
 namespace MaxPertici\GutenbergMarkup\Blocks;
 
 use MaxPertici\GutenbergMarkup\BlockMarkup;
-use MaxPertici\GutenbergMarkup\Concerns\Layout\AlignTrait;
 use MaxPertici\GutenbergMarkup\Concerns\Advanced\AnchorTrait;
+use MaxPertici\GutenbergMarkup\Concerns\Advanced\CustomClassTrait;
+use MaxPertici\GutenbergMarkup\Concerns\Advanced\TagNameTrait;
+use MaxPertici\GutenbergMarkup\Concerns\Block\BlockStyleTrait;
+use MaxPertici\GutenbergMarkup\Concerns\Color\BackgroundColorTrait;
 use MaxPertici\GutenbergMarkup\Concerns\Color\LinkColorTrait;
 use MaxPertici\GutenbergMarkup\Concerns\Color\TextColorTrait;
+use MaxPertici\GutenbergMarkup\Concerns\Layout\AlignTrait;
 use MaxPertici\GutenbergMarkup\Concerns\Layout\PositionTrait;
-use MaxPertici\GutenbergMarkup\Concerns\Advanced\TagNameTrait;
 use MaxPertici\GutenbergMarkup\Concerns\Typography\DropCapTrait;
 use MaxPertici\GutenbergMarkup\Concerns\Typography\FontSizeTrait;
-use MaxPertici\GutenbergMarkup\Concerns\Advanced\CustomClassTrait;
 use MaxPertici\GutenbergMarkup\Concerns\Typography\FontStyleTrait;
-use MaxPertici\GutenbergMarkup\Concerns\Color\BackgroundColorTrait;
 use MaxPertici\GutenbergMarkup\Concerns\Typography\FontWeightTrait;
-use MaxPertici\GutenbergMarkup\Concerns\Typography\LineHeightTrait;
 use MaxPertici\GutenbergMarkup\Concerns\Typography\LetterSpacingTrait;
-use MaxPertici\GutenbergMarkup\Concerns\Typography\TextTransformTrait;
+use MaxPertici\GutenbergMarkup\Concerns\Typography\LineHeightTrait;
 use MaxPertici\GutenbergMarkup\Concerns\Typography\TextDecorationTrait;
+use MaxPertici\GutenbergMarkup\Concerns\Typography\TextTransformTrait;
 
 /**
  * Group Gutenberg Block implementation.
@@ -52,6 +53,7 @@ class GroupBlock extends BlockMarkup {
 	use TextTransformTrait;
 	use AlignTrait;
 	use PositionTrait;
+	use BlockStyleTrait;
 	
 	/**
 	 * Layout type.

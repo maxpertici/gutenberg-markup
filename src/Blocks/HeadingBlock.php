@@ -12,6 +12,7 @@ namespace MaxPertici\GutenbergMarkup\Blocks;
 use MaxPertici\GutenbergMarkup\BlockMarkup;
 use MaxPertici\GutenbergMarkup\Concerns\Advanced\AnchorTrait;
 use MaxPertici\GutenbergMarkup\Concerns\Advanced\CustomClassTrait;
+use MaxPertici\GutenbergMarkup\Concerns\Block\BlockStyleTrait;
 use MaxPertici\GutenbergMarkup\Concerns\Color\BackgroundColorTrait;
 use MaxPertici\GutenbergMarkup\Concerns\Color\TextColorTrait;
 use MaxPertici\GutenbergMarkup\Concerns\Flex\FlexWidthTrait;
@@ -52,6 +53,7 @@ class HeadingBlock extends BlockMarkup {
 	use TextDecorationTrait;
 	use TextTransformTrait;
 	use FlexWidthTrait;
+	use BlockStyleTrait;
 
 	/**
 	 * The heading level (1-6).
