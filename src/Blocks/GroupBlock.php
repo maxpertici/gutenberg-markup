@@ -14,6 +14,7 @@ use MaxPertici\GutenbergMarkup\Concerns\Advanced\AnchorTrait;
 use MaxPertici\GutenbergMarkup\Concerns\Advanced\CustomClassTrait;
 use MaxPertici\GutenbergMarkup\Concerns\Advanced\TagNameTrait;
 use MaxPertici\GutenbergMarkup\Concerns\Block\BlockStyleTrait;
+use MaxPertici\GutenbergMarkup\Concerns\Block\HtmlElementTrait;
 use MaxPertici\GutenbergMarkup\Concerns\Color\BackgroundColorTrait;
 use MaxPertici\GutenbergMarkup\Concerns\Color\LinkColorTrait;
 use MaxPertici\GutenbergMarkup\Concerns\Color\TextColorTrait;
@@ -54,6 +55,7 @@ class GroupBlock extends BlockMarkup {
 	use AlignTrait;
 	use PositionTrait;
 	use BlockStyleTrait;
+	use HtmlElementTrait;
 	
 	/**
 	 * Layout type.
