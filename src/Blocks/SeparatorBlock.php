@@ -11,6 +11,7 @@ namespace MaxPertici\GutenbergMarkup\Blocks;
 
 use MaxPertici\GutenbergMarkup\BlockMarkup;
 use MaxPertici\GutenbergMarkup\Concerns\Advanced\CustomClassTrait;
+use MaxPertici\GutenbergMarkup\Concerns\Block\BlockStyleTrait;
 use MaxPertici\GutenbergMarkup\Concerns\Color\BackgroundColorTrait;
 use MaxPertici\GutenbergMarkup\Concerns\Layout\AlignTrait;
 
@@ -30,6 +31,7 @@ class SeparatorBlock extends BlockMarkup {
 	use AlignTrait;
 	use BackgroundColorTrait;
 	use CustomClassTrait;
+	use BlockStyleTrait;
 
 	/**
 	 * Whether to include the alpha channel opacity class.
