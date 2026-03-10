@@ -14,8 +14,8 @@ A PHP library for writing Gutenberg (WordPress) markup in a consistent and styla
 use Maxpertici\GutenbergMarkup\Blocks\HeadingBlock;
 
 $block = new HeadingBlock(
-content: 'Hello world',
-level: 2
+	content: 'Hello world',
+	level: 2
 );
 $block->textColor( 'primary' );
 
