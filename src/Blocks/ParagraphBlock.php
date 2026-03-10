@@ -22,6 +22,7 @@ use MaxPertici\GutenbergMarkup\Concerns\Typography\FontStyleTrait;
 use MaxPertici\GutenbergMarkup\Concerns\Typography\FontWeightTrait;
 use MaxPertici\GutenbergMarkup\Concerns\Typography\LetterSpacingTrait;
 use MaxPertici\GutenbergMarkup\Concerns\Typography\LineHeightTrait;
+use MaxPertici\GutenbergMarkup\Concerns\Typography\TextAlignTrait;
 use MaxPertici\GutenbergMarkup\Concerns\Typography\TextDecorationTrait;
 use MaxPertici\GutenbergMarkup\Concerns\Typography\TextTransformTrait;
 
@@ -52,6 +53,7 @@ class ParagraphBlock extends BlockMarkup {
 	use LineHeightTrait;
 	use LinkColorTrait;
 	use TextColorTrait;
+	use TextAlignTrait;
 	use TextDecorationTrait;
 	use TextTransformTrait;
 	use FlexWidthTrait;
