@@ -13,7 +13,6 @@ use MaxPertici\GutenbergMarkup\BlockMarkup;
 use MaxPertici\GutenbergMarkup\Concerns\Advanced\AnchorTrait;
 use MaxPertici\GutenbergMarkup\Concerns\Advanced\CustomClassTrait;
 use MaxPertici\GutenbergMarkup\Concerns\Block\BlockStyleTrait;
-use MaxPertici\GutenbergMarkup\Concerns\Block\BlockStyleTrait;
 use MaxPertici\GutenbergMarkup\Concerns\Color\BackgroundColorTrait;
 use MaxPertici\GutenbergMarkup\Concerns\Color\TextColorTrait;
 use MaxPertici\GutenbergMarkup\Concerns\Dimensions\MarginTrait;
@@ -52,7 +51,6 @@ class HeadingBlock extends BlockMarkup {
 	use LetterSpacingTrait;
 	use LineHeightTrait;
 	use TextAlignTrait;
-	use TextAlignTrait;
 	use TextColorTrait;
 	use TextDecorationTrait;
 	use TextTransformTrait;
@@ -60,7 +58,6 @@ class HeadingBlock extends BlockMarkup {
 	use BlockStyleTrait;
 	use PaddingTrait;
 	use MarginTrait;
-	use BlockStyleTrait;
 
 	/**
 	 * The heading level (1-6).
@@ -143,12 +140,9 @@ class HeadingBlock extends BlockMarkup {
 		}
 		
 		$this->wrapperClass[] = "wp-block-heading";
-		
-		$this->wrapperClass[] = "wp-block-heading";
 
 		// Build wrapper with current level
 		$this->wrapper = sprintf(
-			'<h%d class="%%classes%%" %%attributes%%>%%children%%</h%d>',
 			'<h%d class="%%classes%%" %%attributes%%>%%children%%</h%d>',
 			$this->level,
 			$this->level

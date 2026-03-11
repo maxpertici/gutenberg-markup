@@ -16,16 +16,10 @@ use MaxPertici\GutenbergMarkup\Concerns\Advanced\TagNameTrait;
 use MaxPertici\GutenbergMarkup\Concerns\Block\BlockStyleTrait;
 use MaxPertici\GutenbergMarkup\Concerns\Block\HtmlElementTrait;
 use MaxPertici\GutenbergMarkup\Concerns\Color\BackgroundColorTrait;
-use MaxPertici\GutenbergMarkup\Concerns\Advanced\CustomClassTrait;
-use MaxPertici\GutenbergMarkup\Concerns\Advanced\TagNameTrait;
-use MaxPertici\GutenbergMarkup\Concerns\Block\BlockStyleTrait;
-use MaxPertici\GutenbergMarkup\Concerns\Block\HtmlElementTrait;
-use MaxPertici\GutenbergMarkup\Concerns\Color\BackgroundColorTrait;
 use MaxPertici\GutenbergMarkup\Concerns\Color\LinkColorTrait;
 use MaxPertici\GutenbergMarkup\Concerns\Color\TextColorTrait;
 use MaxPertici\GutenbergMarkup\Concerns\Dimensions\MarginTrait;
 use MaxPertici\GutenbergMarkup\Concerns\Dimensions\PaddingTrait;
-use MaxPertici\GutenbergMarkup\Concerns\Layout\AlignTrait;
 use MaxPertici\GutenbergMarkup\Concerns\Layout\AlignTrait;
 use MaxPertici\GutenbergMarkup\Concerns\Layout\PositionTrait;
 use MaxPertici\GutenbergMarkup\Concerns\Typography\DropCapTrait;
@@ -34,9 +28,7 @@ use MaxPertici\GutenbergMarkup\Concerns\Typography\FontStyleTrait;
 use MaxPertici\GutenbergMarkup\Concerns\Typography\FontWeightTrait;
 use MaxPertici\GutenbergMarkup\Concerns\Typography\LetterSpacingTrait;
 use MaxPertici\GutenbergMarkup\Concerns\Typography\LineHeightTrait;
-use MaxPertici\GutenbergMarkup\Concerns\Typography\LineHeightTrait;
 use MaxPertici\GutenbergMarkup\Concerns\Typography\TextDecorationTrait;
-use MaxPertici\GutenbergMarkup\Concerns\Typography\TextTransformTrait;
 use MaxPertici\GutenbergMarkup\Concerns\Typography\TextTransformTrait;
 
 /**
@@ -51,7 +43,6 @@ class GroupBlock extends BlockMarkup {
 	use CustomClassTrait;
 	use TagNameTrait;
 	use TextColorTrait;
-	use BackgroundColorTrait;
 	use DropCapTrait;
 	use FontSizeTrait;
 	use FontStyleTrait;
@@ -59,7 +50,6 @@ class GroupBlock extends BlockMarkup {
 	use LetterSpacingTrait;
 	use LineHeightTrait;
 	use LinkColorTrait;
-	use TextColorTrait;
 	use TextDecorationTrait;
 	use TextTransformTrait;
 	use AlignTrait;
@@ -68,9 +58,7 @@ class GroupBlock extends BlockMarkup {
 	use HtmlElementTrait;
 	use MarginTrait;
 	use PaddingTrait;
-	use BlockStyleTrait;
-	use HtmlElementTrait;
-	
+
 	/**
 	 * Layout type.
 	 *
@@ -429,7 +417,7 @@ class GroupBlock extends BlockMarkup {
 	}
 
 	/**
-	 * Override echo method to apply layout classes before echoing.
+	 * Prints the complete block markup with Gutenberg comments (echo mode).
 	 *
 	 * @since 1.0.0
 	 *
