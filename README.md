@@ -18,12 +18,7 @@ $block = new HeadingBlock(
 	level: 2
 );
 $block->textColor( 'primary' );
-
-echo $block->render();
-// <!-- wp:heading {"textColor":"primary"} -->
-// <h2 class="wp-block-heading has-primary-color has-text-color">Hello world</h2>
-// <!-- /wp:heading -->
-```
+echo $block->renderBlocks();
 
 > Note: the exact API may evolve. Check the classes in `src/Blocks` for the available options.
 
