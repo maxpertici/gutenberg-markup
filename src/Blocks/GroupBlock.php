@@ -16,8 +16,16 @@ use MaxPertici\GutenbergMarkup\Concerns\Advanced\TagNameTrait;
 use MaxPertici\GutenbergMarkup\Concerns\Block\BlockStyleTrait;
 use MaxPertici\GutenbergMarkup\Concerns\Block\HtmlElementTrait;
 use MaxPertici\GutenbergMarkup\Concerns\Color\BackgroundColorTrait;
+use MaxPertici\GutenbergMarkup\Concerns\Advanced\CustomClassTrait;
+use MaxPertici\GutenbergMarkup\Concerns\Advanced\TagNameTrait;
+use MaxPertici\GutenbergMarkup\Concerns\Block\BlockStyleTrait;
+use MaxPertici\GutenbergMarkup\Concerns\Block\HtmlElementTrait;
+use MaxPertici\GutenbergMarkup\Concerns\Color\BackgroundColorTrait;
 use MaxPertici\GutenbergMarkup\Concerns\Color\LinkColorTrait;
 use MaxPertici\GutenbergMarkup\Concerns\Color\TextColorTrait;
+use MaxPertici\GutenbergMarkup\Concerns\Dimensions\MarginTrait;
+use MaxPertici\GutenbergMarkup\Concerns\Dimensions\PaddingTrait;
+use MaxPertici\GutenbergMarkup\Concerns\Layout\AlignTrait;
 use MaxPertici\GutenbergMarkup\Concerns\Layout\AlignTrait;
 use MaxPertici\GutenbergMarkup\Concerns\Layout\PositionTrait;
 use MaxPertici\GutenbergMarkup\Concerns\Typography\DropCapTrait;
@@ -26,7 +34,9 @@ use MaxPertici\GutenbergMarkup\Concerns\Typography\FontStyleTrait;
 use MaxPertici\GutenbergMarkup\Concerns\Typography\FontWeightTrait;
 use MaxPertici\GutenbergMarkup\Concerns\Typography\LetterSpacingTrait;
 use MaxPertici\GutenbergMarkup\Concerns\Typography\LineHeightTrait;
+use MaxPertici\GutenbergMarkup\Concerns\Typography\LineHeightTrait;
 use MaxPertici\GutenbergMarkup\Concerns\Typography\TextDecorationTrait;
+use MaxPertici\GutenbergMarkup\Concerns\Typography\TextTransformTrait;
 use MaxPertici\GutenbergMarkup\Concerns\Typography\TextTransformTrait;
 
 /**
@@ -54,6 +64,10 @@ class GroupBlock extends BlockMarkup {
 	use TextTransformTrait;
 	use AlignTrait;
 	use PositionTrait;
+	use BlockStyleTrait;
+	use HtmlElementTrait;
+	use MarginTrait;
+	use PaddingTrait;
 	use BlockStyleTrait;
 	use HtmlElementTrait;
 	
@@ -104,6 +118,20 @@ class GroupBlock extends BlockMarkup {
 	 * @var string|null
 	 */
 	private ?string $layoutWideSize = null;
+
+	/**
+	 * Column count for Grid display
+	 *
+	 * @var string|null
+	 */
+	private ?string $columnCount = null;
+
+	/**
+	 * Minimum column width for Grid display
+	 *
+	 * @var string|null
+	 */
+	private ?string $minimumColumnWidth = null;
 
 	/**
 	 * Constructor.
@@ -159,6 +187,16 @@ class GroupBlock extends BlockMarkup {
 		// Add wideSize if set (constrained layout)
 		if ( null !== $this->layoutWideSize ) {
 			$layoutAttributes['wideSize'] = $this->layoutWideSize;
+		}
+		
+		// Add column count if set (grid layout)
+		if( null !== $this->columnCount ) {
+			$layoutAttributes['columnCount'] = $this->columnCount;
+		}
+
+		// Add minimum column width if set (grid layout)
+		if( null !== $this->minimumColumnWidth ) {
+			$layoutAttributes['minimumColumnWidth'] = $this->minimumColumnWidth;
 		}
 
 		$this->setBlockAttributes( array( 'layout' => $layoutAttributes ), true );
@@ -237,6 +275,20 @@ class GroupBlock extends BlockMarkup {
 	 */
 	public function asBlock(): self {
 		$this->layoutType = 'flow';
+		$this->layoutOrientation = null;
+		$this->layoutFlexWrap = null;
+
+		return $this;
+	}
+
+
+	/**
+	 * Switch to grid layout.
+	 *
+	 * @return self
+	 */
+	public function asGrid(): self {
+		$this->layoutType = 'grid';
 		$this->layoutOrientation = null;
 		$this->layoutFlexWrap = null;
 
@@ -339,6 +391,28 @@ class GroupBlock extends BlockMarkup {
 			$this->layoutWideSize = $wideSize;
 		}
 
+		return $this;
+	}
+
+	/**
+	 * Set the column number for grid layout
+	 *
+	 * @param integer $count
+	 * @return self
+	 */
+	public function columns( int $count ): self {
+		$this->columnCount = $count;
+		return $this;
+	}
+
+	/**
+	 * Set minimum column width for grid layout
+	 *
+	 * @param string $width
+	 * @return self
+	 */
+	public function minimumColumnWidth( string $width ): self {
+		$this->minimumColumnWidth = $width;
 		return $this;
 	}
 
