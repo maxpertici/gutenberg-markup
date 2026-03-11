@@ -15,6 +15,8 @@ use MaxPertici\GutenbergMarkup\Concerns\Advanced\CustomClassTrait;
 use MaxPertici\GutenbergMarkup\Concerns\Block\BlockStyleTrait;
 use MaxPertici\GutenbergMarkup\Concerns\Color\BackgroundColorTrait;
 use MaxPertici\GutenbergMarkup\Concerns\Color\TextColorTrait;
+use MaxPertici\GutenbergMarkup\Concerns\Dimensions\MarginTrait;
+use MaxPertici\GutenbergMarkup\Concerns\Dimensions\PaddingTrait;
 use MaxPertici\GutenbergMarkup\Concerns\Flex\FlexWidthTrait;
 use MaxPertici\GutenbergMarkup\Concerns\Typography\FontSizeTrait;
 use MaxPertici\GutenbergMarkup\Concerns\Typography\FontStyleTrait;
@@ -54,6 +56,8 @@ class HeadingBlock extends BlockMarkup {
 	use TextTransformTrait;
 	use FlexWidthTrait;
 	use BlockStyleTrait;
+	use PaddingTrait;
+	use MarginTrait;
 
 	/**
 	 * The heading level (1-6).

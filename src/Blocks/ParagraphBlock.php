@@ -16,6 +16,8 @@ use MaxPertici\GutenbergMarkup\Concerns\Block\BlockStyleTrait;
 use MaxPertici\GutenbergMarkup\Concerns\Color\BackgroundColorTrait;
 use MaxPertici\GutenbergMarkup\Concerns\Color\LinkColorTrait;
 use MaxPertici\GutenbergMarkup\Concerns\Color\TextColorTrait;
+use MaxPertici\GutenbergMarkup\Concerns\Dimensions\MarginTrait;
+use MaxPertici\GutenbergMarkup\Concerns\Dimensions\PaddingTrait;
 use MaxPertici\GutenbergMarkup\Concerns\Flex\FlexWidthTrait;
 use MaxPertici\GutenbergMarkup\Concerns\Typography\DropCapTrait;
 use MaxPertici\GutenbergMarkup\Concerns\Typography\FontSizeTrait;
@@ -59,6 +61,8 @@ class ParagraphBlock extends BlockMarkup {
 	use TextTransformTrait;
 	use FlexWidthTrait;
 	use BlockStyleTrait;
+	use PaddingTrait;
+	use MarginTrait;
 
 	/**
 	 * Constructor.
