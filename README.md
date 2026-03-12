@@ -20,7 +20,8 @@ $block = new HeadingBlock(
 $block->textColor( 'primary' );
 echo $block->renderBlocks();
 
-> Note: the exact API may evolve. Check the classes in `src/Blocks` for the available options.
+// Note: the exact API may evolve. Check the classes in `src/Blocks` for the available options.
+```
 
 ## Dependency
 
