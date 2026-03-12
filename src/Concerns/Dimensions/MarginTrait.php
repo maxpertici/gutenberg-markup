@@ -136,7 +136,7 @@ trait MarginTrait {
                 return $value;
             }
         }
-        $extractedValue = str_replace( ['var|preset|spacing|'], '', $value );
+        $extractedValue = str_replace( ['var:preset|spacing|'], '', $value );
         return "var(--wp--preset--spacing--{$extractedValue})";
     }
 
