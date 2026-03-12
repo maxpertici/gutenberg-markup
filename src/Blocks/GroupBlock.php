@@ -20,6 +20,7 @@ use MaxPertici\GutenbergMarkup\Concerns\Color\LinkColorTrait;
 use MaxPertici\GutenbergMarkup\Concerns\Color\TextColorTrait;
 use MaxPertici\GutenbergMarkup\Concerns\Dimensions\BlockSpacingTrait;
 use MaxPertici\GutenbergMarkup\Concerns\Dimensions\MarginTrait;
+use MaxPertici\GutenbergMarkup\Concerns\Dimensions\MinHeightTrait;
 use MaxPertici\GutenbergMarkup\Concerns\Dimensions\PaddingTrait;
 use MaxPertici\GutenbergMarkup\Concerns\Layout\AlignTrait;
 use MaxPertici\GutenbergMarkup\Concerns\Layout\PositionTrait;
@@ -62,7 +63,8 @@ class GroupBlock extends BlockMarkup {
 	use MarginTrait;
 	use PaddingTrait;
 	use BlockSpacingTrait;
-	
+	use MinHeightTrait;
+
 	/**
 	 * Layout type.
 	 *
