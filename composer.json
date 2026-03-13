@@ -16,7 +16,7 @@
     },
     "require": {
         "php": ">=8.1",
-        "maxpertici/markup": "^0.8 || dev-main"
+        "maxpertici/markup": "^0.9.3 || dev-main"
     }
 }
 
