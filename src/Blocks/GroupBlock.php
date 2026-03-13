@@ -18,7 +18,9 @@ use MaxPertici\GutenbergMarkup\Concerns\Block\HtmlElementTrait;
 use MaxPertici\GutenbergMarkup\Concerns\Color\BackgroundColorTrait;
 use MaxPertici\GutenbergMarkup\Concerns\Color\LinkColorTrait;
 use MaxPertici\GutenbergMarkup\Concerns\Color\TextColorTrait;
+use MaxPertici\GutenbergMarkup\Concerns\Dimensions\BlockSpacingTrait;
 use MaxPertici\GutenbergMarkup\Concerns\Dimensions\MarginTrait;
+use MaxPertici\GutenbergMarkup\Concerns\Dimensions\MinHeightTrait;
 use MaxPertici\GutenbergMarkup\Concerns\Dimensions\PaddingTrait;
 use MaxPertici\GutenbergMarkup\Concerns\Layout\AlignTrait;
 use MaxPertici\GutenbergMarkup\Concerns\Layout\PositionTrait;
@@ -58,6 +60,8 @@ class GroupBlock extends BlockMarkup {
 	use HtmlElementTrait;
 	use MarginTrait;
 	use PaddingTrait;
+	use BlockSpacingTrait;
+	use MinHeightTrait;
 
 	/**
 	 * Layout type.
@@ -383,12 +387,12 @@ class GroupBlock extends BlockMarkup {
 	}
 
 	/**
-	 * Set the column number for grid layout
+	 * Set the columnCount number for grid layout
 	 *
 	 * @param integer $count
 	 * @return self
 	 */
-	public function columns( int $count ): self {
+	public function columnCount( int $count ): self {
 		$this->columnCount = $count;
 		return $this;
 	}
