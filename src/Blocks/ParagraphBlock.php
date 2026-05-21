@@ -70,12 +70,11 @@ class ParagraphBlock extends BlockMarkup {
 	 * @since 1.0.0
 	 *
 	 * @param string $content    The paragraph content.
-	 * @param array  $attributes Optional. Block attributes. Default empty array.
 	 */
-	public function __construct( string $content, array $attributes = [] ) {
+	public function __construct( string $content ) {
 		parent::__construct(
 			blockName: 'core/paragraph',
-			blockAttributes: $attributes,
+			blockAttributes: array(),
 			wrapper: '<p class="%classes%" %attributes%>%children%</p>',
 			children: [ $content ]
 		);
