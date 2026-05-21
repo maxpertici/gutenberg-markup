@@ -30,3 +30,15 @@ echo $block->render();
 ## Dépendance
 
 Cette bibliothèque s’appuie sur le package Markup : https://github.com/maxpertici/markup
+
+## Parser un post Gutenberg vers des blocks
+
+```php
+use MaxPertici\GutenbergMarkup\BlockFactory;
+
+$content = file_get_contents( __DIR__ . '/ressources/post-content.html' );
+$blocks  = BlockFactory::parsePostContent( $content );
+```
+
+- Les blocks supportés sont convertis en classes dédiées (`ParagraphBlock`, `HeadingBlock`, etc.).
+- Les blocks non supportés restent en markup simple (fallback).
