@@ -287,21 +287,25 @@ class FileBlock extends BlockMarkup {
 
 		$mediaId = 'wp-block-file--media-' . $this->generateMediaId();
 
+		$safeHref             = \function_exists( 'esc_url' ) ? \esc_url( $href ) : htmlspecialchars( $href, ENT_QUOTES );
+		$safeFileName         = \function_exists( 'esc_html' ) ? \esc_html( $fileName ) : htmlspecialchars( $fileName, ENT_QUOTES );
+		$safeDownloadText     = \function_exists( 'esc_html' ) ? \esc_html( $this->downloadButtonText ) : htmlspecialchars( $this->downloadButtonText, ENT_QUOTES );
+
 		// Build file link attributes.
-		$linkAttrs = sprintf( 'id="%s" href="%s"', $mediaId, $href );
+		$linkAttrs = sprintf( 'id="%s" href="%s"', $mediaId, $safeHref );
 		if ( $this->openInNewTab ) {
 			$linkAttrs .= ' target="_blank" rel="noreferrer noopener"';
 		}
 
 		$html = '<div class="wp-block-file">';
-		$html .= sprintf( '<a %s>%s</a>', $linkAttrs, $fileName );
+		$html .= sprintf( '<a %s>%s</a>', $linkAttrs, $safeFileName );
 
 		if ( $this->showDownloadButton ) {
 			$html .= sprintf(
 				'<a href="%s" class="wp-block-file__button wp-element-button" download aria-describedby="%s">%s</a>',
-				$href,
+				$safeHref,
 				$mediaId,
-				$this->downloadButtonText
+				$safeDownloadText
 			);
 		}
 
@@ -310,6 +314,7 @@ class FileBlock extends BlockMarkup {
 		$this->children = array( $html );
 
 		// Build block attributes.
+		// Also keep the raw href in block attributes (Gutenberg expects the unescaped URL).
 		$this->blockAttributes = array(
 			'id'   => $this->id,
 			'href' => $href,

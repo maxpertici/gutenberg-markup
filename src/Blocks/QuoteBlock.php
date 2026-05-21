@@ -184,7 +184,8 @@ class QuoteBlock extends BlockMarkup {
 		$children = $this->innerBlocks;
 
 		if ( null !== $this->citation && '' !== $this->citation ) {
-			$children[] = '<cite>' . $this->citation . '</cite>';
+			$safeCitation = \function_exists( 'esc_html' ) ? \esc_html( $this->citation ) : htmlspecialchars( $this->citation, ENT_QUOTES );
+			$children[]   = '<cite>' . $safeCitation . '</cite>';
 		}
 
 		$this->children = $children;

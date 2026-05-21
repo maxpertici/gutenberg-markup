@@ -198,10 +198,14 @@ class PullquoteBlock extends BlockMarkup {
 	protected function build(): void {
 		$this->addClass( 'wp-block-pullquote' );
 
-		$inner = '<p>' . $this->value . '</p>';
+		// Allow inline HTML in quoted text (same as wp_kses_post context) but escape
+		// plain citation which should not contain markup.
+		$safeValue = \function_exists( 'wp_kses_post' ) ? \wp_kses_post( $this->value ) : $this->value;
+		$inner     = '<p>' . $safeValue . '</p>';
 
 		if ( null !== $this->citation && '' !== $this->citation ) {
-			$inner .= '<cite>' . $this->citation . '</cite>';
+			$safeCitation = \function_exists( 'esc_html' ) ? \esc_html( $this->citation ) : htmlspecialchars( $this->citation, ENT_QUOTES );
+			$inner       .= '<cite>' . $safeCitation . '</cite>';
 		}
 
 		$this->children = array( '<blockquote>' . $inner . '</blockquote>' );

@@ -137,7 +137,8 @@ class ColumnBlock extends BlockMarkup {
 
 		if ( null !== $this->width ) {
 			$this->setBlockAttributes( array( 'width' => $this->width ) );
-			$this->setAttribute( 'style', 'flex-basis:' . $this->width );
+			$safeWidth = \function_exists( 'esc_attr' ) ? \esc_attr( $this->width ) : htmlspecialchars( $this->width, ENT_QUOTES );
+			$this->setAttribute( 'style', 'flex-basis:' . $safeWidth );
 		}
 
 		if ( null !== $this->layout ) {
