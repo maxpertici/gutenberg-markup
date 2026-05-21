@@ -77,16 +77,15 @@ class HeadingBlock extends BlockMarkup {
 	 *
 	 * @param string $content    The heading content.
 	 * @param int    $level      Optional. The heading level (1-6). Default 2.
-	 * @param array  $attributes Optional. Block attributes. Default empty array.
 	 */
-	public function __construct( string $content, int $level = 2, array $attributes = [] ) {
+	public function __construct( string $content, int $level = 2 ) {
 		// Set the heading level
 		$this->level( $level );
 
 		// Initialize parent BlockMarkup
 		parent::__construct(
 			blockName: 'core/heading',
-			blockAttributes: $attributes,
+			blockAttributes: array(),
 			children: [ $content ]
 		);
 	}
@@ -108,11 +107,10 @@ class HeadingBlock extends BlockMarkup {
 		if ( null === $level ) {
 			return $this->level;
 		}
-
-		// Setter: validate and set level
-		// Validate level is between 1 and 6
+		
+		// Default to h2
 		if ( $level < 1 || $level > 6 ) {
-			$level = 2; // Default to h2
+			$level = 2;
 		}
 
 		$this->level = $level;
@@ -130,7 +128,7 @@ class HeadingBlock extends BlockMarkup {
 	 *
 	 * @return void
 	 */
-	protected function buildWrapper(): void {
+	protected function build(): void {
 		// Update block attributes with level if not default (2)
 		if ( 2 !== $this->level ) {
 			$this->blockAttributes['level'] = $this->level;
@@ -159,7 +157,7 @@ class HeadingBlock extends BlockMarkup {
 	 * @return string The complete block markup including Gutenberg comment syntax.
 	 */
 	public function render(): string {
-		$this->buildWrapper();
+		$this->build();
 		return parent::render();
 	}
 
@@ -173,7 +171,7 @@ class HeadingBlock extends BlockMarkup {
 	 * @return void
 	 */
 	public function print(): void {
-		$this->buildWrapper();
+		$this->build();
 		parent::print();
 	}
 }
