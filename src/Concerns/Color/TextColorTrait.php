@@ -61,6 +61,8 @@ trait TextColorTrait {
 	 *
 	 * @param string $color The text color value.
 	 * @return self Returns the instance for method chaining.
+	 * 
+	 * @TODO : verify this method
 	 */
 	public function customTextColor( string $color ): self {
 		// Get current inline style or initialize as empty string
