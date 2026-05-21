@@ -29,6 +29,10 @@ trait LinkColorTrait {
 	 */
 	public function linkColor( string $color ): self {
 		// Set the link color in block attributes
+		$this->blockAttributes['style'] = $this->blockAttributes['style'] ?? [];
+		$this->blockAttributes['style']['elements'] = $this->blockAttributes['style']['elements'] ?? [];
+		$this->blockAttributes['style']['elements']['link'] = $this->blockAttributes['style']['elements']['link'] ?? [];
+		$this->blockAttributes['style']['elements']['link']['color'] = $this->blockAttributes['style']['elements']['link']['color'] ?? [];
 		$this->blockAttributes['style']['elements']['link']['color']['text'] = "var:preset|color|{$color}";
 
 		// Add the has-link-color class
@@ -47,6 +51,10 @@ trait LinkColorTrait {
 	 */
 	public function customLinkColor( string $color ): self {
 		// Set the link color in block attributes
+		$this->blockAttributes['style'] = $this->blockAttributes['style'] ?? [];
+		$this->blockAttributes['style']['elements'] = $this->blockAttributes['style']['elements'] ?? [];
+		$this->blockAttributes['style']['elements']['link'] = $this->blockAttributes['style']['elements']['link'] ?? [];
+		$this->blockAttributes['style']['elements']['link']['color'] = $this->blockAttributes['style']['elements']['link']['color'] ?? [];
 		$this->blockAttributes['style']['elements']['link']['color']['text'] = $color;
 
 		// Add the has-link-color class
