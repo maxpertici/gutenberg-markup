@@ -50,15 +50,14 @@ class SeparatorBlock extends BlockMarkup {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @param array $attributes              Optional. Block attributes. Default empty array.
 	 * @param bool  $hasAlphaChannelOpacity  Optional. Whether to include alpha channel opacity. Default true.
 	 */
-	public function __construct( array $attributes = [], bool $hasAlphaChannelOpacity = true ) {
+	public function __construct( bool $hasAlphaChannelOpacity = true ) {
 		$this->hasAlphaChannelOpacity = $hasAlphaChannelOpacity;
 
 		parent::__construct(
 			blockName: 'core/separator',
-			blockAttributes: $attributes,
+			blockAttributes: array(),
 			wrapper: '<hr class="%classes%" %attributes%/>',
 			children: []
 		);
@@ -94,7 +93,7 @@ class SeparatorBlock extends BlockMarkup {
 	 *
 	 * @return void
 	 */
-	protected function buildWrapper(): void {
+	protected function build(): void {
 		$this->wrapperClass[] = 'wp-block-separator';
 
 		// Add alpha channel opacity class if enabled
@@ -116,7 +115,7 @@ class SeparatorBlock extends BlockMarkup {
 	 * @return string The complete block markup including Gutenberg comment syntax.
 	 */
 	public function render(): string {
-		$this->buildWrapper();
+		$this->build();
 		return parent::render();
 	}
 
@@ -130,7 +129,7 @@ class SeparatorBlock extends BlockMarkup {
 	 * @return void
 	 */
 	public function print(): void {
-		$this->buildWrapper();
+		$this->build();
 		parent::print();
 	}
 }
