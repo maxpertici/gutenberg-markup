@@ -45,7 +45,6 @@ class GroupBlock extends BlockMarkup {
 	use CustomClassTrait;
 	use TagNameTrait;
 	use TextColorTrait;
-	use BackgroundColorTrait;
 	use DropCapTrait;
 	use FontSizeTrait;
 	use FontStyleTrait;
@@ -53,7 +52,6 @@ class GroupBlock extends BlockMarkup {
 	use LetterSpacingTrait;
 	use LineHeightTrait;
 	use LinkColorTrait;
-	use TextColorTrait;
 	use TextDecorationTrait;
 	use TextTransformTrait;
 	use AlignTrait;
@@ -206,7 +204,7 @@ class GroupBlock extends BlockMarkup {
 	 *
 	 * @return void
 	 */
-	protected function applyLayoutClasses(): void {
+	protected function build(): void {
 		// Build layout attributes from properties
 		$this->buildLayoutAttributes();
 
@@ -418,7 +416,7 @@ class GroupBlock extends BlockMarkup {
 	 * @return string The rendered block markup.
 	 */
 	public function render(): string {
-		$this->applyLayoutClasses();
+		$this->build();
 		return parent::render();
 	}
 
@@ -430,7 +428,7 @@ class GroupBlock extends BlockMarkup {
 	 * @return void
 	 */
 	public function echo(): void {
-		$this->applyLayoutClasses();
+		$this->build();
 		parent::echo();
 	}
 }
