@@ -66,6 +66,8 @@ trait BackgroundColorTrait {
 		
 		// Store the background color in the block attributes for Gutenberg compatibility
 		// This follows the WordPress block style structure for color management
+		$this->blockAttributes['style'] = $this->blockAttributes['style'] ?? [];
+		$this->blockAttributes['style']['color'] = $this->blockAttributes['style']['color'] ?? [];
 		$this->blockAttributes['style']['color']['background'] = $color;
 
 		// Add the has-background class
