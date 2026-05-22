@@ -105,7 +105,8 @@ class PostContent extends Markup {
 	 *
 	 * @param string                                $blockName Block name (e.g. core/group).
 	 * @param callable(array<string, mixed>): array $updater Updater callback receiving block array and returning updated block array.
-	 *                                              Non-array return values are ignored (no update applied).
+	 *                                              Callback must return an array for the update to be applied;
+	 *                                              non-array values are treated as no-op.
 	 * @return bool True when one block was updated.
 	 */
 	public function updateFirst( string $blockName, callable $updater ): bool {
@@ -123,7 +124,8 @@ class PostContent extends Markup {
 	 *
 	 * @param string                                $blockName Block name (e.g. core/group).
 	 * @param callable(array<string, mixed>): array $updater Updater callback receiving block array and returning updated block array.
-	 *                                              Non-array return values are ignored (no update applied).
+	 *                                              Callback must return an array for the update to be applied;
+	 *                                              non-array values are treated as no-op.
 	 * @return int Number of updated blocks.
 	 */
 	public function updateAll( string $blockName, callable $updater ): int {
@@ -284,7 +286,8 @@ class PostContent extends Markup {
 	 * @param array<int, array<string, mixed>>      $blocks Parsed blocks by reference.
 	 * @param string                                $blockName Block name.
 	 * @param callable(array<string, mixed>): array $updater Updater callback.
-	 *                                              Non-array return values are ignored.
+	 *                                              Callback must return an array for the update to be applied;
+	 *                                              non-array values are treated as no-op.
 	 * @return bool
 	 */
 	private static function updateFirstRecursive( array &$blocks, string $blockName, callable $updater ): bool {
@@ -316,7 +319,8 @@ class PostContent extends Markup {
 	 * @param array<int, array<string, mixed>>      $blocks Parsed blocks by reference.
 	 * @param string                                $blockName Block name.
 	 * @param callable(array<string, mixed>): array $updater Updater callback.
-	 *                                              Non-array return values are ignored.
+	 *                                              Callback must return an array for the update to be applied;
+	 *                                              non-array values are treated as no-op.
 	 * @return int
 	 */
 	private static function updateAllRecursive( array &$blocks, string $blockName, callable $updater ): int {
@@ -334,7 +338,7 @@ class PostContent extends Markup {
 
 			$innerBlocks = is_array( $block['innerBlocks'] ?? null ) ? $block['innerBlocks'] : [];
 			if ( ! empty( $innerBlocks ) ) {
-				$updatedCount          += self::updateAllRecursive( $innerBlocks, $blockName, $updater );
+				$updatedCount += self::updateAllRecursive( $innerBlocks, $blockName, $updater );
 				$block['innerBlocks'] = $innerBlocks;
 			}
 		}
