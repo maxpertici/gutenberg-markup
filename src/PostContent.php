@@ -7,6 +7,12 @@
 
 namespace MaxPertici\GutenbergMarkup;
 
+/**
+ * Helper API to manipulate Gutenberg post content as a parsed blocks tree.
+ *
+ * Supports targeted block-level search/update operations and conversion
+ * back to typed blocks or Gutenberg markup for safe large-scale transforms.
+ */
 class PostContent {
 
 	/**
@@ -72,7 +78,7 @@ class PostContent {
 	 * Update first matching block in parsed tree.
 	 *
 	 * @param string                                $blockName Block name (e.g. core/group).
-	 * @param callable(array<string, mixed>): array  $updater Updater callback receiving block array and returning updated block array.
+	 * @param callable(array<string, mixed>): array $updater Updater callback receiving block array and returning updated block array.
 	 *                                              Non-array return values are ignored (no update applied).
 	 * @return bool True when one block was updated.
 	 */
@@ -84,7 +90,7 @@ class PostContent {
 	 * Update all matching blocks in parsed tree.
 	 *
 	 * @param string                                $blockName Block name (e.g. core/group).
-	 * @param callable(array<string, mixed>): array  $updater Updater callback receiving block array and returning updated block array.
+	 * @param callable(array<string, mixed>): array $updater Updater callback receiving block array and returning updated block array.
 	 *                                              Non-array return values are ignored (no update applied).
 	 * @return int Number of updated blocks.
 	 */
@@ -207,7 +213,7 @@ class PostContent {
 	/**
 	 * @param array<int, array<string, mixed>>      $blocks Parsed blocks by reference.
 	 * @param string                                $blockName Block name.
-	 * @param callable(array<string, mixed>): array  $updater Updater callback.
+	 * @param callable(array<string, mixed>): array $updater Updater callback.
 	 *                                              Non-array return values are ignored.
 	 * @return bool
 	 */
@@ -239,7 +245,7 @@ class PostContent {
 	/**
 	 * @param array<int, array<string, mixed>>      $blocks Parsed blocks by reference.
 	 * @param string                                $blockName Block name.
-	 * @param callable(array<string, mixed>): array  $updater Updater callback.
+	 * @param callable(array<string, mixed>): array $updater Updater callback.
 	 *                                              Non-array return values are ignored.
 	 * @return int
 	 */

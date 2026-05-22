@@ -22,6 +22,12 @@ use MaxPertici\GutenbergMarkup\Blocks\PullquoteBlock;
 use MaxPertici\GutenbergMarkup\Blocks\QuoteBlock;
 use MaxPertici\GutenbergMarkup\Blocks\SeparatorBlock;
 
+/**
+ * Factory responsible for parsing Gutenberg content and building block instances.
+ *
+ * It supports custom/local parser mappings, known native block conversions,
+ * automatic class resolution by naming convention, and safe markup fallback.
+ */
 class BlockFactory {
 
 	/**
