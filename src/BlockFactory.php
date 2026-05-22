@@ -554,7 +554,7 @@ class BlockFactory {
 	 *
 	 * @param array $attrs Parsed attributes.
 	 * @param array $parsedBlock Parsed block.
-	 * @return ColumnsBlock
+	 * @return ColumnsBlock|null
 	 */
 	private static function createColumnsBlock( array $attrs, array $parsedBlock, array $blockParsers = [] ): ?ColumnsBlock {
 		$children = self::createChildrenFromInnerBlocks( $parsedBlock, $blockParsers );
@@ -646,7 +646,7 @@ class BlockFactory {
 	 *
 	 * @param array $attrs Parsed attributes.
 	 * @param array $parsedBlock Parsed block.
-	 * @return ListBlock
+	 * @return ListBlock|null
 	 */
 	private static function createListBlock( array $attrs, array $parsedBlock, array $blockParsers = [] ): ?ListBlock {
 		$items = self::createChildrenFromInnerBlocks( $parsedBlock, $blockParsers );

@@ -24,7 +24,7 @@ class PostContent {
 	private array $blockParsers = [];
 
 	/**
-	 * @param string|array<int, array<string, mixed>> $postContent Raw Gutenberg markup or already parsed blocks.
+	 * @param string|array<int, array<string, mixed>> $postContent Raw Gutenberg markup or parsed blocks array (same structure as parse_blocks()).
 	 * @param array<string, callable|string>          $blockParsers Local parser mapping.
 	 */
 	public function __construct( string|array $postContent, array $blockParsers = [] ) {
@@ -71,6 +71,7 @@ class PostContent {
 	 *
 	 * @param string                                $blockName Block name (e.g. core/group).
 	 * @param callable(array<string,mixed>): array  $updater Updater callback receiving block array and returning updated block array.
+	 *                                              Non-array return values are ignored (no update applied).
 	 * @return bool True when one block was updated.
 	 */
 	public function updateFirst( string $blockName, callable $updater ): bool {
@@ -82,6 +83,7 @@ class PostContent {
 	 *
 	 * @param string                                $blockName Block name (e.g. core/group).
 	 * @param callable(array<string,mixed>): array  $updater Updater callback receiving block array and returning updated block array.
+	 *                                              Non-array return values are ignored (no update applied).
 	 * @return int Number of updated blocks.
 	 */
 	public function updateAll( string $blockName, callable $updater ): int {
@@ -130,6 +132,7 @@ class PostContent {
 			return self::normalizeParsedBlocks( \parse_blocks( $postContent ) );
 		}
 
+		// Fallback as one unparsed/raw chunk when parse_blocks() is unavailable.
 		return array(
 			array(
 				'blockName' => null,
@@ -203,6 +206,7 @@ class PostContent {
 	 * @param array<int, array<string, mixed>>      $blocks Parsed blocks by reference.
 	 * @param string                                $blockName Block name.
 	 * @param callable(array<string,mixed>): array  $updater Updater callback.
+	 *                                              Non-array return values are ignored.
 	 * @return bool
 	 */
 	private static function updateFirstRecursive( array &$blocks, string $blockName, callable $updater ): bool {
@@ -234,6 +238,7 @@ class PostContent {
 	 * @param array<int, array<string, mixed>>      $blocks Parsed blocks by reference.
 	 * @param string                                $blockName Block name.
 	 * @param callable(array<string,mixed>): array  $updater Updater callback.
+	 *                                              Non-array return values are ignored.
 	 * @return int
 	 */
 	private static function updateAllRecursive( array &$blocks, string $blockName, callable $updater ): int {
