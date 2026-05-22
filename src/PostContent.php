@@ -47,17 +47,17 @@ class PostContent extends Markup {
 	private array $blockParsers = [];
 
 	/**
-	 * @param string|array<int, array<string, mixed>> $postContent
+	 * @param string|array<int, array<string, mixed>> $contentOrBlocks
 	 *        - string: raw Gutenberg markup.
 	 *        - array: parsed blocks tree (same structure as parse_blocks()).
 	 * @param array<string, callable|string>          $blockParsers Local parser mapping.
 	 */
-	public function __construct( string|array $postContent, array $blockParsers = [] ) {
+	public function __construct( string|array $contentOrBlocks, array $blockParsers = [] ) {
 		$this->blockParsers = $blockParsers;
-		$this->originalMarkup = is_string( $postContent ) ? $postContent : null;
-		$this->parsedBlocks = is_string( $postContent )
-			? self::parseMarkupToBlocksTree( $postContent )
-			: self::normalizeParsedBlocks( $postContent );
+		$this->originalMarkup = is_string( $contentOrBlocks ) ? $contentOrBlocks : null;
+		$this->parsedBlocks = is_string( $contentOrBlocks )
+			? self::parseMarkupToBlocksTree( $contentOrBlocks )
+			: self::normalizeParsedBlocks( $contentOrBlocks );
 
 		parent::__construct(
 			'',
