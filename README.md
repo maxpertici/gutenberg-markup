@@ -109,25 +109,35 @@ Exemple — mettre à jour un seul block dans un post content :
 
 ```php
 use MaxPertici\GutenbergMarkup\PostContent;
+use MaxPertici\GutenbergMarkup\Blocks\HeadingBlock;
 
 $postContent  = new PostContent( $rawGutenbergMarkup );
-$parsedBlocks = $postContent->parsedBlocks();
+$blocks       = $postContent->toBlocks();
 
-foreach ( $parsedBlocks as &$block ) {
-	if ( 'core/heading' !== ( $block['blockName'] ?? null ) ) {
+foreach ( $blocks as $index => $block ) {
+	if ( ! $block instanceof HeadingBlock ) {
 		continue;
 	}
 
-	$block['attrs']['level']   = 3;
-	$block['innerHTML']        = '<h3>Titre mis à jour</h3>';
-	$block['innerContent']     = [ '<h3>Titre mis à jour</h3>' ];
-	$block['innerBlocks']      = [];
+	$blocks[ $index ] = new HeadingBlock(
+		content: 'Titre mis à jour',
+		level: 3
+	);
+
 	break; // on ne modifie qu'un seul block
 }
-unset( $block );
 
-$updatedPostContent = new PostContent( $parsedBlocks );
-$updatedMarkup      = $updatedPostContent->toMarkup();
+$updatedMarkup = '';
+foreach ( $blocks as $block ) {
+	if ( is_string( $block ) ) {
+		$updatedMarkup .= $block; // fallback markup non supporté
+		continue;
+	}
+
+	if ( is_object( $block ) && method_exists( $block, 'render' ) ) {
+		$updatedMarkup .= $block->render();
+	}
+}
 ```
 
 Méthodes utiles :
