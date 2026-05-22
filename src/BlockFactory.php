@@ -153,11 +153,11 @@ class BlockFactory {
 	 */
 	private static function createMappedBlock( string $blockName, array $attrs, array $parsedBlock, array $blockParsers = [] ) {
 		if ( array_key_exists( $blockName, $blockParsers ) ) {
-			return self::resolveMappedBlock( $blockParsers[ $blockName ], $parsedBlock, $attrs );
+			return self::resolveMappedBlock( $blockParsers[ $blockName ], $parsedBlock, $attrs, $blockParsers );
 		}
 
 		if ( array_key_exists( $blockName, self::$customBlockParsers ) ) {
-			return self::resolveMappedBlock( self::$customBlockParsers[ $blockName ], $parsedBlock, $attrs );
+			return self::resolveMappedBlock( self::$customBlockParsers[ $blockName ], $parsedBlock, $attrs, $blockParsers );
 		}
 
 		return null;
@@ -171,13 +171,13 @@ class BlockFactory {
 	 * @param array           $attrs Block attributes.
 	 * @return object|string|null
 	 */
-	private static function resolveMappedBlock( callable|string $resolver, array $parsedBlock, array $attrs ) {
+	private static function resolveMappedBlock( callable|string $resolver, array $parsedBlock, array $attrs, array $blockParsers = [] ) {
 		if ( is_callable( $resolver ) ) {
 			return $resolver( $parsedBlock, $attrs );
 		}
 
 		if ( is_string( $resolver ) ) {
-			return self::createBlockFromClass( $resolver, $parsedBlock, $attrs );
+			return self::createBlockFromClass( $resolver, $parsedBlock, $attrs, $blockParsers, true );
 		}
 
 		return null;
@@ -220,13 +220,16 @@ class BlockFactory {
 	 * Supported strategies:
 	 * - static fromParsedBlock(array $parsedBlock): object
 	 * - zero-argument constructor + setBlockAttributes(array, false)
+	 * - mapped class-string with first constructor argument typed as array receives parsed children
 	 *
 	 * @param string $className Class name.
 	 * @param array  $parsedBlock Parsed block payload.
 	 * @param array  $attrs Block attributes.
+	 * @param array  $blockParsers Local parser mapping.
+	 * @param bool   $hydrateConstructorFromParsedBlock Whether to hydrate constructor args from parsed block.
 	 * @return object|null
 	 */
-	private static function createBlockFromClass( string $className, array $parsedBlock, array $attrs ): ?object {
+	private static function createBlockFromClass( string $className, array $parsedBlock, array $attrs, array $blockParsers = [], bool $hydrateConstructorFromParsedBlock = false ): ?object {
 		if ( ! class_exists( $className ) ) {
 			return null;
 		}
@@ -241,11 +244,16 @@ class BlockFactory {
 
 			$reflection  = new \ReflectionClass( $className );
 			$constructor = $reflection->getConstructor();
-			if ( null !== $constructor && $constructor->getNumberOfRequiredParameters() > 0 ) {
+			$constructorArgs = [];
+			if ( null !== $constructor && $hydrateConstructorFromParsedBlock ) {
+				$constructorArgs = self::buildMappedConstructorArgs( $constructor, $parsedBlock, $blockParsers );
+			}
+
+			if ( null !== $constructor && $constructor->getNumberOfRequiredParameters() > 0 && empty( $constructorArgs ) ) {
 				return null;
 			}
 
-			$instance = $reflection->newInstance();
+			$instance = $reflection->newInstanceArgs( $constructorArgs );
 			if ( method_exists( $instance, 'setBlockAttributes' ) ) {
 				$instance->setBlockAttributes( $attrs, false );
 			}
@@ -254,6 +262,57 @@ class BlockFactory {
 		} catch ( \Throwable $e ) {
 			return null;
 		}
+	}
+
+	/**
+	 * Build constructor args for mapped class-string resolvers.
+	 *
+	 * Current strategy:
+	 * - if first constructor parameter accepts array, inject parsed children
+	 *
+	 * @param \ReflectionMethod $constructor Constructor reflection.
+	 * @param array             $parsedBlock Parsed block payload.
+	 * @param array             $blockParsers Local parser mapping.
+	 * @return array<int, mixed>
+	 */
+	private static function buildMappedConstructorArgs( \ReflectionMethod $constructor, array $parsedBlock, array $blockParsers = [] ): array {
+		$params = $constructor->getParameters();
+		if ( empty( $params ) ) {
+			return [];
+		}
+
+		$firstParam = $params[0];
+		if ( ! self::parameterAcceptsArray( $firstParam ) ) {
+			return [];
+		}
+
+		return [ self::createChildrenFromInnerBlocks( $parsedBlock, $blockParsers ) ];
+	}
+
+	/**
+	 * Check whether a parameter accepts array values.
+	 *
+	 * @param \ReflectionParameter $parameter Parameter reflection.
+	 * @return bool
+	 */
+	private static function parameterAcceptsArray( \ReflectionParameter $parameter ): bool {
+		$type = $parameter->getType();
+
+		if ( $type instanceof \ReflectionNamedType ) {
+			return 'array' === $type->getName();
+		}
+
+		if ( ! $type instanceof \ReflectionUnionType ) {
+			return false;
+		}
+
+		foreach ( $type->getTypes() as $namedType ) {
+			if ( $namedType instanceof \ReflectionNamedType && 'array' === $namedType->getName() ) {
+				return true;
+			}
+		}
+
+		return false;
 	}
 
 	/**

@@ -64,9 +64,13 @@ $blocks = BlockFactory::parsePostContent(
 	$content,
 	[
 		'myplugin/hero' => HeroBlock::class,
+		'core/group' => App\Blocks\ExtendedGroupBlock::class,
 	]
 );
 ```
+
+> Un mapping peut remplacer un block natif déjà supporté (ex: `core/group`).  
+> Pour un resolver class-string, si le 1er argument du constructeur accepte un `array`, la factory injecte automatiquement les children parsés du block.
 
 Exemple avec parser custom :
 
