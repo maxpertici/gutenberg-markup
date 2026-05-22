@@ -82,3 +82,37 @@ BlockFactory::registerBlockParser(
 ```
 
 > Important : si un block parent supporté contient des children non compatibles avec son API (ex: `core/columns` avec un enfant non `core/column`), la factory bascule ce parent en fallback markup pour préserver un rendu Gutenberg propre et sans perte.
+
+## Travailler le post content bloc par bloc
+
+`PostContent` permet de manipuler une matière première structurée (arbre de blocs parsés), à partir d’un markup Gutenberg ou d’un array déjà parsé.
+
+```php
+use MaxPertici\GutenbergMarkup\PostContent;
+
+$postContent = new PostContent( $rawGutenbergMarkup );
+// ou: new PostContent( $alreadyParsedBlocksArray );
+
+$group = $postContent->findFirst( 'core/group' );
+
+$postContent->updateAll(
+	'core/group',
+	function ( array $block ): array {
+		$attrs = is_array( $block['attrs'] ?? null ) ? $block['attrs'] : [];
+		$attrs['className'] = trim( ( $attrs['className'] ?? '' ) . ' is-style-my-extended-group' );
+		$block['attrs']     = $attrs;
+
+		return $block;
+	}
+);
+
+$updatedMarkup = $postContent->toMarkup();
+```
+
+Méthodes utiles :
+- `findFirst( $blockName )`
+- `findAll( $blockName )`
+- `updateFirst( $blockName, $updater )`
+- `updateAll( $blockName, $updater )`
+- `toBlocks()` pour obtenir les blocks typés de la lib
+- `toMarkup()` pour reconstruire le markup Gutenberg

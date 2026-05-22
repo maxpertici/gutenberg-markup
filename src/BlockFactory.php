@@ -50,10 +50,24 @@ class BlockFactory {
 			return [ $postContent ];
 		}
 
-		$parsedBlocks = \parse_blocks( $postContent );
-		$blocks       = [];
+		return self::parseParsedBlocks( \parse_blocks( $postContent ), $blockParsers );
+	}
+
+	/**
+	 * Create block instances from a parsed Gutenberg blocks tree.
+	 *
+	 * @param array<int, array<string, mixed>> $parsedBlocks Parsed blocks from parse_blocks().
+	 * @param array<string, callable|string>   $blockParsers Local parser mapping.
+	 * @return array<int, object|string>
+	 */
+	public static function parseParsedBlocks( array $parsedBlocks, array $blockParsers = [] ): array {
+		$blocks = [];
 
 		foreach ( $parsedBlocks as $parsedBlock ) {
+			if ( ! is_array( $parsedBlock ) ) {
+				continue;
+			}
+
 			$block = self::createFromParsedBlock( $parsedBlock, $blockParsers );
 			if ( null !== $block && '' !== $block ) {
 				$blocks[] = $block;
