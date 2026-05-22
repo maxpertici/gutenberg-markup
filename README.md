@@ -85,8 +85,8 @@ BlockFactory::registerBlockParser(
 
 ## Travailler le post content bloc par bloc
 
-`PostContent` permet de manipuler une matière première structurée (arbre de blocs parsés), à partir d’un markup Gutenberg ou d’un array déjà parsé.
-`PostContent` hérite aussi de `Markup`, ce qui permet d’exploiter les helpers de la lib Markup sur une représentation imbriquée des blocs (`BlockMarkup` + strings).
+`PostContent` permet de manipuler un post Gutenberg via une représentation imbriquée `BlockMarkup|string`.
+`PostContent` hérite de `Markup` pour offrir une API fluide orientée rendu + collections.
 
 ```php
 use MaxPertici\GutenbergMarkup\PostContent;
@@ -94,38 +94,22 @@ use MaxPertici\GutenbergMarkup\PostContent;
 $postContent = new PostContent( $rawGutenbergMarkup );
 // ou: new PostContent( $alreadyParsedBlocksArray );
 
-$group = $postContent->findFirst( 'core/group' );
-
-$postContent->updateAll(
-	'core/group',
-	function ( array $block ): array {
-		$attrs = is_array( $block['attrs'] ?? null ) ? $block['attrs'] : [];
-		$attrs['className'] = trim( ( $attrs['className'] ?? '' ) . ' is-style-my-extended-group' );
-		$block['attrs']     = $attrs;
-
-		return $block;
-	}
-);
-
-$updatedMarkup = $postContent->toMarkup();
-
 // Représentation imbriquée BlockMarkup/string (compatible Markup collections)
 $blockMarkupCollection = $postContent->toBlockMarkupCollection();
 $groupBlocks = $blockMarkupCollection->filter(
 	fn ( $item ) => $item instanceof \MaxPertici\GutenbergMarkup\BlockMarkup
 		&& 'core/group' === $item->blockName()
 );
+
+$markup = $postContent->render();        // markup Gutenberg courant
+$html   = $postContent->renderBlocks();  // résultat WordPress (do_blocks) si disponible
 ```
 
 Méthodes utiles :
-- `findFirst( $blockName )`
-- `findAll( $blockName )`
-- `updateFirst( $blockName, $updater )`
-- `updateAll( $blockName, $updater )`
+- `render()` et `print()` pour le markup Gutenberg courant
+- `renderBlocks()` et `printBlocks()` pour le rendu final WordPress
+- `parsedBlocks()` pour récupérer l’arbre parse_blocks() courant
 - `toBlocks()` pour obtenir les blocks typés de la lib
 - `toMarkup()` pour reconstruire le markup Gutenberg
 - `toBlockMarkup()` pour obtenir un arbre imbriqué `BlockMarkup|string`
 - `toBlockMarkupCollection()` pour exploiter la représentation avec les méthodes de collection
-
-Note de round-trip :
-- Si `PostContent` est construit depuis une string brute **et** qu’aucun update effectif n’est appliqué, `toMarkup()` retourne la string originale telle quelle (pas de re-sérialisation non désirée).
