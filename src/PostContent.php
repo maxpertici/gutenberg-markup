@@ -142,7 +142,7 @@ class PostContent {
 	 * @return string
 	 */
 	public function toMarkup( ?array $blockParsers = null ): string {
-		if ( null === $blockParsers && ! $this->hasUpdates && null !== $this->originalMarkup ) {
+		if ( $this->shouldReturnOriginalMarkup( $blockParsers ) ) {
 			return $this->originalMarkup;
 		}
 
@@ -157,6 +157,16 @@ class PostContent {
 		}
 
 		return $output;
+	}
+
+	/**
+	 * Determine if original raw markup should be returned as-is.
+	 *
+	 * @param array<string, callable|string>|null $blockParsers Local parser mapping override.
+	 * @return bool
+	 */
+	private function shouldReturnOriginalMarkup( ?array $blockParsers ): bool {
+		return null === $blockParsers && ! $this->hasUpdates && null !== $this->originalMarkup;
 	}
 
 	/**
