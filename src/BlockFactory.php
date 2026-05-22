@@ -194,12 +194,24 @@ class BlockFactory {
 	 * @return object|null
 	 */
 	private static function createAutomaticBlock( string $blockName, array $attrs, array $parsedBlock ): ?object {
-		$parts       = explode( '/', $blockName, 2 );
-		$blockSlug   = $parts[1] ?? $parts[0];
-		$classSuffix = str_replace( ' ', '', ucwords( str_replace( array( '-', '_' ), ' ', $blockSlug ) ) );
-		$className   = __NAMESPACE__ . '\\Blocks\\' . $classSuffix . 'Block';
+		$className = __NAMESPACE__ . '\\Blocks\\' . self::blockNameToClassSuffix( $blockName ) . 'Block';
 
 		return self::createBlockFromClass( $className, $parsedBlock, $attrs );
+	}
+
+	/**
+	 * Convert Gutenberg block name into class suffix.
+	 *
+	 * Example: core/list-item -> ListItem
+	 *
+	 * @param string $blockName Block name.
+	 * @return string
+	 */
+	private static function blockNameToClassSuffix( string $blockName ): string {
+		$parts     = explode( '/', $blockName, 2 );
+		$blockSlug = $parts[1] ?? $parts[0];
+
+		return str_replace( ' ', '', ucwords( str_replace( array( '-', '_' ), ' ', $blockSlug ) ) );
 	}
 
 	/**
@@ -322,6 +334,31 @@ class BlockFactory {
 	}
 
 	/**
+	 * Validate that all children are instances of allowed classes.
+	 *
+	 * @param array<int, mixed> $children Children values.
+	 * @param array<int, string> $allowedClasses Allowed class names.
+	 * @return bool
+	 */
+	private static function childrenMatchAllowedTypes( array $children, array $allowedClasses ): bool {
+		foreach ( $children as $child ) {
+			$isAllowed = false;
+			foreach ( $allowedClasses as $allowedClass ) {
+				if ( $child instanceof $allowedClass ) {
+					$isAllowed = true;
+					break;
+				}
+			}
+
+			if ( ! $isAllowed ) {
+				return false;
+			}
+		}
+
+		return true;
+	}
+
+	/**
 	 * Convert a parsed item to string.
 	 *
 	 * @param mixed $value Value to convert.
@@ -441,10 +478,8 @@ class BlockFactory {
 	 */
 	private static function createColumnsBlock( array $attrs, array $parsedBlock, array $blockParsers = [] ): ?ColumnsBlock {
 		$children = self::createChildrenFromInnerBlocks( $parsedBlock, $blockParsers );
-		foreach ( $children as $child ) {
-			if ( ! $child instanceof ColumnBlock ) {
-				return null;
-			}
+		if ( ! self::childrenMatchAllowedTypes( $children, array( ColumnBlock::class ) ) ) {
+			return null;
 		}
 
 		$block = new ColumnsBlock( $children );
@@ -535,10 +570,8 @@ class BlockFactory {
 	 */
 	private static function createListBlock( array $attrs, array $parsedBlock, array $blockParsers = [] ): ?ListBlock {
 		$items = self::createChildrenFromInnerBlocks( $parsedBlock, $blockParsers );
-		foreach ( $items as $item ) {
-			if ( ! $item instanceof ListItemBlock && ! $item instanceof ListBlock ) {
-				return null;
-			}
+		if ( ! self::childrenMatchAllowedTypes( $items, array( ListItemBlock::class, ListBlock::class ) ) ) {
+			return null;
 		}
 
 		if ( empty( $items ) && '' !== trim( (string) ( $parsedBlock['innerHTML'] ?? '' ) ) ) {
