@@ -20,6 +20,7 @@ class PostContent extends Markup {
 
 	/**
 	 * Original raw Gutenberg markup when constructed from string input.
+	 * Null when constructed from a parsed blocks array input.
 	 *
 	 * @var string|null
 	 */
