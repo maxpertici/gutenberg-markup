@@ -24,7 +24,9 @@ class PostContent {
 	private array $blockParsers = [];
 
 	/**
-	 * @param string|array<int, array<string, mixed>> $postContent Raw Gutenberg markup or parsed blocks array (same structure as parse_blocks()).
+	 * @param string|array<int, array<string, mixed>> $postContent
+	 *        - string: raw Gutenberg markup.
+	 *        - array: parsed blocks tree (same structure as parse_blocks()).
 	 * @param array<string, callable|string>          $blockParsers Local parser mapping.
 	 */
 	public function __construct( string|array $postContent, array $blockParsers = [] ) {
@@ -70,7 +72,7 @@ class PostContent {
 	 * Update first matching block in parsed tree.
 	 *
 	 * @param string                                $blockName Block name (e.g. core/group).
-	 * @param callable(array<string,mixed>): array  $updater Updater callback receiving block array and returning updated block array.
+	 * @param callable(array<string, mixed>): array  $updater Updater callback receiving block array and returning updated block array.
 	 *                                              Non-array return values are ignored (no update applied).
 	 * @return bool True when one block was updated.
 	 */
@@ -82,7 +84,7 @@ class PostContent {
 	 * Update all matching blocks in parsed tree.
 	 *
 	 * @param string                                $blockName Block name (e.g. core/group).
-	 * @param callable(array<string,mixed>): array  $updater Updater callback receiving block array and returning updated block array.
+	 * @param callable(array<string, mixed>): array  $updater Updater callback receiving block array and returning updated block array.
 	 *                                              Non-array return values are ignored (no update applied).
 	 * @return int Number of updated blocks.
 	 */
@@ -205,7 +207,7 @@ class PostContent {
 	/**
 	 * @param array<int, array<string, mixed>>      $blocks Parsed blocks by reference.
 	 * @param string                                $blockName Block name.
-	 * @param callable(array<string,mixed>): array  $updater Updater callback.
+	 * @param callable(array<string, mixed>): array  $updater Updater callback.
 	 *                                              Non-array return values are ignored.
 	 * @return bool
 	 */
@@ -237,7 +239,7 @@ class PostContent {
 	/**
 	 * @param array<int, array<string, mixed>>      $blocks Parsed blocks by reference.
 	 * @param string                                $blockName Block name.
-	 * @param callable(array<string,mixed>): array  $updater Updater callback.
+	 * @param callable(array<string, mixed>): array  $updater Updater callback.
 	 *                                              Non-array return values are ignored.
 	 * @return int
 	 */
