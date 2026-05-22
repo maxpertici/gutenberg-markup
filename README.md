@@ -105,6 +105,31 @@ $markup = $postContent->render();        // markup Gutenberg courant
 $html   = $postContent->renderBlocks();  // résultat WordPress (do_blocks) si disponible
 ```
 
+Exemple — mettre à jour un seul block dans un post content :
+
+```php
+use MaxPertici\GutenbergMarkup\PostContent;
+
+$postContent  = new PostContent( $rawGutenbergMarkup );
+$parsedBlocks = $postContent->parsedBlocks();
+
+foreach ( $parsedBlocks as &$block ) {
+	if ( 'core/heading' !== ( $block['blockName'] ?? null ) ) {
+		continue;
+	}
+
+	$block['attrs']['level']   = 3;
+	$block['innerHTML']        = '<h3>Titre mis à jour</h3>';
+	$block['innerContent']     = [ '<h3>Titre mis à jour</h3>' ];
+	$block['innerBlocks']      = [];
+	break; // on ne modifie qu'un seul block
+}
+unset( $block );
+
+$updatedPostContent = new PostContent( $parsedBlocks );
+$updatedMarkup      = $updatedPostContent->toMarkup();
+```
+
 Méthodes utiles :
 - `render()` et `print()` pour le markup Gutenberg courant
 - `renderBlocks()` et `printBlocks()` pour le rendu final WordPress
