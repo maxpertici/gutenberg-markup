@@ -86,6 +86,7 @@ BlockFactory::registerBlockParser(
 ## Travailler le post content bloc par bloc
 
 `PostContent` permet de manipuler une matière première structurée (arbre de blocs parsés), à partir d’un markup Gutenberg ou d’un array déjà parsé.
+`PostContent` hérite aussi de `Markup`, ce qui permet d’exploiter les helpers de la lib Markup sur une représentation imbriquée des blocs (`BlockMarkup` + strings).
 
 ```php
 use MaxPertici\GutenbergMarkup\PostContent;
@@ -107,6 +108,13 @@ $postContent->updateAll(
 );
 
 $updatedMarkup = $postContent->toMarkup();
+
+// Représentation imbriquée BlockMarkup/string (compatible Markup collections)
+$blockMarkupCollection = $postContent->toBlockMarkupCollection();
+$groupBlocks = $blockMarkupCollection->filter(
+	fn ( $item ) => $item instanceof \MaxPertici\GutenbergMarkup\BlockMarkup
+		&& 'core/group' === $item->blockName()
+);
 ```
 
 Méthodes utiles :
@@ -116,6 +124,8 @@ Méthodes utiles :
 - `updateAll( $blockName, $updater )`
 - `toBlocks()` pour obtenir les blocks typés de la lib
 - `toMarkup()` pour reconstruire le markup Gutenberg
+- `toBlockMarkup()` pour obtenir un arbre imbriqué `BlockMarkup|string`
+- `toBlockMarkupCollection()` pour exploiter la représentation avec les méthodes de collection
 
 Note de round-trip :
 - Si `PostContent` est construit depuis une string brute **et** qu’aucun update effectif n’est appliqué, `toMarkup()` retourne la string originale telle quelle (pas de re-sérialisation non désirée).

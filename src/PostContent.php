@@ -7,13 +7,16 @@
 
 namespace MaxPertici\GutenbergMarkup;
 
+use MaxPertici\Markup\Markup;
+use MaxPertici\Markup\MarkupCollection;
+
 /**
  * Helper API to manipulate Gutenberg post content as a parsed blocks tree.
  *
  * Supports targeted block-level search/update operations and conversion
  * back to typed blocks or Gutenberg markup for safe large-scale transforms.
  */
-class PostContent {
+class PostContent extends Markup {
 
 	/**
 	 * Original raw Gutenberg markup when constructed from string input.
@@ -55,6 +58,14 @@ class PostContent {
 		$this->parsedBlocks = is_string( $postContent )
 			? self::parseMarkupToBlocksTree( $postContent )
 			: self::normalizeParsedBlocks( $postContent );
+
+		parent::__construct(
+			'',
+			[],
+			[],
+			'',
+			self::createMarkupChildrenFromParsedBlocks( $this->parsedBlocks )
+		);
 	}
 
 	/**
@@ -101,6 +112,7 @@ class PostContent {
 		$updated = self::updateFirstRecursive( $this->parsedBlocks, $blockName, $updater );
 		if ( $updated ) {
 			$this->hasUpdates = true;
+			$this->syncMarkupTree();
 		}
 
 		return $updated;
@@ -118,9 +130,28 @@ class PostContent {
 		$updatedCount = self::updateAllRecursive( $this->parsedBlocks, $blockName, $updater );
 		if ( $updatedCount > 0 ) {
 			$this->hasUpdates = true;
+			$this->syncMarkupTree();
 		}
 
 		return $updatedCount;
+	}
+
+	/**
+	 * Convert parsed tree to nested BlockMarkup/string structure.
+	 *
+	 * @return array<int, BlockMarkup|string>
+	 */
+	public function toBlockMarkup(): array {
+		return self::createMarkupChildrenFromParsedBlocks( $this->parsedBlocks );
+	}
+
+	/**
+	 * Convert parsed tree to a Markup collection.
+	 *
+	 * @return MarkupCollection
+	 */
+	public function toBlockMarkupCollection(): MarkupCollection {
+		return MarkupCollection::make( $this->toBlockMarkup() );
 	}
 
 	/**
@@ -326,6 +357,126 @@ class PostContent {
 		}
 
 		return '';
+	}
+
+	/**
+	 * Synchronize Markup children with the current parsed blocks tree.
+	 *
+	 * @return void
+	 */
+	private function syncMarkupTree(): void {
+		$this->setChildren( self::createMarkupChildrenFromParsedBlocks( $this->parsedBlocks ) );
+	}
+
+	/**
+	 * @param array<int, array<string, mixed>> $parsedBlocks Parsed tree.
+	 * @return array<int, BlockMarkup|string>
+	 */
+	private static function createMarkupChildrenFromParsedBlocks( array $parsedBlocks ): array {
+		$children = [];
+
+		foreach ( $parsedBlocks as $parsedBlock ) {
+			if ( ! is_array( $parsedBlock ) ) {
+				continue;
+			}
+
+			$children[] = self::createMarkupChildFromParsedBlock( $parsedBlock );
+		}
+
+		return $children;
+	}
+
+	/**
+	 * @param array<string, mixed> $parsedBlock Parsed block payload.
+	 * @return BlockMarkup|string
+	 */
+	private static function createMarkupChildFromParsedBlock( array $parsedBlock ): BlockMarkup|string {
+		$blockName = isset( $parsedBlock['blockName'] ) && is_string( $parsedBlock['blockName'] ) ? $parsedBlock['blockName'] : '';
+
+		if ( '' === $blockName ) {
+			$children = self::createMarkupChildrenFromInnerContent( $parsedBlock );
+			$output   = '';
+
+			foreach ( $children as $child ) {
+				$output .= self::renderValueToString( $child );
+			}
+
+			return $output;
+		}
+
+		$attrs = is_array( $parsedBlock['attrs'] ?? null ) ? $parsedBlock['attrs'] : [];
+
+		return new BlockMarkup(
+			blockName: $blockName,
+			blockAttributes: $attrs,
+			isSelfClosing: ! self::hasRenderableInnerContent( $parsedBlock ),
+			wrapper: '',
+			children: self::createMarkupChildrenFromInnerContent( $parsedBlock )
+		);
+	}
+
+	/**
+	 * @param array<string, mixed> $parsedBlock Parsed block payload.
+	 * @return array<int, BlockMarkup|string>
+	 */
+	private static function createMarkupChildrenFromInnerContent( array $parsedBlock ): array {
+		$innerContent = is_array( $parsedBlock['innerContent'] ?? null ) ? $parsedBlock['innerContent'] : [];
+		$innerBlocks  = self::normalizeParsedBlocks( is_array( $parsedBlock['innerBlocks'] ?? null ) ? $parsedBlock['innerBlocks'] : [] );
+
+		if ( empty( $innerContent ) ) {
+			if ( ! empty( $innerBlocks ) ) {
+				return self::createMarkupChildrenFromParsedBlocks( $innerBlocks );
+			}
+
+			$innerHtml = (string) ( $parsedBlock['innerHTML'] ?? '' );
+			if ( '' === $innerHtml ) {
+				return [];
+			}
+
+			return [ $innerHtml ];
+		}
+
+		$children   = [];
+		$childIndex = 0;
+
+		foreach ( $innerContent as $chunk ) {
+			if ( null === $chunk ) {
+				$child = $innerBlocks[ $childIndex ] ?? null;
+				if ( is_array( $child ) ) {
+					$children[] = self::createMarkupChildFromParsedBlock( $child );
+				}
+				++$childIndex;
+				continue;
+			}
+
+			$children[] = (string) $chunk;
+		}
+
+		return $children;
+	}
+
+	/**
+	 * @param array<string, mixed> $parsedBlock Parsed block payload.
+	 * @return bool
+	 */
+	private static function hasRenderableInnerContent( array $parsedBlock ): bool {
+		$innerBlocks = is_array( $parsedBlock['innerBlocks'] ?? null ) ? $parsedBlock['innerBlocks'] : [];
+		if ( ! empty( $innerBlocks ) ) {
+			return true;
+		}
+
+		$innerContent = is_array( $parsedBlock['innerContent'] ?? null ) ? $parsedBlock['innerContent'] : [];
+		foreach ( $innerContent as $chunk ) {
+			if ( null === $chunk ) {
+				return true;
+			}
+
+			if ( '' !== trim( (string) $chunk ) ) {
+				return true;
+			}
+		}
+
+		return '' !== trim( (string) ( $parsedBlock['innerHTML'] ?? '' ) );
 	}
 
 }
