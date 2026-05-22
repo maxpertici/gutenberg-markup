@@ -19,13 +19,6 @@ use MaxPertici\Markup\MarkupCollection;
 class PostContent extends Markup {
 
 	/**
-	 * Parsed Gutenberg blocks tree.
-	 *
-	 * @var array<int, array<string, mixed>>
-	 */
-	private array $parsedBlocks = [];
-
-	/**
 	 * Default local parser mapping used when converting to block objects.
 	 *
 	 * @var array<string, callable|string>
@@ -40,7 +33,7 @@ class PostContent extends Markup {
 	 */
 	public function __construct( string|array $contentOrBlocks, array $blockParsers = [] ) {
 		$this->blockParsers = $blockParsers;
-		$this->parsedBlocks = is_string( $contentOrBlocks )
+		$parsedBlocks = is_string( $contentOrBlocks )
 			? self::parseMarkupToBlocksTree( $contentOrBlocks )
 			: self::normalizeParsedBlocks( $contentOrBlocks );
 
@@ -49,7 +42,7 @@ class PostContent extends Markup {
 			[],
 			[],
 			'',
-			self::createMarkupChildrenFromParsedBlocks( $this->parsedBlocks )
+			self::createMarkupChildrenFromParsedBlocks( $parsedBlocks )
 		);
 	}
 
