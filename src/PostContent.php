@@ -288,12 +288,12 @@ class PostContent extends Markup {
 	 * @return bool
 	 */
 	private static function updateFirstRecursive( array &$blocks, string $blockName, callable $updater ): bool {
-		foreach ( $blocks as $index => &$block ) {
+		foreach ( $blocks as &$block ) {
 			$currentBlockName = isset( $block['blockName'] ) && is_string( $block['blockName'] ) ? $block['blockName'] : '';
 			if ( $currentBlockName === $blockName ) {
 				$updated = $updater( $block );
 				if ( is_array( $updated ) ) {
-					$blocks[ $index ] = $updated;
+					$block = $updated;
 					return true;
 				}
 			}
@@ -322,13 +322,12 @@ class PostContent extends Markup {
 	private static function updateAllRecursive( array &$blocks, string $blockName, callable $updater ): int {
 		$updatedCount = 0;
 
-		foreach ( $blocks as $index => &$block ) {
+		foreach ( $blocks as &$block ) {
 			$currentBlockName = isset( $block['blockName'] ) && is_string( $block['blockName'] ) ? $block['blockName'] : '';
 			if ( $currentBlockName === $blockName ) {
 				$updated = $updater( $block );
 				if ( is_array( $updated ) ) {
-					$blocks[ $index ] = $updated;
-					$block            = $blocks[ $index ];
+					$block = $updated;
 					++$updatedCount;
 				}
 			}
