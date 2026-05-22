@@ -16,11 +16,25 @@ namespace MaxPertici\GutenbergMarkup;
 class PostContent {
 
 	/**
+	 * Original raw Gutenberg markup when constructed from string input.
+	 *
+	 * @var string|null
+	 */
+	private ?string $originalMarkup = null;
+
+	/**
 	 * Parsed Gutenberg blocks tree.
 	 *
 	 * @var array<int, array<string, mixed>>
 	 */
 	private array $parsedBlocks = [];
+
+	/**
+	 * Indicates whether parsed blocks were effectively updated.
+	 *
+	 * @var bool
+	 */
+	private bool $hasUpdates = false;
 
 	/**
 	 * Default local parser mapping used when converting to block objects.
@@ -37,6 +51,7 @@ class PostContent {
 	 */
 	public function __construct( string|array $postContent, array $blockParsers = [] ) {
 		$this->blockParsers = $blockParsers;
+		$this->originalMarkup = is_string( $postContent ) ? $postContent : null;
 		$this->parsedBlocks = is_string( $postContent )
 			? self::parseMarkupToBlocksTree( $postContent )
 			: self::normalizeParsedBlocks( $postContent );
@@ -83,7 +98,12 @@ class PostContent {
 	 * @return bool True when one block was updated.
 	 */
 	public function updateFirst( string $blockName, callable $updater ): bool {
-		return self::updateFirstRecursive( $this->parsedBlocks, $blockName, $updater );
+		$updated = self::updateFirstRecursive( $this->parsedBlocks, $blockName, $updater );
+		if ( $updated ) {
+			$this->hasUpdates = true;
+		}
+
+		return $updated;
 	}
 
 	/**
@@ -95,7 +115,12 @@ class PostContent {
 	 * @return int Number of updated blocks.
 	 */
 	public function updateAll( string $blockName, callable $updater ): int {
-		return self::updateAllRecursive( $this->parsedBlocks, $blockName, $updater );
+		$updatedCount = self::updateAllRecursive( $this->parsedBlocks, $blockName, $updater );
+		if ( $updatedCount > 0 ) {
+			$this->hasUpdates = true;
+		}
+
+		return $updatedCount;
 	}
 
 	/**
@@ -117,6 +142,10 @@ class PostContent {
 	 * @return string
 	 */
 	public function toMarkup( ?array $blockParsers = null ): string {
+		if ( null === $blockParsers && ! $this->hasUpdates && null !== $this->originalMarkup ) {
+			return $this->originalMarkup;
+		}
+
 		if ( \function_exists( 'serialize_blocks' ) ) {
 			// @phpstan-ignore-next-line
 			return (string) \serialize_blocks( $this->parsedBlocks );

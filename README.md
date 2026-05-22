@@ -116,3 +116,6 @@ Méthodes utiles :
 - `updateAll( $blockName, $updater )`
 - `toBlocks()` pour obtenir les blocks typés de la lib
 - `toMarkup()` pour reconstruire le markup Gutenberg
+
+Note de round-trip :
+- Si `PostContent` est construit depuis une string brute **et** qu’aucun update effectif n’est appliqué, `toMarkup()` retourne la string originale telle quelle (pas de re-sérialisation non désirée).
