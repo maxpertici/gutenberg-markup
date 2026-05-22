@@ -43,6 +43,7 @@ class BlockFactory {
 	 * Unsupported blocks are returned as simple markup strings.
 	 *
 	 * @param string $postContent Raw Gutenberg post content.
+	 * @param array<string, callable|string> $blockParsers Local parser mapping.
 	 * @return array<int, object|string>
 	 */
 	public static function parsePostContent( string $postContent, array $blockParsers = [] ): array {
@@ -100,7 +101,8 @@ class BlockFactory {
 	/**
 	 * Create a block instance (or markup fallback) from parse_blocks() output.
 	 *
-	 * @param array $parsedBlock A parsed block item.
+	 * @param array<string, mixed> $parsedBlock A parsed block item.
+	 * @param array<string, callable|string> $blockParsers Local parser mapping.
 	 * @return object|string|null
 	 */
 	private static function createFromParsedBlock( array $parsedBlock, array $blockParsers = [] ) {
@@ -136,6 +138,7 @@ class BlockFactory {
 	 * @param string $blockName Block name from parse_blocks().
 	 * @param array  $attrs Parsed block attributes.
 	 * @param array  $parsedBlock Full parsed block payload.
+	 * @param array<string, callable|string> $blockParsers Local parser mapping.
 	 * @return object|null
 	 */
 	private static function createSupportedBlock( string $blockName, array $attrs, array $parsedBlock, array $blockParsers = [] ): ?object {
@@ -183,6 +186,7 @@ class BlockFactory {
 	 * @param callable|string $resolver Resolver callback or class-string.
 	 * @param array           $parsedBlock Parsed block payload.
 	 * @param array           $attrs Block attributes.
+	 * @param array<string, callable|string> $blockParsers Local parser mapping.
 	 * @return object|string|null
 	 */
 	private static function resolveMappedBlock( callable|string $resolver, array $parsedBlock, array $attrs, array $blockParsers = [] ) {
@@ -239,7 +243,7 @@ class BlockFactory {
 	 * @param string $className Class name.
 	 * @param array  $parsedBlock Parsed block payload.
 	 * @param array  $attrs Block attributes.
-	 * @param array  $blockParsers Local parser mapping.
+	 * @param array<string, callable|string> $blockParsers Local parser mapping.
 	 * @param bool   $hydrateConstructorFromParsedBlock Whether to hydrate constructor args from parsed block.
 	 * @return object|null
 	 */
@@ -286,7 +290,7 @@ class BlockFactory {
 	 *
 	 * @param \ReflectionMethod $constructor Constructor reflection.
 	 * @param array             $parsedBlock Parsed block payload.
-	 * @param array             $blockParsers Local parser mapping.
+	 * @param array<string, callable|string> $blockParsers Local parser mapping.
 	 * @return array<int, mixed>
 	 */
 	private static function buildMappedConstructorArgs( \ReflectionMethod $constructor, array $parsedBlock, array $blockParsers = [] ): array {
@@ -335,6 +339,7 @@ class BlockFactory {
 	 * @param string $blockName Block name.
 	 * @param array  $attrs Block attributes.
 	 * @param array  $parsedBlock Full parsed block payload.
+	 * @param array<string, callable|string> $blockParsers Local parser mapping.
 	 * @return string
 	 */
 	private static function createSimpleMarkupBlock( string $blockName, array $attrs, array $parsedBlock, array $blockParsers = [] ): string {
@@ -351,7 +356,8 @@ class BlockFactory {
 	/**
 	 * Rebuild block inner content as string from `innerContent` and children.
 	 *
-	 * @param array $parsedBlock Parsed block.
+	 * @param array<string, mixed> $parsedBlock Parsed block.
+	 * @param array<string, callable|string> $blockParsers Local parser mapping.
 	 * @return string
 	 */
 	private static function buildStringContentFromParsedBlock( array $parsedBlock, array $blockParsers = [] ): string {
@@ -385,7 +391,8 @@ class BlockFactory {
 	/**
 	 * Build parsed children as block objects/strings.
 	 *
-	 * @param array $parsedBlock Parsed block.
+	 * @param array<string, mixed> $parsedBlock Parsed block.
+	 * @param array<string, callable|string> $blockParsers Local parser mapping.
 	 * @return array<int, object|string>
 	 */
 	private static function createChildrenFromInnerBlocks( array $parsedBlock, array $blockParsers = [] ): array {
