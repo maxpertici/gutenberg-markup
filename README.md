@@ -41,4 +41,40 @@ $blocks  = BlockFactory::parsePostContent( $content );
 ```
 
 - Les blocks supportés sont convertis en classes dédiées (`ParagraphBlock`, `HeadingBlock`, etc.).
-- Les blocks non supportés restent en markup simple (fallback).
+- Les blocks non supportés restent en markup simple (fallback) avec commentaires Gutenberg conservés.
+- Les attributs inconnus sont conservés.
+
+## Résolution auto + mapping custom
+
+La factory tente, dans cet ordre :
+
+1. Mapping local passé à `parsePostContent(...)`
+2. Mapping global enregistré via `BlockFactory::registerBlockParser(...)`
+3. Résolution native des blocks supportés de la lib
+4. Résolution automatique par convention de nom (`core/list-item` -> `Blocks\\ListItemBlock`)
+5. Fallback markup simple
+
+Exemple avec mapping local :
+
+```php
+use MaxPertici\GutenbergMarkup\BlockFactory;
+use App\Blocks\HeroBlock;
+
+$blocks = BlockFactory::parsePostContent(
+	$content,
+	[
+		'myplugin/hero' => HeroBlock::class,
+	]
+);
+```
+
+Exemple avec parser custom :
+
+```php
+BlockFactory::registerBlockParser(
+	'myplugin/hero',
+	fn ( array $parsedBlock, array $attrs ) => new HeroBlock( $parsedBlock, $attrs )
+);
+```
+
+> Important : si un block parent supporté contient des children non compatibles avec son API (ex: `core/columns` avec un enfant non `core/column`), la factory bascule ce parent en fallback markup pour préserver un rendu Gutenberg propre et sans perte.

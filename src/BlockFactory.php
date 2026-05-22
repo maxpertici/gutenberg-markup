@@ -25,6 +25,18 @@ use MaxPertici\GutenbergMarkup\Blocks\SeparatorBlock;
 class BlockFactory {
 
 	/**
+	 * Global custom parser mapping.
+	 *
+	 * Each resolver can be:
+	 * - a callable: fn(array $parsedBlock, array $attrs): object|string|null
+	 * - a class-string implementing either a static fromParsedBlock(array $parsedBlock)
+	 *   method or a zero-argument constructor.
+	 *
+	 * @var array<string, callable|string>
+	 */
+	private static array $customBlockParsers = [];
+
+	/**
 	 * Parse post content and create blocks.
 	 *
 	 * Supported Gutenberg blocks are converted to dedicated classes.
@@ -33,7 +45,7 @@ class BlockFactory {
 	 * @param string $postContent Raw Gutenberg post content.
 	 * @return array<int, object|string>
 	 */
-	public static function parsePostContent( string $postContent ): array {
+	public static function parsePostContent( string $postContent, array $blockParsers = [] ): array {
 		if ( ! \function_exists( 'parse_blocks' ) ) {
 			return [ $postContent ];
 		}
@@ -42,7 +54,7 @@ class BlockFactory {
 		$blocks       = [];
 
 		foreach ( $parsedBlocks as $parsedBlock ) {
-			$block = self::createFromParsedBlock( $parsedBlock );
+			$block = self::createFromParsedBlock( $parsedBlock, $blockParsers );
 			if ( null !== $block && '' !== $block ) {
 				$blocks[] = $block;
 			}
@@ -52,26 +64,56 @@ class BlockFactory {
 	}
 
 	/**
+	 * Register a global block parser or class mapping.
+	 *
+	 * @param string          $blockName Gutenberg block name (e.g. core/paragraph).
+	 * @param callable|string $resolver Parser callable or class-string.
+	 * @return void
+	 */
+	public static function registerBlockParser( string $blockName, callable|string $resolver ): void {
+		self::$customBlockParsers[ $blockName ] = $resolver;
+	}
+
+	/**
+	 * Clear all global custom block parsers.
+	 *
+	 * @return void
+	 */
+	public static function clearBlockParsers(): void {
+		self::$customBlockParsers = [];
+	}
+
+	/**
 	 * Create a block instance (or markup fallback) from parse_blocks() output.
 	 *
 	 * @param array $parsedBlock A parsed block item.
 	 * @return object|string|null
 	 */
-	private static function createFromParsedBlock( array $parsedBlock ) {
+	private static function createFromParsedBlock( array $parsedBlock, array $blockParsers = [] ) {
 		$blockName = $parsedBlock['blockName'] ?? null;
 		$attrs     = is_array( $parsedBlock['attrs'] ?? null ) ? $parsedBlock['attrs'] : [];
 
 		if ( empty( $blockName ) ) {
-			return self::buildStringContentFromParsedBlock( $parsedBlock );
+			return self::buildStringContentFromParsedBlock( $parsedBlock, $blockParsers );
 		}
 
-		$block = self::createSupportedBlock( $blockName, $attrs, $parsedBlock );
+		$block = self::createMappedBlock( $blockName, $attrs, $parsedBlock, $blockParsers );
 
 		if ( null !== $block ) {
 			return $block;
 		}
 
-		return self::createSimpleMarkupBlock( $blockName, $attrs, $parsedBlock );
+		$block = self::createSupportedBlock( $blockName, $attrs, $parsedBlock, $blockParsers );
+		if ( null !== $block ) {
+			return $block;
+		}
+
+		$block = self::createAutomaticBlock( $blockName, $attrs, $parsedBlock );
+		if ( null !== $block ) {
+			return $block;
+		}
+
+		return self::createSimpleMarkupBlock( $blockName, $attrs, $parsedBlock, $blockParsers );
 	}
 
 	/**
@@ -82,22 +124,124 @@ class BlockFactory {
 	 * @param array  $parsedBlock Full parsed block payload.
 	 * @return object|null
 	 */
-	private static function createSupportedBlock( string $blockName, array $attrs, array $parsedBlock ): ?object {
+	private static function createSupportedBlock( string $blockName, array $attrs, array $parsedBlock, array $blockParsers = [] ): ?object {
 		return match ( $blockName ) {
 			'core/paragraph' => self::createParagraphBlock( $attrs, $parsedBlock ),
 			'core/heading' => self::createHeadingBlock( $attrs, $parsedBlock ),
-			'core/group' => self::createGroupBlock( $attrs, $parsedBlock ),
-			'core/columns' => self::createColumnsBlock( $attrs, $parsedBlock ),
-			'core/column' => self::createColumnBlock( $attrs, $parsedBlock ),
-			'core/quote' => self::createQuoteBlock( $attrs, $parsedBlock ),
+			'core/group' => self::createGroupBlock( $attrs, $parsedBlock, $blockParsers ),
+			'core/columns' => self::createColumnsBlock( $attrs, $parsedBlock, $blockParsers ),
+			'core/column' => self::createColumnBlock( $attrs, $parsedBlock, $blockParsers ),
+			'core/quote' => self::createQuoteBlock( $attrs, $parsedBlock, $blockParsers ),
 			'core/pullquote' => self::createPullquoteBlock( $attrs, $parsedBlock ),
-			'core/list' => self::createListBlock( $attrs, $parsedBlock ),
+			'core/list' => self::createListBlock( $attrs, $parsedBlock, $blockParsers ),
 			'core/list-item' => self::createListItemBlock( $attrs, $parsedBlock ),
 			'core/separator' => self::createSeparatorBlock( $attrs ),
 			'core/file' => self::createFileBlock( $attrs ),
 			'core/image' => self::createImageBlock( $attrs ),
 			default => null,
 		};
+	}
+
+	/**
+	 * Try mapped parsers from local and global mapping.
+	 *
+	 * @param string $blockName Block name.
+	 * @param array  $attrs Block attributes.
+	 * @param array  $parsedBlock Parsed block payload.
+	 * @param array  $blockParsers Local parser mapping.
+	 * @return object|string|null
+	 */
+	private static function createMappedBlock( string $blockName, array $attrs, array $parsedBlock, array $blockParsers = [] ) {
+		if ( array_key_exists( $blockName, $blockParsers ) ) {
+			return self::resolveMappedBlock( $blockParsers[ $blockName ], $parsedBlock, $attrs );
+		}
+
+		if ( array_key_exists( $blockName, self::$customBlockParsers ) ) {
+			return self::resolveMappedBlock( self::$customBlockParsers[ $blockName ], $parsedBlock, $attrs );
+		}
+
+		return null;
+	}
+
+	/**
+	 * Resolve one mapping entry to a parsed block instance.
+	 *
+	 * @param callable|string $resolver Resolver callback or class-string.
+	 * @param array           $parsedBlock Parsed block payload.
+	 * @param array           $attrs Block attributes.
+	 * @return object|string|null
+	 */
+	private static function resolveMappedBlock( callable|string $resolver, array $parsedBlock, array $attrs ) {
+		if ( is_callable( $resolver ) ) {
+			return $resolver( $parsedBlock, $attrs );
+		}
+
+		if ( is_string( $resolver ) ) {
+			return self::createBlockFromClass( $resolver, $parsedBlock, $attrs );
+		}
+
+		return null;
+	}
+
+	/**
+	 * Automatic class resolution by Gutenberg block name convention.
+	 *
+	 * Example: core/list-item -> MaxPertici\GutenbergMarkup\Blocks\ListItemBlock
+	 *
+	 * @param string $blockName Block name.
+	 * @param array  $attrs Block attributes.
+	 * @param array  $parsedBlock Parsed block payload.
+	 * @return object|null
+	 */
+	private static function createAutomaticBlock( string $blockName, array $attrs, array $parsedBlock ): ?object {
+		$parts       = explode( '/', $blockName, 2 );
+		$blockSlug   = $parts[1] ?? $parts[0];
+		$classSuffix = str_replace( ' ', '', ucwords( str_replace( array( '-', '_' ), ' ', $blockSlug ) ) );
+		$className   = __NAMESPACE__ . '\\Blocks\\' . $classSuffix . 'Block';
+
+		return self::createBlockFromClass( $className, $parsedBlock, $attrs );
+	}
+
+	/**
+	 * Create block instance from class.
+	 *
+	 * Supported strategies:
+	 * - static fromParsedBlock(array $parsedBlock): object
+	 * - zero-argument constructor + setBlockAttributes(array, false)
+	 *
+	 * @param string $className Class name.
+	 * @param array  $parsedBlock Parsed block payload.
+	 * @param array  $attrs Block attributes.
+	 * @return object|null
+	 */
+	private static function createBlockFromClass( string $className, array $parsedBlock, array $attrs ): ?object {
+		if ( ! class_exists( $className ) ) {
+			return null;
+		}
+
+		try {
+			if ( method_exists( $className, 'fromParsedBlock' ) ) {
+				$instance = $className::fromParsedBlock( $parsedBlock );
+				if ( is_object( $instance ) ) {
+					return $instance;
+				}
+			}
+
+			$reflection  = new \ReflectionClass( $className );
+			$constructor = $reflection->getConstructor();
+			if ( null !== $constructor && $constructor->getNumberOfRequiredParameters() > 0 ) {
+				return null;
+			}
+
+			$instance = $reflection->newInstance();
+			if ( method_exists( $instance, 'setBlockAttributes' ) ) {
+				$instance->setBlockAttributes( $attrs, false );
+			}
+
+			return $instance;
+		} catch ( \Throwable $e ) {
+			return null;
+		}
 	}
 
 	/**
@@ -108,8 +252,8 @@ class BlockFactory {
 	 * @param array  $parsedBlock Full parsed block payload.
 	 * @return string
 	 */
-	private static function createSimpleMarkupBlock( string $blockName, array $attrs, array $parsedBlock ): string {
-		$content = self::buildStringContentFromParsedBlock( $parsedBlock );
+	private static function createSimpleMarkupBlock( string $blockName, array $attrs, array $parsedBlock, array $blockParsers = [] ): string {
+		$content = self::buildStringContentFromParsedBlock( $parsedBlock, $blockParsers );
 		$comment = new BlockComments( $blockName, $attrs );
 
 		if ( '' === trim( $content ) ) {
@@ -125,7 +269,7 @@ class BlockFactory {
 	 * @param array $parsedBlock Parsed block.
 	 * @return string
 	 */
-	private static function buildStringContentFromParsedBlock( array $parsedBlock ): string {
+	private static function buildStringContentFromParsedBlock( array $parsedBlock, array $blockParsers = [] ): string {
 		$innerContent = is_array( $parsedBlock['innerContent'] ?? null ) ? $parsedBlock['innerContent'] : [];
 		$innerBlocks  = is_array( $parsedBlock['innerBlocks'] ?? null ) ? $parsedBlock['innerBlocks'] : [];
 
@@ -140,7 +284,7 @@ class BlockFactory {
 			if ( null === $chunk ) {
 				$child = $innerBlocks[ $childIndex ] ?? null;
 				if ( is_array( $child ) ) {
-					$parsedChild = self::createFromParsedBlock( $child );
+					$parsedChild = self::createFromParsedBlock( $child, $blockParsers );
 					$result     .= self::renderToString( $parsedChild );
 				}
 				++$childIndex;
@@ -159,7 +303,7 @@ class BlockFactory {
 	 * @param array $parsedBlock Parsed block.
 	 * @return array<int, object|string>
 	 */
-	private static function createChildrenFromInnerBlocks( array $parsedBlock ): array {
+	private static function createChildrenFromInnerBlocks( array $parsedBlock, array $blockParsers = [] ): array {
 		$children    = [];
 		$innerBlocks = is_array( $parsedBlock['innerBlocks'] ?? null ) ? $parsedBlock['innerBlocks'] : [];
 
@@ -168,7 +312,7 @@ class BlockFactory {
 				continue;
 			}
 
-			$child = self::createFromParsedBlock( $innerBlock );
+			$child = self::createFromParsedBlock( $innerBlock, $blockParsers );
 			if ( null !== $child && '' !== $child ) {
 				$children[] = $child;
 			}
@@ -237,8 +381,8 @@ class BlockFactory {
 	 * @param array $parsedBlock Parsed block.
 	 * @return GroupBlock
 	 */
-	private static function createGroupBlock( array $attrs, array $parsedBlock ): GroupBlock {
-		$block = new GroupBlock( self::createChildrenFromInnerBlocks( $parsedBlock ) );
+	private static function createGroupBlock( array $attrs, array $parsedBlock, array $blockParsers = [] ): GroupBlock {
+		$block = new GroupBlock( self::createChildrenFromInnerBlocks( $parsedBlock, $blockParsers ) );
 		$block->setBlockAttributes( $attrs, false );
 
 		$layout = is_array( $attrs['layout'] ?? null ) ? $attrs['layout'] : [];
@@ -295,13 +439,13 @@ class BlockFactory {
 	 * @param array $parsedBlock Parsed block.
 	 * @return ColumnsBlock
 	 */
-	private static function createColumnsBlock( array $attrs, array $parsedBlock ): ColumnsBlock {
-		$children = array_values(
-			array_filter(
-				self::createChildrenFromInnerBlocks( $parsedBlock ),
-				fn( $child ) => $child instanceof ColumnBlock
-			)
-		);
+	private static function createColumnsBlock( array $attrs, array $parsedBlock, array $blockParsers = [] ): ?ColumnsBlock {
+		$children = self::createChildrenFromInnerBlocks( $parsedBlock, $blockParsers );
+		foreach ( $children as $child ) {
+			if ( ! $child instanceof ColumnBlock ) {
+				return null;
+			}
+		}
 
 		$block = new ColumnsBlock( $children );
 		$block->setBlockAttributes( $attrs, false );
@@ -324,8 +468,8 @@ class BlockFactory {
 	 * @param array $parsedBlock Parsed block.
 	 * @return ColumnBlock
 	 */
-	private static function createColumnBlock( array $attrs, array $parsedBlock ): ColumnBlock {
-		$block = new ColumnBlock( self::createChildrenFromInnerBlocks( $parsedBlock ) );
+	private static function createColumnBlock( array $attrs, array $parsedBlock, array $blockParsers = [] ): ColumnBlock {
+		$block = new ColumnBlock( self::createChildrenFromInnerBlocks( $parsedBlock, $blockParsers ) );
 		$block->setBlockAttributes( $attrs, false );
 
 		if ( isset( $attrs['width'] ) ) {
@@ -346,11 +490,11 @@ class BlockFactory {
 	 * @param array $parsedBlock Parsed block.
 	 * @return QuoteBlock
 	 */
-	private static function createQuoteBlock( array $attrs, array $parsedBlock ): QuoteBlock {
+	private static function createQuoteBlock( array $attrs, array $parsedBlock, array $blockParsers = [] ): QuoteBlock {
 		$innerHtml = (string) ( $parsedBlock['innerHTML'] ?? '' );
 		$citation  = self::extractTagInnerHtml( $innerHtml, 'cite' );
 
-		$block = new QuoteBlock( self::createChildrenFromInnerBlocks( $parsedBlock ), $citation );
+		$block = new QuoteBlock( self::createChildrenFromInnerBlocks( $parsedBlock, $blockParsers ), $citation );
 		$block->setBlockAttributes( $attrs, false );
 
 		if ( isset( $attrs['textAlign'] ) ) {
@@ -389,8 +533,18 @@ class BlockFactory {
 	 * @param array $parsedBlock Parsed block.
 	 * @return ListBlock
 	 */
-	private static function createListBlock( array $attrs, array $parsedBlock ): ListBlock {
-		$items = self::createChildrenFromInnerBlocks( $parsedBlock );
+	private static function createListBlock( array $attrs, array $parsedBlock, array $blockParsers = [] ): ?ListBlock {
+		$items = self::createChildrenFromInnerBlocks( $parsedBlock, $blockParsers );
+		foreach ( $items as $item ) {
+			if ( ! $item instanceof ListItemBlock && ! $item instanceof ListBlock ) {
+				return null;
+			}
+		}
+
+		if ( empty( $items ) && '' !== trim( (string) ( $parsedBlock['innerHTML'] ?? '' ) ) ) {
+			return null;
+		}
+
 		$block = new ListBlock(
 			items: $items,
 			ordered: (bool) ( $attrs['ordered'] ?? false ),
@@ -533,4 +687,3 @@ class BlockFactory {
 		return null;
 	}
 }
-
