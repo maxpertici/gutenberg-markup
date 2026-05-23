@@ -145,6 +145,42 @@ Méthodes utiles :
 - `renderBlocks()` et `printBlocks()` pour le rendu final WordPress
 - `parsedBlocks()` pour récupérer l’arbre parse_blocks() courant
 - `toBlocks()` pour obtenir les blocks typés de la lib
+- `toBlocksCollection()` pour manipuler les blocks typés comme collection
 - `toMarkup()` pour reconstruire le markup Gutenberg
 - `toBlockMarkup()` pour obtenir un arbre imbriqué `BlockMarkup|string`
 - `toBlockMarkupCollection()` pour exploiter la représentation avec les méthodes de collection
+- `withBlocks()` pour reconstruire directement un `PostContent` depuis un tableau de blocks déjà modifiés
+- `replaceFirstBlock()` pour remplacer le premier block matching, même s’il est imbriqué dans un parent non supporté
+
+Exemple — remplacer le premier bouton qui cible une URL précise :
+
+```php
+use MaxPertici\GutenbergMarkup\PostContent;
+use MaxPertici\GutenbergMarkup\Blocks\ButtonBlock;
+
+$postContent = new PostContent( $rawGutenbergMarkup );
+
+$updatedPostContent = $postContent->replaceFirstBlock(
+	function ( $block ) {
+		if ( ! $block instanceof ButtonBlock ) {
+			return null;
+		}
+
+		if ( 'https://old.example.com' !== $block->url() ) {
+			return null;
+		}
+
+		return ( new ButtonBlock(
+			content: 'CTA mis à jour',
+			url: 'https://new.example.com'
+		) )
+			->openInNewTab( true )
+			->rel( 'noopener noreferrer' );
+	}
+);
+
+$updatedBlocks = $updatedPostContent->toBlocks();
+$updatedMarkup = $updatedPostContent->toMarkup();
+```
+
+> `replaceFirstBlock()` traverse aussi les `innerBlocks`, donc un `core/button` imbriqué dans un `core/buttons` encore non implémenté reste remplaçable proprement sans éditer les tableaux `parse_blocks()` à la main.

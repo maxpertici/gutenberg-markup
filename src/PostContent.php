@@ -74,6 +74,16 @@ class PostContent extends Markup {
 	}
 
 	/**
+	 * Convert parsed tree to a typed blocks collection.
+	 *
+	 * @param array<string, callable|string>|null $blockParsers Local parser mapping override.
+	 * @return MarkupCollection
+	 */
+	public function toBlocksCollection( ?array $blockParsers = null ): MarkupCollection {
+		return MarkupCollection::make( $this->toBlocks( $blockParsers ) );
+	}
+
+	/**
 	 * Convert parsed tree to typed block objects / markup fallback strings.
 	 *
 	 * @param array<string, callable|string>|null $blockParsers Local parser mapping override.
@@ -96,12 +106,39 @@ class PostContent extends Markup {
 			return parent::render();
 		}
 
-		$output = '';
-		foreach ( $this->toBlocks( $blockParsers ) as $block ) {
-			$output .= self::renderValueToString( $block );
-		}
+		return self::renderValuesToString( $this->toBlocks( $blockParsers ) );
+	}
 
-		return $output;
+	/**
+	 * Build a new PostContent instance from already updated renderable blocks.
+	 *
+	 * @param array<int, object|string> $blocks Renderable block objects or fallback strings.
+	 * @param array<string, callable|string>|null $blockParsers Local parser mapping override.
+	 * @return self
+	 */
+	public function withBlocks( array $blocks, ?array $blockParsers = null ): self {
+		$resolvers = null === $blockParsers ? $this->blockParsers : $blockParsers;
+
+		return new self( self::renderValuesToString( $blocks ), $resolvers );
+	}
+
+	/**
+	 * Replace the first matching block anywhere in the parsed tree and return a new PostContent.
+	 *
+	 * The callback receives the typed block instance (or fallback string) and the raw parsed block.
+	 * Return a renderable replacement (object with render(), or string) to replace that block.
+	 * Return null to keep the current block unchanged.
+	 *
+	 * @param callable $replacer Callback signature: fn(object|string $block, array<string, mixed> $parsedBlock): object|string|null
+	 * @param array<string, callable|string>|null $blockParsers Local parser mapping override.
+	 * @return self
+	 */
+	public function replaceFirstBlock( callable $replacer, ?array $blockParsers = null ): self {
+		$resolvers = null === $blockParsers ? $this->blockParsers : $blockParsers;
+		$replaced  = false;
+		$blocks    = self::replaceFirstParsedBlock( $this->parsedBlocks(), $replacer, $resolvers, $replaced );
+
+		return new self( $blocks, $resolvers );
 	}
 
 	/**
@@ -192,6 +229,81 @@ class PostContent extends Markup {
 		}
 
 		return '';
+	}
+
+	/**
+	 * Render a list of values to Gutenberg markup.
+	 *
+	 * @param array<int, mixed> $values Values to render.
+	 * @return string
+	 */
+	private static function renderValuesToString( array $values ): string {
+		$output = '';
+
+		foreach ( $values as $value ) {
+			$output .= self::renderValueToString( $value );
+		}
+
+		return $output;
+	}
+
+	/**
+	 * Replace the first matching parsed block recursively.
+	 *
+	 * @param array<int, array<string, mixed>> $parsedBlocks Parsed blocks tree.
+	 * @param callable $replacer Callback returning a renderable replacement or null.
+	 * @param array<string, callable|string> $blockParsers Local parser mapping.
+	 * @param bool $replaced Whether a replacement already happened.
+	 * @return array<int, array<string, mixed>>
+	 */
+	private static function replaceFirstParsedBlock( array $parsedBlocks, callable $replacer, array $blockParsers, bool &$replaced ): array {
+		$updatedBlocks = [];
+
+		foreach ( $parsedBlocks as $parsedBlock ) {
+			if ( ! is_array( $parsedBlock ) ) {
+				continue;
+			}
+
+			if ( ! $replaced ) {
+				$block       = BlockFactory::parseParsedBlock( $parsedBlock, $blockParsers );
+				$replacement = $replacer( $block, $parsedBlock );
+
+				if ( null !== $replacement ) {
+					$updatedBlocks[] = self::renderValueToParsedBlock( $replacement );
+					$replaced        = true;
+					continue;
+				}
+			}
+
+			$parsedBlock['innerBlocks'] = self::replaceFirstParsedBlock(
+				self::normalizeParsedBlocks( is_array( $parsedBlock['innerBlocks'] ?? null ) ? $parsedBlock['innerBlocks'] : [] ),
+				$replacer,
+				$blockParsers,
+				$replaced
+			);
+
+			$updatedBlocks[] = $parsedBlock;
+		}
+
+		return $updatedBlocks;
+	}
+
+	/**
+	 * Convert one renderable replacement value back to one parsed block item.
+	 *
+	 * @param object|string $value Renderable replacement value.
+	 * @return array<string, mixed>
+	 */
+	private static function renderValueToParsedBlock( object|string $value ): array {
+		$parsedBlocks = self::parseMarkupToBlocksTree( self::renderValueToString( $value ) );
+
+		return $parsedBlocks[0] ?? array(
+			'blockName' => null,
+			'attrs' => array(),
+			'innerBlocks' => array(),
+			'innerHTML' => '',
+			'innerContent' => array(),
+		);
 	}
 
 	/**

@@ -11,6 +11,7 @@ namespace MaxPertici\GutenbergMarkup;
 
 use MaxPertici\GutenbergMarkup\Blocks\ColumnBlock;
 use MaxPertici\GutenbergMarkup\Blocks\ColumnsBlock;
+use MaxPertici\GutenbergMarkup\Blocks\ButtonBlock;
 use MaxPertici\GutenbergMarkup\Blocks\FileBlock;
 use MaxPertici\GutenbergMarkup\Blocks\GroupBlock;
 use MaxPertici\GutenbergMarkup\Blocks\HeadingBlock;
@@ -85,6 +86,17 @@ class BlockFactory {
 	}
 
 	/**
+	 * Create one block instance from a parsed Gutenberg block item.
+	 *
+	 * @param array<string, mixed> $parsedBlock Parsed block item from parse_blocks().
+	 * @param array<string, callable|string> $blockParsers Local parser mapping.
+	 * @return object|string|null
+	 */
+	public static function parseParsedBlock( array $parsedBlock, array $blockParsers = [] ) {
+		return self::createFromParsedBlock( $parsedBlock, $blockParsers );
+	}
+
+	/**
 	 * Register a global block parser or class mapping.
 	 *
 	 * @param string          $blockName Gutenberg block name (e.g. core/paragraph).
@@ -151,6 +163,7 @@ class BlockFactory {
 		return match ( $blockName ) {
 			'core/paragraph' => self::createParagraphBlock( $attrs, $parsedBlock ),
 			'core/heading' => self::createHeadingBlock( $attrs, $parsedBlock ),
+			'core/button' => self::createButtonBlock( $attrs, $parsedBlock ),
 			'core/group' => self::createGroupBlock( $attrs, $parsedBlock, $blockParsers ),
 			'core/columns' => self::createColumnsBlock( $attrs, $parsedBlock, $blockParsers ),
 			'core/column' => self::createColumnBlock( $attrs, $parsedBlock, $blockParsers ),
@@ -498,6 +511,34 @@ class BlockFactory {
 	}
 
 	/**
+	 * Create ButtonBlock.
+	 *
+	 * @param array $attrs Parsed attributes.
+	 * @param array $parsedBlock Parsed block.
+	 * @return ButtonBlock
+	 */
+	private static function createButtonBlock( array $attrs, array $parsedBlock ): ButtonBlock {
+		$innerHtml   = (string) ( $parsedBlock['innerHTML'] ?? '' );
+		$content     = self::extractButtonContent( $parsedBlock, $attrs );
+		$url         = (string) ( $attrs['url'] ?? self::extractTagAttribute( $innerHtml, 'a', 'href' ) ?? '' );
+		$linkTarget  = isset( $attrs['linkTarget'] ) ? (string) $attrs['linkTarget'] : self::extractTagAttribute( $innerHtml, 'a', 'target' );
+		$rel         = isset( $attrs['rel'] ) ? (string) $attrs['rel'] : self::extractTagAttribute( $innerHtml, 'a', 'rel' );
+		$buttonBlock = new ButtonBlock( $content, $url );
+
+		if ( null !== $linkTarget && '' !== $linkTarget ) {
+			$buttonBlock->linkTarget( $linkTarget );
+		}
+
+		if ( null !== $rel && '' !== $rel ) {
+			$buttonBlock->rel( $rel );
+		}
+
+		$buttonBlock->setBlockAttributes( $attrs, false );
+
+		return $buttonBlock;
+	}
+
+	/**
 	 * Create GroupBlock.
 	 *
 	 * @param array $attrs Parsed attributes.
@@ -790,6 +831,49 @@ class BlockFactory {
 		}
 
 		return null;
+	}
+
+	/**
+	 * Extract one attribute value from the first matching HTML tag.
+	 *
+	 * @param string $html Source HTML.
+	 * @param string $tag Tag name.
+	 * @param string $attribute Attribute name.
+	 * @return string|null
+	 */
+	private static function extractTagAttribute( string $html, string $tag, string $attribute ): ?string {
+		$pattern = sprintf(
+			'/<%1$s\\b[^>]*\\b%2$s=(["\'])(.*?)\\1/is',
+			preg_quote( $tag, '/' ),
+			preg_quote( $attribute, '/' )
+		);
+
+		if ( 1 === preg_match( $pattern, $html, $matches ) ) {
+			return $matches[2];
+		}
+
+		return null;
+	}
+
+	/**
+	 * Extract plain-text button content from parsed block payload.
+	 *
+	 * Precedence order:
+	 * - anchor inner HTML
+	 * - `text` attribute
+	 * - full inner HTML
+	 *
+	 * @param array<string, mixed> $parsedBlock Parsed block payload.
+	 * @param array<string, mixed> $attrs Parsed block attributes.
+	 * @return string
+	 */
+	private static function extractButtonContent( array $parsedBlock, array $attrs ): string {
+		$innerHtml = (string) ( $parsedBlock['innerHTML'] ?? '' );
+		$content   = self::extractTagInnerHtml( $innerHtml, 'a' )
+			?? ( isset( $attrs['text'] ) ? (string) $attrs['text'] : null )
+			?? $innerHtml;
+
+		return trim( strip_tags( html_entity_decode( $content, ENT_QUOTES | ENT_HTML5, 'UTF-8' ) ) );
 	}
 
 	/**
