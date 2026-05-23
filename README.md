@@ -183,6 +183,30 @@ $updatedBlocksArray = $updatedPostContent->toBlocks();
 $updatedMarkup = $updatedPostContent->toMarkup();
 ```
 
+Exemple — gérer le spacing d’un `GroupBlock` de façon fluide :
+
+```php
+use MaxPertici\GutenbergMarkup\PostContent;
+use MaxPertici\GutenbergMarkup\Blocks\GroupBlock;
+
+$postContent = new PostContent( $rawGutenbergMarkup );
+
+$updatedBlocks = $postContent
+	->toBlocksCollection()
+	->map( function ( $block ) {
+		if ( ! $block instanceof GroupBlock ) {
+			return $block;
+		}
+
+		return $block
+			->padding( 'var:preset|spacing|small' ) // padding global
+			->blockSpacing( 'small' ); // gap interne du group
+	} );
+
+$updatedPostContent = $postContent->withBlocks( $updatedBlocks );
+$updatedMarkup = $updatedPostContent->toMarkup();
+```
+
 Exemple — rechercher (find/query) avec les méthodes de collection :
 
 ```php
