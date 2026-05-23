@@ -351,6 +351,14 @@ class BlockFactory {
 	 * @return string
 	 */
 	private static function createSimpleMarkupBlock( string $blockName, array $attrs, array $parsedBlock, array $blockParsers = [] ): string {
+		if ( \function_exists( 'serialize_block' ) && self::hasSerializableParsedBlockShape( $parsedBlock ) ) {
+			// @phpstan-ignore-next-line WordPress function loaded at runtime.
+			$serialized = \serialize_block( $parsedBlock );
+			if ( is_string( $serialized ) && '' !== $serialized ) {
+				return $serialized;
+			}
+		}
+
 		$content = self::buildStringContentFromParsedBlock( $parsedBlock, $blockParsers );
 		$comment = new BlockComments( $blockName, $attrs );
 
@@ -359,6 +367,20 @@ class BlockFactory {
 		}
 
 		return $comment->wrapContent( $content );
+	}
+
+	/**
+	 * Validate minimal parsed-block shape required by serialize_block().
+	 *
+	 * @param array<string, mixed> $parsedBlock Parsed block payload.
+	 * @return bool
+	 */
+	private static function hasSerializableParsedBlockShape( array $parsedBlock ): bool {
+		return array_key_exists( 'blockName', $parsedBlock )
+			&& array_key_exists( 'attrs', $parsedBlock )
+			&& array_key_exists( 'innerBlocks', $parsedBlock )
+			&& array_key_exists( 'innerHTML', $parsedBlock )
+			&& array_key_exists( 'innerContent', $parsedBlock );
 	}
 
 	/**
