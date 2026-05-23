@@ -132,5 +132,22 @@ class SeparatorBlock extends BlockMarkup {
 		$this->build();
 		parent::print();
 	}
+
+	/**
+	 * Hydrate runtime state from parsed attrs.
+	 *
+	 * @param array $attributes Parsed Gutenberg attrs.
+	 * @param bool  $merge Merge or replace attributes.
+	 * @return self
+	 */
+	public function hydrate( array $attributes, bool $merge = false ): self {
+		parent::hydrate( $attributes, $merge );
+
+		if ( array_key_exists( 'hasAlphaChannelOpacity', $attributes ) ) {
+			$this->hasAlphaChannelOpacity( (bool) $attributes['hasAlphaChannelOpacity'] );
+		}
+
+		return $this;
+	}
 }
 

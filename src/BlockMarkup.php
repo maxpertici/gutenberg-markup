@@ -80,6 +80,13 @@ class BlockMarkup extends Markup {
 	private BlockComments $blockComments;
 
 	/**
+	 * Guard flag to prevent recursive hydration loops.
+	 *
+	 * @var bool
+	 */
+	private bool $isHydrating = false;
+
+	/**
 	 * Constructor.
 	 *
 	 * Initializes a new BlockMarkup instance with Gutenberg block support.
@@ -243,8 +250,148 @@ class BlockMarkup extends Markup {
 			$this->blockAttributes = $attributes;
 		}
 
+		$this->applyAttributeHydration( $attributes );
+
 		// Update the BlockComments instance
 		$this->blockComments = new BlockComments( $this->blockName, $this->blockAttributes );
+	}
+
+	/**
+	 * Hydrate runtime state from parsed Gutenberg attributes.
+	 *
+	 * This keeps object-level search fields (`wrapperClass`, `wrapperAttributes`)
+	 * synchronized so `findByClass()` and `findByAttribute()` work reliably after
+	 * parsing content with BlockFactory.
+	 *
+	 * @since 1.1.0
+	 *
+	 * @param array $attributes Parsed block attributes.
+	 * @param bool  $merge Optional. Merge or replace base block attributes. Default false.
+	 * @return self
+	 */
+	public function hydrate( array $attributes, bool $merge = false ): self {
+		$this->setBlockAttributes( $attributes, $merge );
+
+		return $this;
+	}
+
+	/**
+	 * Prepare current block (and optionally descendants) for finder queries.
+	 *
+	 * Calls `build()` when present to materialize computed classes/attributes, then
+	 * recursively prepares child blocks.
+	 *
+	 * @since 1.1.0
+	 *
+	 * @param bool $deep Optional. Prepare descendants recursively. Default true.
+	 * @return self
+	 */
+	public function prepareForFind( bool $deep = true ): self {
+		if ( method_exists( $this, 'build' ) ) {
+			$this->build();
+		}
+
+		if ( ! $deep ) {
+			return $this;
+		}
+
+		foreach ( $this->getChildren() as $child ) {
+			if ( $child instanceof self ) {
+				$child->prepareForFind( true );
+			}
+		}
+
+		return $this;
+	}
+
+	/**
+	 * Apply common Gutenberg attrs into object runtime state via trait setters.
+	 *
+	 * @param array $attributes Parsed block attributes.
+	 * @return void
+	 */
+	protected function applyAttributeHydration( array $attributes ): void {
+		if ( $this->isHydrating ) {
+			return;
+		}
+
+		$this->isHydrating = true;
+
+		try {
+			$this->hydrateByMethodIfCallable( 'anchor', $attributes['anchor'] ?? null );
+			$this->hydrateByMethodIfCallable( 'customClass', $attributes['className'] ?? null );
+			$this->hydrateByMethodIfCallable( 'textColor', $attributes['textColor'] ?? null );
+			$this->hydrateByMethodIfCallable( 'backgroundColor', $attributes['backgroundColor'] ?? null );
+			$this->hydrateByMethodIfCallable( 'fontSize', $attributes['fontSize'] ?? null );
+			$this->hydrateByMethodIfCallable( 'hasAlphaChannelOpacity', $attributes['hasAlphaChannelOpacity'] ?? null );
+
+			if ( array_key_exists( 'textAlign', $attributes ) && is_string( $attributes['textAlign'] ) ) {
+				$this->hydrateByMethodIfCallable( 'textAlign', $attributes['textAlign'] );
+			}
+
+			if ( array_key_exists( 'align', $attributes ) && is_string( $attributes['align'] ) ) {
+				if ( method_exists( $this, 'textAlign' ) ) {
+					$this->textAlign( (string) $attributes['align'] );
+				} else {
+					$this->hydrateByMethodIfCallable( 'align', $attributes['align'] );
+				}
+			}
+
+			$this->hydrateTypographyAndStyleAttributes( $attributes );
+		} finally {
+			$this->isHydrating = false;
+		}
+	}
+
+	/**
+	 * Hydrate one attribute via block method when callable and scalar-compatible.
+	 *
+	 * @param string $method Method name.
+	 * @param mixed  $value Attribute value.
+	 * @return void
+	 */
+	private function hydrateByMethodIfCallable( string $method, mixed $value ): void {
+		if ( null === $value || ! method_exists( $this, $method ) ) {
+			return;
+		}
+
+		if ( ! is_scalar( $value ) ) {
+			return;
+		}
+
+		try {
+			$this->{$method}( $value );
+		} catch ( \Throwable $e ) {
+			// Best-effort hydration: ignore non-compatible setters.
+		}
+	}
+
+	/**
+	 * Hydrate style-derived attributes when present.
+	 *
+	 * @param array $attributes Parsed block attributes.
+	 * @return void
+	 */
+	private function hydrateTypographyAndStyleAttributes( array $attributes ): void {
+		$style = is_array( $attributes['style'] ?? null ) ? $attributes['style'] : [];
+		if ( empty( $style ) ) {
+			return;
+		}
+
+		$typography = is_array( $style['typography'] ?? null ) ? $style['typography'] : [];
+		$this->hydrateByMethodIfCallable( 'fontStyle', $typography['fontStyle'] ?? null );
+		$this->hydrateByMethodIfCallable( 'fontWeight', $typography['fontWeight'] ?? null );
+		$this->hydrateByMethodIfCallable( 'letterSpacing', $typography['letterSpacing'] ?? null );
+		$this->hydrateByMethodIfCallable( 'lineHeight', $typography['lineHeight'] ?? null );
+		$this->hydrateByMethodIfCallable( 'textDecoration', $typography['textDecoration'] ?? null );
+		$this->hydrateByMethodIfCallable( 'textTransform', $typography['textTransform'] ?? null );
+
+		$color = is_array( $style['color'] ?? null ) ? $style['color'] : [];
+		$this->hydrateByMethodIfCallable( 'customTextColor', $color['text'] ?? null );
+		$this->hydrateByMethodIfCallable( 'customBackgroundColor', $color['background'] ?? null );
+
+		$linkTextColor = $style['elements']['link']['color']['text'] ?? null;
+		$this->hydrateByMethodIfCallable( 'customLinkColor', $linkTextColor );
 	}
 
 	/**

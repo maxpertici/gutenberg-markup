@@ -429,7 +429,64 @@ class GroupBlock extends BlockMarkup {
 	 */
 	public function echo(): void {
 		$this->build();
-		parent::echo();
+		parent::print();
+	}
+
+	/**
+	 * Hydrate runtime state from parsed attrs.
+	 *
+	 * @param array $attributes Parsed Gutenberg attrs.
+	 * @param bool  $merge Merge or replace attributes.
+	 * @return self
+	 */
+	public function hydrate( array $attributes, bool $merge = false ): self {
+		parent::hydrate( $attributes, $merge );
+
+		$layout = is_array( $attributes['layout'] ?? null ) ? $attributes['layout'] : [];
+		$type   = $layout['type'] ?? null;
+
+		if ( 'flex' === $type ) {
+			$isVertical = 'vertical' === ( $layout['orientation'] ?? null );
+			$wrap       = null;
+
+			if ( isset( $layout['flexWrap'] ) ) {
+				$wrap = 'wrap' === $layout['flexWrap'];
+			}
+
+			if ( $isVertical ) {
+				$this->asFlexColumn( $wrap );
+			} else {
+				$this->asFlexRow( $wrap );
+			}
+		} elseif ( 'constrained' === $type ) {
+			$this->layoutConstrained();
+
+			if ( isset( $layout['contentSize'] ) ) {
+				$this->contentSize( (string) $layout['contentSize'] );
+			}
+
+			if ( isset( $layout['wideSize'] ) ) {
+				$this->wideSize( (string) $layout['wideSize'] );
+			}
+		} elseif ( 'grid' === $type ) {
+			$this->asGrid();
+
+			if ( isset( $layout['columnCount'] ) ) {
+				$this->columnCount( (int) $layout['columnCount'] );
+			}
+
+			if ( isset( $layout['minimumColumnWidth'] ) ) {
+				$this->minimumColumnWidth( (string) $layout['minimumColumnWidth'] );
+			}
+		} elseif ( 'flow' === $type ) {
+			$this->asBlock();
+		}
+
+		if ( isset( $layout['justifyContent'] ) ) {
+			$this->justifyContent( (string) $layout['justifyContent'] );
+		}
+
+		return $this;
 	}
 }
 

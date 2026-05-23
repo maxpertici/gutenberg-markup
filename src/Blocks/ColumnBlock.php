@@ -169,4 +169,25 @@ class ColumnBlock extends BlockMarkup {
 		$this->build();
 		parent::print();
 	}
+
+	/**
+	 * Hydrate runtime state from parsed attrs.
+	 *
+	 * @param array $attributes Parsed Gutenberg attrs.
+	 * @param bool  $merge Merge or replace attributes.
+	 * @return self
+	 */
+	public function hydrate( array $attributes, bool $merge = false ): self {
+		parent::hydrate( $attributes, $merge );
+
+		if ( isset( $attributes['width'] ) ) {
+			$this->width( (string) $attributes['width'] );
+		}
+
+		if ( isset( $attributes['layout'] ) && is_array( $attributes['layout'] ) ) {
+			$this->layout( $attributes['layout'] );
+		}
+
+		return $this;
+	}
 }
