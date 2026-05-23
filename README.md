@@ -31,7 +31,7 @@ echo $block->render();
 
 Cette bibliothèque s’appuie sur le package Markup : https://github.com/maxpertici/markup
 
-## Parser un post Gutenberg vers des blocks
+## Analyser un post Gutenberg vers des blocks
 
 ```php
 use MaxPertici\GutenbergMarkup\BlockFactory;
@@ -181,4 +181,23 @@ $updatedBlocks = $postContent
 $updatedPostContent = $postContent->withBlocks( $updatedBlocks );
 $updatedBlocksArray = $updatedPostContent->toBlocks();
 $updatedMarkup = $updatedPostContent->toMarkup();
+```
+
+Exemple — rechercher (find/query) avec les méthodes de collection :
+
+```php
+use MaxPertici\GutenbergMarkup\PostContent;
+use MaxPertici\GutenbergMarkup\Blocks\ButtonBlock;
+
+$postContent = new PostContent( $rawGutenbergMarkup );
+$blocks = $postContent->toBlocksCollection();
+
+// query: tous les buttons qui matchent l'URL
+$matchingButtons = $blocks->filter(
+	fn ( $block ) => $block instanceof ButtonBlock
+		&& 'https://old.example.com' === $block->url()
+);
+
+// find: premier résultat de la query
+$firstMatchingButton = $matchingButtons->first();
 ```
