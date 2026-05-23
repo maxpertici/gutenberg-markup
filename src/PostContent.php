@@ -162,9 +162,10 @@ class PostContent extends Markup {
 	 * @return array<int, array<string, mixed>>
 	 */
 	private static function parseMarkupToBlocksTree( string $postContent ): array {
-		if ( \function_exists( 'parse_blocks' ) ) {
-			// @phpstan-ignore-next-line
-			return self::normalizeParsedBlocks( \parse_blocks( $postContent ) );
+		if ( BlockFactory::isNativeParserAvailable() ) {
+			$parser = 'parse_blocks';
+
+			return self::normalizeParsedBlocks( $parser( $postContent ) );
 		}
 
 		// Fallback as one unparsed/raw chunk when parse_blocks() is unavailable.
