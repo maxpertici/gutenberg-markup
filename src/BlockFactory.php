@@ -86,17 +86,6 @@ class BlockFactory {
 	}
 
 	/**
-	 * Create one block instance from a parsed Gutenberg block item.
-	 *
-	 * @param array<string, mixed> $parsedBlock Parsed block item from parse_blocks().
-	 * @param array<string, callable|string> $blockParsers Local parser mapping.
-	 * @return object|string|null
-	 */
-	public static function parseParsedBlock( array $parsedBlock, array $blockParsers = [] ) {
-		return self::createFromParsedBlock( $parsedBlock, $blockParsers );
-	}
-
-	/**
 	 * Register a global block parser or class mapping.
 	 *
 	 * @param string          $blockName Gutenberg block name (e.g. core/paragraph).

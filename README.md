@@ -36,7 +36,7 @@ Cette bibliothèque s’appuie sur le package Markup : https://github.com/maxper
 ```php
 use MaxPertici\GutenbergMarkup\BlockFactory;
 
-$content = file_get_contents( __DIR__ . '/ressources/post-content.html' );
+$content = file_get_contents( __DIR__ . '/resources/post-content.html' );
 $blocks  = BlockFactory::parsePostContent( $content );
 ```
 
@@ -149,10 +149,9 @@ Méthodes utiles :
 - `toMarkup()` pour reconstruire le markup Gutenberg
 - `toBlockMarkup()` pour obtenir un arbre imbriqué `BlockMarkup|string`
 - `toBlockMarkupCollection()` pour exploiter la représentation avec les méthodes de collection
-- `withBlocks()` pour reconstruire directement un `PostContent` depuis un tableau de blocks déjà modifiés
-- `replaceFirstBlock()` pour remplacer le premier block matching, même s’il est imbriqué dans un parent non supporté
+- `withBlocks()` pour reconstruire directement un `PostContent` depuis une collection ou un tableau de blocks modifiés
 
-Exemple — remplacer le premier bouton qui cible une URL précise :
+Exemple — remplacer les blocks button qui ciblent une URL précise (API collection) :
 
 ```php
 use MaxPertici\GutenbergMarkup\PostContent;
@@ -160,14 +159,15 @@ use MaxPertici\GutenbergMarkup\Blocks\ButtonBlock;
 
 $postContent = new PostContent( $rawGutenbergMarkup );
 
-$updatedPostContent = $postContent->replaceFirstBlock(
-	function ( $block ) {
+$updatedBlocks = $postContent
+	->toBlocksCollection()
+	->map( function ( $block ) {
 		if ( ! $block instanceof ButtonBlock ) {
-			return null;
+			return $block;
 		}
 
 		if ( 'https://old.example.com' !== $block->url() ) {
-			return null;
+			return $block;
 		}
 
 		return ( new ButtonBlock(
@@ -176,11 +176,9 @@ $updatedPostContent = $postContent->replaceFirstBlock(
 		) )
 			->openInNewTab( true )
 			->rel( 'noopener noreferrer' );
-	}
-);
+	} );
 
-$updatedBlocks = $updatedPostContent->toBlocks();
+$updatedPostContent = $postContent->withBlocks( $updatedBlocks );
+$updatedBlocksArray = $updatedPostContent->toBlocks();
 $updatedMarkup = $updatedPostContent->toMarkup();
 ```
-
-> `replaceFirstBlock()` traverse aussi les `innerBlocks`, donc un `core/button` imbriqué dans un `core/buttons` encore non implémenté reste remplaçable proprement sans éditer les tableaux `parse_blocks()` à la main.
