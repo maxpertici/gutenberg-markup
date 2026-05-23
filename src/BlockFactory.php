@@ -32,6 +32,27 @@ use MaxPertici\GutenbergMarkup\Blocks\SeparatorBlock;
 class BlockFactory {
 
 	/**
+	 * Known native supported Gutenberg block names.
+	 *
+	 * @var array<int, string>
+	 */
+	private const KNOWN_NATIVE_SUPPORTED_BLOCKS = array(
+		'core/paragraph',
+		'core/heading',
+		'core/button',
+		'core/group',
+		'core/columns',
+		'core/column',
+		'core/quote',
+		'core/pullquote',
+		'core/list',
+		'core/list-item',
+		'core/separator',
+		'core/file',
+		'core/image',
+	);
+
+	/**
 	 * Global custom parser mapping.
 	 *
 	 * Each resolver can be:
@@ -44,6 +65,61 @@ class BlockFactory {
 	private static array $customBlockParsers = [];
 
 	/**
+	 * Native supported blocks enabled for conversion.
+	 *
+	 * Empty by default for safe fallback-only behavior.
+	 *
+	 * @var array<int, string>
+	 */
+	private static array $nativeSupportedBlocks = [];
+
+	/**
+	 * Automatic class-resolution by naming convention toggle.
+	 *
+	 * Disabled by default for safe fallback-only behavior.
+	 *
+	 * @var bool
+	 */
+	private static bool $automaticClassResolutionEnabled = false;
+
+	/**
+	 * Optional debug logger callback.
+	 *
+	 * Signature: fn(string $event, array $context): void
+	 *
+	 * @var callable|null
+	 */
+	private static $debugLogger = null;
+
+	/**
+	 * Expose runtime parser availability.
+	 *
+	 * @return bool
+	 */
+	public static function isNativeParserAvailable(): bool {
+		return \function_exists( 'parse_blocks' );
+	}
+
+	/**
+	 * Register a debug logger callback.
+	 *
+	 * @param callable|null $logger fn(string $event, array $context): void
+	 * @return void
+	 */
+	public static function setDebugLogger( ?callable $logger ): void {
+		self::$debugLogger = $logger;
+	}
+
+	/**
+	 * Remove debug logger callback.
+	 *
+	 * @return void
+	 */
+	public static function clearDebugLogger(): void {
+		self::$debugLogger = null;
+	}
+
+	/**
 	 * Parse post content and create blocks.
 	 *
 	 * Supported Gutenberg blocks are converted to dedicated classes.
@@ -51,14 +127,19 @@ class BlockFactory {
 	 *
 	 * @param string $postContent Raw Gutenberg post content.
 	 * @param array<string, callable|string> $blockParsers Local parser mapping.
+	 * @param bool $prepareForFind Optional. Auto-run prepareForFind(true) on parsed block objects. Default true.
 	 * @return array<int, object|string>
 	 */
-	public static function parsePostContent( string $postContent, array $blockParsers = [] ): array {
-		if ( ! \function_exists( 'parse_blocks' ) ) {
+	public static function parsePostContent( string $postContent, array $blockParsers = [], bool $prepareForFind = true ): array {
+		if ( ! self::isNativeParserAvailable() ) {
+			self::debug( 'native_parser_unavailable', array() );
 			return [ $postContent ];
 		}
 
-		return self::parseParsedBlocks( \parse_blocks( $postContent ), $blockParsers );
+		$parser       = 'parse_blocks';
+		$parsedBlocks = $parser( $postContent );
+
+		return self::parseParsedBlocks( is_array( $parsedBlocks ) ? $parsedBlocks : array(), $blockParsers, $prepareForFind );
 	}
 
 	/**
@@ -66,9 +147,10 @@ class BlockFactory {
 	 *
 	 * @param array<int, array<string, mixed>> $parsedBlocks Parsed blocks from parse_blocks().
 	 * @param array<string, callable|string>   $blockParsers Local parser mapping.
+	 * @param bool                              $prepareForFind Auto-run prepareForFind(true) on parsed block objects.
 	 * @return array<int, object|string>
 	 */
-	public static function parseParsedBlocks( array $parsedBlocks, array $blockParsers = [] ): array {
+	public static function parseParsedBlocks( array $parsedBlocks, array $blockParsers = [], bool $prepareForFind = false ): array {
 		$blocks = [];
 
 		foreach ( $parsedBlocks as $parsedBlock ) {
@@ -76,13 +158,42 @@ class BlockFactory {
 				continue;
 			}
 
+			$attrs = is_array( $parsedBlock['attrs'] ?? null ) ? $parsedBlock['attrs'] : [];
+
 			$block = self::createFromParsedBlock( $parsedBlock, $blockParsers );
 			if ( null !== $block && '' !== $block ) {
-				$blocks[] = $block;
+				$blocks[] = self::finalizeParsedBlockObjectState( $block, $attrs, $prepareForFind );
 			}
 		}
 
 		return $blocks;
+	}
+
+	/**
+	 * Normalize parsed block object state for finder/runtime usage.
+	 *
+	 * - Hydrates from attrs when supported by the object
+	 * - Optionally prepares the full tree for finder queries
+	 *
+	 * @param object|string $block Parsed block result.
+	 * @param array<string, mixed> $attrs Parsed Gutenberg attrs.
+	 * @param bool $prepareForFind Whether to call prepareForFind(true).
+	 * @return object|string
+	 */
+	private static function finalizeParsedBlockObjectState( object|string $block, array $attrs, bool $prepareForFind ): object|string {
+		if ( ! is_object( $block ) ) {
+			return $block;
+		}
+
+		if ( method_exists( $block, 'hydrate' ) ) {
+			$block->hydrate( $attrs, false );
+		}
+
+		if ( $prepareForFind && method_exists( $block, 'prepareForFind' ) ) {
+			$block->prepareForFind( true );
+		}
+
+		return $block;
 	}
 
 	/**
@@ -103,6 +214,77 @@ class BlockFactory {
 	 */
 	public static function clearBlockParsers(): void {
 		self::$customBlockParsers = [];
+	}
+
+	/**
+	 * Enable one native supported block conversion.
+	 *
+	 * @param string $blockName Gutenberg block name.
+	 * @return void
+	 */
+	public static function registerNativeSupportedBlock( string $blockName ): void {
+		if ( ! in_array( $blockName, self::KNOWN_NATIVE_SUPPORTED_BLOCKS, true ) ) {
+			self::debug(
+				'unknown_native_supported_block',
+				array( 'blockName' => $blockName )
+			);
+			return;
+		}
+
+		if ( ! in_array( $blockName, self::$nativeSupportedBlocks, true ) ) {
+			self::$nativeSupportedBlocks[] = $blockName;
+		}
+	}
+
+	/**
+	 * Enable multiple native supported block conversions.
+	 *
+	 * @param array<int, string> $blockNames Gutenberg block names.
+	 * @return void
+	 */
+	public static function registerNativeSupportedBlocks( array $blockNames ): void {
+		foreach ( $blockNames as $blockName ) {
+			if ( is_string( $blockName ) ) {
+				self::registerNativeSupportedBlock( $blockName );
+			}
+		}
+	}
+
+	/**
+	 * Clear enabled native supported block conversions.
+	 *
+	 * @return void
+	 */
+	public static function clearNativeSupportedBlocks(): void {
+		self::$nativeSupportedBlocks = [];
+	}
+
+	/**
+	 * Get enabled native supported block names.
+	 *
+	 * @return array<int, string>
+	 */
+	public static function nativeSupportedBlocks(): array {
+		return self::$nativeSupportedBlocks;
+	}
+
+	/**
+	 * Enable/disable automatic class resolution by naming convention.
+	 *
+	 * @param bool $enabled True to enable; false to disable.
+	 * @return void
+	 */
+	public static function enableAutomaticClassResolution( bool $enabled = true ): void {
+		self::$automaticClassResolutionEnabled = $enabled;
+	}
+
+	/**
+	 * Whether automatic class resolution is enabled.
+	 *
+	 * @return bool
+	 */
+	public static function isAutomaticClassResolutionEnabled(): bool {
+		return self::$automaticClassResolutionEnabled;
 	}
 
 	/**
@@ -131,9 +313,11 @@ class BlockFactory {
 			return $block;
 		}
 
-		$block = self::createAutomaticBlock( $blockName, $attrs, $parsedBlock );
-		if ( null !== $block ) {
-			return $block;
+		if ( self::$automaticClassResolutionEnabled ) {
+			$block = self::createAutomaticBlock( $blockName, $attrs, $parsedBlock );
+			if ( null !== $block ) {
+				return $block;
+			}
 		}
 
 		return self::createSimpleMarkupBlock( $blockName, $attrs, $parsedBlock, $blockParsers );
@@ -149,6 +333,10 @@ class BlockFactory {
 	 * @return object|null
 	 */
 	private static function createSupportedBlock( string $blockName, array $attrs, array $parsedBlock, array $blockParsers = [] ): ?object {
+		if ( ! in_array( $blockName, self::$nativeSupportedBlocks, true ) ) {
+			return null;
+		}
+
 		return match ( $blockName ) {
 			'core/paragraph' => self::createParagraphBlock( $attrs, $parsedBlock ),
 			'core/heading' => self::createHeadingBlock( $attrs, $parsedBlock ),
@@ -257,6 +445,13 @@ class BlockFactory {
 	 */
 	private static function createBlockFromClass( string $className, array $parsedBlock, array $attrs, array $blockParsers = [], bool $hydrateConstructorFromParsedBlock = false ): ?object {
 		if ( ! class_exists( $className ) ) {
+			self::debug(
+				'class_not_found',
+				array(
+					'className' => $className,
+					'blockName' => is_string( $parsedBlock['blockName'] ?? null ) ? $parsedBlock['blockName'] : null,
+				)
+			);
 			return null;
 		}
 
@@ -266,6 +461,14 @@ class BlockFactory {
 				if ( is_object( $instance ) ) {
 					return $instance;
 				}
+
+				self::debug(
+					'from_parsed_block_invalid_return',
+					array(
+						'className' => $className,
+						'blockName' => is_string( $parsedBlock['blockName'] ?? null ) ? $parsedBlock['blockName'] : null,
+					)
+				);
 			}
 
 			$reflection  = new \ReflectionClass( $className );
@@ -276,6 +479,15 @@ class BlockFactory {
 			}
 
 			if ( null !== $constructor && $constructor->getNumberOfRequiredParameters() > 0 && empty( $constructorArgs ) ) {
+				self::debug(
+					'unresolvable_constructor_requirements',
+					array(
+						'className' => $className,
+						'requiredParameters' => $constructor->getNumberOfRequiredParameters(),
+						'hydrateConstructorFromParsedBlock' => $hydrateConstructorFromParsedBlock,
+						'blockName' => is_string( $parsedBlock['blockName'] ?? null ) ? $parsedBlock['blockName'] : null,
+					)
+				);
 				return null;
 			}
 
@@ -286,6 +498,15 @@ class BlockFactory {
 
 			return $instance;
 		} catch ( \Throwable $e ) {
+			self::debug(
+				'class_instantiation_failed',
+				array(
+					'className' => $className,
+					'blockName' => is_string( $parsedBlock['blockName'] ?? null ) ? $parsedBlock['blockName'] : null,
+					'errorClass' => get_class( $e ),
+					'errorMessage' => $e->getMessage(),
+				)
+			);
 			return null;
 		}
 	}
@@ -348,25 +569,13 @@ class BlockFactory {
 	 * @param array  $attrs Block attributes.
 	 * @param array  $parsedBlock Full parsed block payload.
 	 * @param array<string, callable|string> $blockParsers Local parser mapping.
-	 * @return string
+	 * @return UnsupportedBlock
 	 */
-	private static function createSimpleMarkupBlock( string $blockName, array $attrs, array $parsedBlock, array $blockParsers = [] ): string {
-		if ( \function_exists( 'serialize_block' ) && self::hasSerializableParsedBlockShape( $parsedBlock ) ) {
-			// @phpstan-ignore-next-line WordPress function loaded at runtime.
-			$serialized = \serialize_block( $parsedBlock );
-			if ( is_string( $serialized ) && '' !== $serialized ) {
-				return $serialized;
-			}
-		}
+	private static function createSimpleMarkupBlock( string $blockName, array $attrs, array $parsedBlock, array $blockParsers = [] ): UnsupportedBlock {
+		$innerContent = is_array( $parsedBlock['innerContent'] ?? null ) ? $parsedBlock['innerContent'] : [];
+		$children     = self::createChildrenFromInnerBlocks( $parsedBlock, $blockParsers );
 
-		$content = self::buildStringContentFromParsedBlock( $parsedBlock, $blockParsers );
-		$comment = new BlockComments( $blockName, $attrs );
-
-		if ( '' === trim( $content ) ) {
-			return $comment->selfClosingComment();
-		}
-
-		return $comment->wrapContent( $content );
+		return new UnsupportedBlock( $blockName, $attrs, $innerContent, $children );
 	}
 
 	/**
@@ -484,6 +693,26 @@ class BlockFactory {
 		}
 
 		return '';
+	}
+
+	/**
+	 * Emit one debug event if a logger is registered.
+	 *
+	 * @param string $event Event identifier.
+	 * @param array<string, mixed> $context Event context.
+	 * @return void
+	 */
+	private static function debug( string $event, array $context = array() ): void {
+		if ( ! is_callable( self::$debugLogger ) ) {
+			return;
+		}
+
+		try {
+			$logger = self::$debugLogger;
+			$logger( $event, $context );
+		} catch ( \Throwable $e ) {
+			// Never break parsing because of debug logger errors.
+		}
 	}
 
 	/**
