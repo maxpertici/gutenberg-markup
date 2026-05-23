@@ -483,5 +483,54 @@ class ImageBlock extends BlockMarkup {
 		$this->build();
 		parent::print();
 	}
+
+    /**
+     * Hydrate runtime state from parsed attrs.
+     *
+     * @param array $attributes Parsed Gutenberg attrs.
+     * @param bool  $merge Merge or replace attributes.
+     * @return self
+     */
+    public function hydrate( array $attributes, bool $merge = false ): self {
+        parent::hydrate( $attributes, $merge );
+
+        if ( isset( $attributes['id'] ) ) {
+            $this->id( (int) $attributes['id'] );
+        }
+
+        if ( isset( $attributes['sizeSlug'] ) ) {
+            $this->sizeSlug( (string) $attributes['sizeSlug'] );
+        }
+
+        if ( isset( $attributes['linkDestination'] ) ) {
+            $this->linkDestination( (string) $attributes['linkDestination'] );
+        }
+
+        if ( isset( $attributes['lightbox'] ) && is_array( $attributes['lightbox'] ) ) {
+            $this->lightbox( $attributes['lightbox'] );
+        }
+
+        if ( isset( $attributes['aspectRatio'] ) ) {
+            $this->aspectRatio( (string) $attributes['aspectRatio'] );
+        }
+
+        if ( isset( $attributes['scale'] ) ) {
+            $this->scale( (string) $attributes['scale'] );
+        }
+
+        if ( isset( $attributes['width'] ) ) {
+            $this->width( (string) $attributes['width'] );
+        }
+
+        if ( isset( $attributes['height'] ) ) {
+            $this->height( (string) $attributes['height'] );
+        }
+
+        if ( isset( $attributes['href'] ) ) {
+            $this->href( (string) $attributes['href'] );
+        }
+
+        return $this;
+    }
 }
 

@@ -212,6 +212,39 @@ class ButtonBlock extends BlockMarkup {
 	}
 
 	/**
+	 * Hydrate runtime state from parsed attrs.
+	 *
+	 * @param array $attributes Parsed Gutenberg attrs.
+	 * @param bool  $merge Merge or replace attributes.
+	 * @return self
+	 */
+	public function hydrate( array $attributes, bool $merge = false ): self {
+		parent::hydrate( $attributes, $merge );
+
+		if ( isset( $attributes['text'] ) ) {
+			$this->content( (string) $attributes['text'] );
+		}
+
+		if ( isset( $attributes['url'] ) ) {
+			$this->url( (string) $attributes['url'] );
+		}
+
+		if ( isset( $attributes['linkTarget'] ) ) {
+			$this->linkTarget( (string) $attributes['linkTarget'] );
+		}
+
+		if ( isset( $attributes['rel'] ) ) {
+			$this->rel( (string) $attributes['rel'] );
+		}
+
+		if ( array_key_exists( 'openInNewTab', $attributes ) ) {
+			$this->openInNewTab( (bool) $attributes['openInNewTab'] );
+		}
+
+		return $this;
+	}
+
+	/**
 	 * Escape an HTML attribute value.
 	 *
 	 * @param string $value Raw attribute value.

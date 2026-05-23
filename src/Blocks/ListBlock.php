@@ -217,5 +217,34 @@ class ListBlock extends BlockMarkup {
 		$this->build();
 		parent::print();
 	}
+
+	/**
+	 * Hydrate runtime state from parsed attrs.
+	 *
+	 * @param array $attributes Parsed Gutenberg attrs.
+	 * @param bool  $merge Merge or replace attributes.
+	 * @return self
+	 */
+	public function hydrate( array $attributes, bool $merge = false ): self {
+		parent::hydrate( $attributes, $merge );
+
+		if ( array_key_exists( 'ordered', $attributes ) ) {
+			$this->isOrdered( (bool) $attributes['ordered'] );
+		}
+
+		if ( isset( $attributes['type'] ) ) {
+			$this->listType( (string) $attributes['type'] );
+		}
+
+		if ( isset( $attributes['start'] ) ) {
+			$this->start( (string) $attributes['start'] );
+		}
+
+		if ( array_key_exists( 'reversed', $attributes ) ) {
+			$this->isReversed( (bool) $attributes['reversed'] );
+		}
+
+		return $this;
+	}
 }
 

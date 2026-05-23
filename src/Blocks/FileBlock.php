@@ -356,4 +356,37 @@ class FileBlock extends BlockMarkup {
 		$this->build();
 		parent::print();
 	}
+
+	/**
+	 * Hydrate runtime state from parsed attrs.
+	 *
+	 * @param array $attributes Parsed Gutenberg attrs.
+	 * @param bool  $merge Merge or replace attributes.
+	 * @return self
+	 */
+	public function hydrate( array $attributes, bool $merge = false ): self {
+		parent::hydrate( $attributes, $merge );
+
+		if ( isset( $attributes['id'] ) ) {
+			$this->id( (int) $attributes['id'] );
+		}
+
+		if ( isset( $attributes['href'] ) ) {
+			$this->href( (string) $attributes['href'] );
+		}
+
+		if ( array_key_exists( 'showDownloadButton', $attributes ) ) {
+			$this->showDownloadButton( (bool) $attributes['showDownloadButton'] );
+		}
+
+		if ( array_key_exists( 'openInNewTab', $attributes ) ) {
+			$this->openInNewTab( (bool) $attributes['openInNewTab'] );
+		}
+
+		if ( isset( $attributes['downloadButtonText'] ) ) {
+			$this->downloadButtonText( (string) $attributes['downloadButtonText'] );
+		}
+
+		return $this;
+	}
 }
