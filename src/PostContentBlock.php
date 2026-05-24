@@ -184,6 +184,14 @@ class PostContentBlock extends BlockMarkup {
 	 * @return string
 	 */
 	private function childToString( object|string $child ): string {
-		return is_string( $child ) ? $child : (string) $child;
+		if ( is_string( $child ) ) {
+			return $child;
+		}
+
+		if ( $child instanceof \Stringable || method_exists( $child, '__toString' ) ) {
+			return (string) $child;
+		}
+
+		return '';
 	}
 }

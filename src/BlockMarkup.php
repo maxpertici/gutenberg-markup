@@ -232,6 +232,7 @@ class BlockMarkup extends Markup {
 	 * Gutenberg block validity is business-level, but markup composition is generic.
 	 * Leaf-like block subclasses may override this and return false to reject
 	 * child mutation APIs (`addChild`, `addChildren`, `setChildren`) semantically.
+	 * When false, mutation methods return early and keep current children unchanged.
 	 *
 	 * @return bool
 	 */
@@ -246,6 +247,10 @@ class BlockMarkup extends Markup {
 	 * @return self
 	 */
 	public function addChild( object|string $child ): self {
+		if ( ! $this->supportsChildren() ) {
+			return $this;
+		}
+
 		if ( ! $this->isValidChild( $child ) ) {
 			return $this;
 		}
@@ -263,6 +268,10 @@ class BlockMarkup extends Markup {
 	 * @return self
 	 */
 	public function addChildren( array $children ): self {
+		if ( ! $this->supportsChildren() ) {
+			return $this;
+		}
+
 		$validChildren = array_values(
 			array_filter(
 				$children,
@@ -285,6 +294,10 @@ class BlockMarkup extends Markup {
 	 * @return self
 	 */
 	public function setChildren( array $children ): self {
+		if ( ! $this->supportsChildren() ) {
+			return $this;
+		}
+
 		$this->children = array_values(
 			array_filter(
 				$children,
@@ -345,7 +358,15 @@ class BlockMarkup extends Markup {
 	 * @return bool
 	 */
 	private function isValidChild( mixed $child ): bool {
-		return is_string( $child ) || is_object( $child );
+		if ( is_string( $child ) ) {
+			return true;
+		}
+
+		if ( ! is_object( $child ) ) {
+			return false;
+		}
+
+		return $child instanceof \Stringable || method_exists( $child, '__toString' );
 	}
 
 	/**
