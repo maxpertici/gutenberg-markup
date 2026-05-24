@@ -13,6 +13,7 @@ use MaxPertici\GutenbergMarkup\BlockMarkup;
 use MaxPertici\GutenbergMarkup\Concerns\Advanced\CustomClassTrait;
 use MaxPertici\GutenbergMarkup\Concerns\Block\BlockStyleTrait;
 use MaxPertici\GutenbergMarkup\Concerns\Block\HtmlElementTrait;
+use MaxPertici\GutenbergMarkup\Concerns\Block\SelfClosingBlockSupportTrait;
 use MaxPertici\GutenbergMarkup\Concerns\Color\BackgroundColorTrait;
 use MaxPertici\GutenbergMarkup\Concerns\Dimensions\FlexWidthTrait;
 use MaxPertici\GutenbergMarkup\Concerns\Layout\AlignTrait;
@@ -35,6 +36,7 @@ class SeparatorBlock extends BlockMarkup {
 	use CustomClassTrait;
 	use BlockStyleTrait;
 	use HtmlElementTrait;
+	use SelfClosingBlockSupportTrait;
 	use FlexWidthTrait;
 
 	/**
@@ -150,4 +152,3 @@ class SeparatorBlock extends BlockMarkup {
 		return $this;
 	}
 }
-

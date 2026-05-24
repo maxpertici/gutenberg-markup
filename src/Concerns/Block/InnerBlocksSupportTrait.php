@@ -12,6 +12,15 @@ namespace MaxPertici\GutenbergMarkup\Concerns\Block;
 trait InnerBlocksSupportTrait {
 
 	/**
+	 * Return whether this block can contain children.
+	 *
+	 * @return bool
+	 */
+	public function supportsChildren(): bool {
+		return true;
+	}
+
+	/**
 	 * Stored inner block children.
 	 *
 	 * @var array<int, object|string>

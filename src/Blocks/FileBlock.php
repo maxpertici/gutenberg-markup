@@ -13,6 +13,7 @@ use MaxPertici\GutenbergMarkup\BlockMarkup;
 use MaxPertici\GutenbergMarkup\Concerns\Advanced\AnchorTrait;
 use MaxPertici\GutenbergMarkup\Concerns\Advanced\CustomClassTrait;
 use MaxPertici\GutenbergMarkup\Concerns\Block\BlockStyleTrait;
+use MaxPertici\GutenbergMarkup\Concerns\Block\SelfClosingBlockSupportTrait;
 
 /**
  * File Gutenberg Block implementation.
@@ -30,6 +31,7 @@ class FileBlock extends BlockMarkup {
 	use AnchorTrait;
 	use CustomClassTrait;
 	use BlockStyleTrait;
+	use SelfClosingBlockSupportTrait;
 
 	/**
 	 * Block attribute: id.

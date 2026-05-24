@@ -7,6 +7,9 @@ Bibliothèque PHP pour écrire du markup Gutenberg (WordPress) de façon cohére
 - Chaque bloc Gutenberg est représenté par une classe (ex. `HeadingBlock`).
 - Le markup est construit à partir d’attributs (attrs) fournis au bloc.
 - Des traits (`Concerns`) factorisent les comportements communs (couleurs, typographie, alignement, etc.).
+- Bonne pratique: chaque classe de block déclare explicitement sa capacité enfant via un trait:
+  - `InnerBlocksSupportTrait` pour les blocks qui acceptent des enfants.
+  - `SelfClosingBlockSupportTrait` pour les blocks sans enfants (API de mutation ignorée).
 
 ## Exemple basique — bloc Heading
 

@@ -15,6 +15,7 @@ use MaxPertici\GutenbergMarkup\Concerns\Advanced\CustomClassTrait;
 use MaxPertici\GutenbergMarkup\Concerns\Advanced\TagNameTrait;
 use MaxPertici\GutenbergMarkup\Concerns\Block\BlockStyleTrait;
 use MaxPertici\GutenbergMarkup\Concerns\Block\HtmlElementTrait;
+use MaxPertici\GutenbergMarkup\Concerns\Block\InnerBlocksSupportTrait;
 use MaxPertici\GutenbergMarkup\Concerns\Color\BackgroundColorTrait;
 use MaxPertici\GutenbergMarkup\Concerns\Color\LinkColorTrait;
 use MaxPertici\GutenbergMarkup\Concerns\Color\TextColorTrait;
@@ -43,6 +44,7 @@ class GroupBlock extends BlockMarkup {
 	use AnchorTrait;
 	use BackgroundColorTrait;
 	use CustomClassTrait;
+	use InnerBlocksSupportTrait;
 	use TagNameTrait;
 	use TextColorTrait;
 	use DropCapTrait;
@@ -489,4 +491,3 @@ class GroupBlock extends BlockMarkup {
 		return $this;
 	}
 }
-

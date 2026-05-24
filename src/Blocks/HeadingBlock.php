@@ -13,6 +13,7 @@ use MaxPertici\GutenbergMarkup\BlockMarkup;
 use MaxPertici\GutenbergMarkup\Concerns\Advanced\AnchorTrait;
 use MaxPertici\GutenbergMarkup\Concerns\Advanced\CustomClassTrait;
 use MaxPertici\GutenbergMarkup\Concerns\Block\BlockStyleTrait;
+use MaxPertici\GutenbergMarkup\Concerns\Block\InnerBlocksSupportTrait;
 use MaxPertici\GutenbergMarkup\Concerns\Color\BackgroundColorTrait;
 use MaxPertici\GutenbergMarkup\Concerns\Color\TextColorTrait;
 use MaxPertici\GutenbergMarkup\Concerns\Dimensions\FlexWidthTrait;
@@ -45,6 +46,7 @@ class HeadingBlock extends BlockMarkup {
 	use AnchorTrait;
 	use BackgroundColorTrait;
 	use CustomClassTrait;
+	use InnerBlocksSupportTrait;
 	use FontSizeTrait;
 	use FontStyleTrait;
 	use FontWeightTrait;
@@ -192,4 +194,3 @@ class HeadingBlock extends BlockMarkup {
 		return $this;
 	}
 }
-

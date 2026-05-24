@@ -3,8 +3,11 @@
 namespace MaxPertici\GutenbergMarkup\Blocks;
 
 use MaxPertici\GutenbergMarkup\BlockMarkup;
+use MaxPertici\GutenbergMarkup\Concerns\Block\InnerBlocksSupportTrait;
 
 class ListItemBlock extends BlockMarkup {
+
+	use InnerBlocksSupportTrait;
 
 	/**
 	 * List Item Tag
@@ -68,4 +71,3 @@ class ListItemBlock extends BlockMarkup {
 		parent::print();
 	}
 }
-

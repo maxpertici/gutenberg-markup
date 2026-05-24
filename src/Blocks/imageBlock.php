@@ -3,9 +3,12 @@
 namespace MaxPertici\GutenbergMarkup\Blocks;
 
 use MaxPertici\GutenbergMarkup\BlockMarkup;
+use MaxPertici\GutenbergMarkup\Concerns\Block\SelfClosingBlockSupportTrait;
 use MaxPertici\Markup\Markup;
 
 class ImageBlock extends BlockMarkup {
+
+	use SelfClosingBlockSupportTrait;
 
     /**
      * Block attribute: id.
@@ -533,4 +536,3 @@ class ImageBlock extends BlockMarkup {
         return $this;
     }
 }
-

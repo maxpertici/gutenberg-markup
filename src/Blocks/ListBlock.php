@@ -6,6 +6,7 @@ use MaxPertici\GutenbergMarkup\BlockMarkup;
 use MaxPertici\GutenbergMarkup\Concerns\Advanced\AnchorTrait;
 use MaxPertici\GutenbergMarkup\Concerns\Advanced\CustomClassTrait;
 use MaxPertici\GutenbergMarkup\Concerns\Block\BlockStyleTrait;
+use MaxPertici\GutenbergMarkup\Concerns\Block\InnerBlocksSupportTrait;
 use MaxPertici\GutenbergMarkup\Concerns\Color\BackgroundColorTrait;
 use MaxPertici\GutenbergMarkup\Concerns\Color\LinkColorTrait;
 use MaxPertici\GutenbergMarkup\Concerns\Color\TextColorTrait;
@@ -24,6 +25,7 @@ class ListBlock extends BlockMarkup {
 	use AnchorTrait;
 	use BackgroundColorTrait;
 	use CustomClassTrait;
+	use InnerBlocksSupportTrait;
 	use TextColorTrait;
 	use FontSizeTrait;
 	use FontStyleTrait;
@@ -247,4 +249,3 @@ class ListBlock extends BlockMarkup {
 		return $this;
 	}
 }
-

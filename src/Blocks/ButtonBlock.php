@@ -10,6 +10,7 @@
 namespace MaxPertici\GutenbergMarkup\Blocks;
 
 use MaxPertici\GutenbergMarkup\BlockMarkup;
+use MaxPertici\GutenbergMarkup\Concerns\Block\SelfClosingBlockSupportTrait;
 
 /**
  * Button Gutenberg Block implementation.
@@ -19,6 +20,8 @@ use MaxPertici\GutenbergMarkup\BlockMarkup;
  * @since 1.0.0
  */
 class ButtonBlock extends BlockMarkup {
+
+	use SelfClosingBlockSupportTrait;
 
 	/**
 	 * Button label/content.
