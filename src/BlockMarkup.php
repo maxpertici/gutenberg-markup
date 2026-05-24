@@ -366,7 +366,7 @@ class BlockMarkup extends Markup {
 			return false;
 		}
 
-		return $child instanceof \Stringable || method_exists( $child, '__toString' );
+		return $child instanceof \Stringable;
 	}
 
 	/**

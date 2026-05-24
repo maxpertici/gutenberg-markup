@@ -188,7 +188,7 @@ class PostContentBlock extends BlockMarkup {
 			return $child;
 		}
 
-		if ( $child instanceof \Stringable || method_exists( $child, '__toString' ) ) {
+		if ( $child instanceof \Stringable ) {
 			return (string) $child;
 		}
 
