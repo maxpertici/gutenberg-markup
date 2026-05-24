@@ -80,6 +80,13 @@ class BlockMarkup extends Markup {
 	private BlockComments $blockComments;
 
 	/**
+	 * Guard flag to prevent recursive hydration loops.
+	 *
+	 * @var bool
+	 */
+	private bool $isHydrating = false;
+
+	/**
 	 * Constructor.
 	 *
 	 * Initializes a new BlockMarkup instance with Gutenberg block support.
@@ -126,6 +133,15 @@ class BlockMarkup extends Markup {
 	}
 
 	/**
+	 * Build runtime state before rendering.
+	 *
+	 * Block classes can override this hook to compute wrapper/classes/attrs.
+	 *
+	 * @return void
+	 */
+	protected function build(): void {}
+
+	/**
 	 * Gets the complete block markup with Gutenberg comments.
 	 *
 	 * Wraps the parent markup with appropriate Gutenberg block comments.
@@ -139,6 +155,8 @@ class BlockMarkup extends Markup {
 	 * @return string The complete block markup including Gutenberg comment syntax.
 	 */
 	public function render(): string {
+		$this->build();
+
 		// Update the BlockComments instance with current attributes
 		$this->blockComments = new BlockComments( $this->blockName, $this->blockAttributes );
 
@@ -171,6 +189,8 @@ class BlockMarkup extends Markup {
 	 * @return void
 	 */
 	public function print(): void {
+		$this->build();
+
 		// Update the BlockComments instance with current attributes
 		$this->blockComments = new BlockComments( $this->blockName, $this->blockAttributes );
 
@@ -220,6 +240,92 @@ class BlockMarkup extends Markup {
 	}
 
 	/**
+	 * Return whether this block can contain children.
+	 *
+	 * Gutenberg block validity is business-level, but markup composition is generic.
+	 * Leaf-like block subclasses may override this and return false to reject
+	 * child mutation APIs (`addChild`, `addChildren`, `setChildren`) semantically.
+	 * When false, mutation methods return early and keep current children unchanged.
+	 * This guard applies to mutation APIs only; constructor-provided children are
+	 * preserved as-is.
+	 *
+	 * @return bool
+	 */
+	public function supportsChildren(): bool {
+		return true;
+	}
+
+	/**
+	 * Add one child block/content.
+	 *
+	 * @param object|string $child Child block or raw string content.
+	 * @return self
+	 */
+	public function addChild( object|string $child ): self {
+		if ( ! $this->supportsChildren() ) {
+			return $this;
+		}
+
+		if ( ! $this->isValidChild( $child ) ) {
+			return $this;
+		}
+
+		$this->children[] = $child;
+		$this->afterChildrenMutation();
+
+		return $this;
+	}
+
+	/**
+	 * Add multiple child blocks/content.
+	 *
+	 * @param array<int, object|string> $children Children to append.
+	 * @return self
+	 */
+	public function addChildren( array $children ): self {
+		if ( ! $this->supportsChildren() ) {
+			return $this;
+		}
+
+		$validChildren = array_values(
+			array_filter(
+				$children,
+				fn ( mixed $child ): bool => $this->isValidChild( $child )
+			)
+		);
+
+		if ( ! empty( $validChildren ) ) {
+			$this->children = array_merge( $this->children, $validChildren );
+			$this->afterChildrenMutation();
+		}
+
+		return $this;
+	}
+
+	/**
+	 * Replace all children.
+	 *
+	 * @param array<int, object|string> $children Child block/content list.
+	 * @return self
+	 */
+	public function setChildren( array $children ): self {
+		if ( ! $this->supportsChildren() ) {
+			return $this;
+		}
+
+		$this->children = array_values(
+			array_filter(
+				$children,
+				fn ( mixed $child ): bool => $this->isValidChild( $child )
+			)
+		);
+
+		$this->afterChildrenMutation();
+
+		return $this;
+	}
+
+	/**
 	 * Sets or updates block attributes.
 	 *
 	 * Allows updating the block attributes after instantiation.
@@ -243,8 +349,180 @@ class BlockMarkup extends Markup {
 			$this->blockAttributes = $attributes;
 		}
 
+		$this->applyAttributeHydration( $attributes );
+
 		// Update the BlockComments instance
 		$this->blockComments = new BlockComments( $this->blockName, $this->blockAttributes );
+	}
+
+	/**
+	 * Run shared state updates after child mutations.
+	 *
+	 * @return void
+	 */
+	protected function afterChildrenMutation(): void {
+		if ( ! empty( $this->children ) ) {
+			$this->isSelfClosing = false;
+		}
+	}
+
+	/**
+	 * Validate one child value accepted by the Markup tree.
+	 *
+	 * Accepts only `string` and `\Stringable` object values. Mutation APIs silently
+	 * ignore non-compatible values.
+	 *
+	 * @param mixed $child Candidate child value.
+	 * @return bool
+	 */
+	private function isValidChild( mixed $child ): bool {
+		if ( is_string( $child ) ) {
+			return true;
+		}
+
+		if ( ! is_object( $child ) ) {
+			return false;
+		}
+
+		return $child instanceof \Stringable;
+	}
+
+	/**
+	 * Hydrate runtime state from parsed Gutenberg attributes.
+	 *
+	 * This keeps object-level search fields (`wrapperClass`, `wrapperAttributes`)
+	 * synchronized so `findByClass()` and `findByAttribute()` work reliably after
+	 * parsing content with BlockFactory.
+	 *
+	 * @since 1.1.0
+	 *
+	 * @param array $attributes Parsed block attributes.
+	 * @param bool  $merge Optional. Merge or replace base block attributes. Default false.
+	 * @return self
+	 */
+	public function hydrate( array $attributes, bool $merge = false ): self {
+		$this->setBlockAttributes( $attributes, $merge );
+
+		return $this;
+	}
+
+	/**
+	 * Prepare current block (and optionally descendants) for finder queries.
+	 *
+	 * Calls `build()` when present to materialize computed classes/attributes, then
+	 * recursively prepares child blocks.
+	 *
+	 * @since 1.1.0
+	 *
+	 * @param bool $deep Optional. Prepare descendants recursively. Default true.
+	 * @return self
+	 */
+	public function prepareForFind( bool $deep = true ): self {
+		if ( method_exists( $this, 'build' ) ) {
+			$this->build();
+		}
+
+		if ( ! $deep ) {
+			return $this;
+		}
+
+		foreach ( $this->getChildren() as $child ) {
+			if ( $child instanceof self ) {
+				$child->prepareForFind( true );
+			}
+		}
+
+		return $this;
+	}
+
+	/**
+	 * Apply common Gutenberg attrs into object runtime state via trait setters.
+	 *
+	 * @param array $attributes Parsed block attributes.
+	 * @return void
+	 */
+	protected function applyAttributeHydration( array $attributes ): void {
+		if ( $this->isHydrating ) {
+			return;
+		}
+
+		$this->isHydrating = true;
+
+		try {
+			$this->hydrateByMethodIfCallable( 'anchor', $attributes['anchor'] ?? null );
+			$this->hydrateByMethodIfCallable( 'customClass', $attributes['className'] ?? null );
+			$this->hydrateByMethodIfCallable( 'textColor', $attributes['textColor'] ?? null );
+			$this->hydrateByMethodIfCallable( 'backgroundColor', $attributes['backgroundColor'] ?? null );
+			$this->hydrateByMethodIfCallable( 'fontSize', $attributes['fontSize'] ?? null );
+			$this->hydrateByMethodIfCallable( 'hasAlphaChannelOpacity', $attributes['hasAlphaChannelOpacity'] ?? null );
+
+			if ( array_key_exists( 'textAlign', $attributes ) && is_string( $attributes['textAlign'] ) ) {
+				$this->hydrateByMethodIfCallable( 'textAlign', $attributes['textAlign'] );
+			}
+
+			if ( array_key_exists( 'align', $attributes ) && is_string( $attributes['align'] ) ) {
+				if ( method_exists( $this, 'textAlign' ) ) {
+					$this->textAlign( (string) $attributes['align'] );
+				} else {
+					$this->hydrateByMethodIfCallable( 'align', $attributes['align'] );
+				}
+			}
+
+			$this->hydrateTypographyAndStyleAttributes( $attributes );
+		} finally {
+			$this->isHydrating = false;
+		}
+	}
+
+	/**
+	 * Hydrate one attribute via block method when callable and scalar-compatible.
+	 *
+	 * @param string $method Method name.
+	 * @param mixed  $value Attribute value.
+	 * @return void
+	 */
+	private function hydrateByMethodIfCallable( string $method, mixed $value ): void {
+		if ( null === $value || ! method_exists( $this, $method ) ) {
+			return;
+		}
+
+		if ( ! is_scalar( $value ) ) {
+			return;
+		}
+
+		try {
+			$this->{$method}( $value );
+		} catch ( \Throwable $e ) {
+			// Best-effort hydration: ignore non-compatible setters.
+		}
+	}
+
+	/**
+	 * Hydrate style-derived attributes when present.
+	 *
+	 * @param array $attributes Parsed block attributes.
+	 * @return void
+	 */
+	private function hydrateTypographyAndStyleAttributes( array $attributes ): void {
+		$style = is_array( $attributes['style'] ?? null ) ? $attributes['style'] : [];
+		if ( empty( $style ) ) {
+			return;
+		}
+
+		$typography = is_array( $style['typography'] ?? null ) ? $style['typography'] : [];
+		$this->hydrateByMethodIfCallable( 'fontStyle', $typography['fontStyle'] ?? null );
+		$this->hydrateByMethodIfCallable( 'fontWeight', $typography['fontWeight'] ?? null );
+		$this->hydrateByMethodIfCallable( 'letterSpacing', $typography['letterSpacing'] ?? null );
+		$this->hydrateByMethodIfCallable( 'lineHeight', $typography['lineHeight'] ?? null );
+		$this->hydrateByMethodIfCallable( 'textDecoration', $typography['textDecoration'] ?? null );
+		$this->hydrateByMethodIfCallable( 'textTransform', $typography['textTransform'] ?? null );
+
+		$color = is_array( $style['color'] ?? null ) ? $style['color'] : [];
+		$this->hydrateByMethodIfCallable( 'customTextColor', $color['text'] ?? null );
+		$this->hydrateByMethodIfCallable( 'customBackgroundColor', $color['background'] ?? null );
+
+		$linkTextColor = $style['elements']['link']['color']['text'] ?? null;
+		$this->hydrateByMethodIfCallable( 'customLinkColor', $linkTextColor );
 	}
 
 	/**
@@ -331,4 +609,3 @@ class BlockMarkup extends Markup {
 	}
 
 }
-

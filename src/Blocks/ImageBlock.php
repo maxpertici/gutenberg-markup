@@ -3,9 +3,12 @@
 namespace MaxPertici\GutenbergMarkup\Blocks;
 
 use MaxPertici\GutenbergMarkup\BlockMarkup;
+use MaxPertici\GutenbergMarkup\Concerns\Block\SelfClosingBlockSupportTrait;
 use MaxPertici\Markup\Markup;
 
 class ImageBlock extends BlockMarkup {
+
+	use SelfClosingBlockSupportTrait;
 
     /**
      * Block attribute: id.
@@ -456,32 +459,52 @@ class ImageBlock extends BlockMarkup {
         }
     }
 
-	/**
-	 * Gets the complete block markup with Gutenberg comments.
-	 *
-	 * Builds the wrapper and attributes before rendering the block.
-	 *
-	 * @since 1.0.0
-	 *
-	 * @return string The complete block markup including Gutenberg comment syntax.
-	 */
-	public function render(): string {
-		$this->build();
-		return parent::render();
-	}
+    /**
+     * Hydrate runtime state from parsed attrs.
+     *
+     * @param array $attributes Parsed Gutenberg attrs.
+     * @param bool  $merge Merge or replace attributes.
+     * @return self
+     */
+    public function hydrate( array $attributes, bool $merge = false ): self {
+        parent::hydrate( $attributes, $merge );
 
-	/**
-	 * Prints the complete block markup with Gutenberg comments (echo mode).
-	 *
-	 * Builds the wrapper and attributes before printing the block.
-	 *
-	 * @since 1.0.0
-	 *
-	 * @return void
-	 */
-	public function print(): void {
-		$this->build();
-		parent::print();
-	}
+        if ( isset( $attributes['id'] ) ) {
+            $this->id( (int) $attributes['id'] );
+        }
+
+        if ( isset( $attributes['sizeSlug'] ) ) {
+            $this->sizeSlug( (string) $attributes['sizeSlug'] );
+        }
+
+        if ( isset( $attributes['linkDestination'] ) ) {
+            $this->linkDestination( (string) $attributes['linkDestination'] );
+        }
+
+        if ( isset( $attributes['lightbox'] ) && is_array( $attributes['lightbox'] ) ) {
+            $this->lightbox( $attributes['lightbox'] );
+        }
+
+        if ( isset( $attributes['aspectRatio'] ) ) {
+            $this->aspectRatio( (string) $attributes['aspectRatio'] );
+        }
+
+        if ( isset( $attributes['scale'] ) ) {
+            $this->scale( (string) $attributes['scale'] );
+        }
+
+        if ( isset( $attributes['width'] ) ) {
+            $this->width( (string) $attributes['width'] );
+        }
+
+        if ( isset( $attributes['height'] ) ) {
+            $this->height( (string) $attributes['height'] );
+        }
+
+        if ( isset( $attributes['href'] ) ) {
+            $this->href( (string) $attributes['href'] );
+        }
+
+        return $this;
+    }
 }
-

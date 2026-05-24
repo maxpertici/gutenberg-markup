@@ -3,8 +3,11 @@
 namespace MaxPertici\GutenbergMarkup\Blocks;
 
 use MaxPertici\GutenbergMarkup\BlockMarkup;
+use MaxPertici\GutenbergMarkup\Concerns\Block\InnerBlocksSupportTrait;
 
 class ListItemBlock extends BlockMarkup {
+
+	use InnerBlocksSupportTrait;
 
 	/**
 	 * List Item Tag
@@ -30,5 +33,16 @@ class ListItemBlock extends BlockMarkup {
 
         $this->wrapper = "<{$this->tag} class=\"%classes%\" %attributes%>%children%</{$this->tag}>";
 	}
-}
 
+	/**
+	 * Build list item runtime state before rendering/search.
+	 *
+	 * @since 1.1.0
+	 *
+	 * @return void
+	 */
+	protected function build(): void {
+		$this->wrapper = "<{$this->tag} class=\"%classes%\" %attributes%>%children%</{$this->tag}>";
+	}
+
+}

@@ -15,6 +15,7 @@ use MaxPertici\GutenbergMarkup\Concerns\Advanced\CustomClassTrait;
 use MaxPertici\GutenbergMarkup\Concerns\Advanced\TagNameTrait;
 use MaxPertici\GutenbergMarkup\Concerns\Block\BlockStyleTrait;
 use MaxPertici\GutenbergMarkup\Concerns\Block\HtmlElementTrait;
+use MaxPertici\GutenbergMarkup\Concerns\Block\InnerBlocksSupportTrait;
 use MaxPertici\GutenbergMarkup\Concerns\Color\BackgroundColorTrait;
 use MaxPertici\GutenbergMarkup\Concerns\Color\LinkColorTrait;
 use MaxPertici\GutenbergMarkup\Concerns\Color\TextColorTrait;
@@ -43,6 +44,7 @@ class GroupBlock extends BlockMarkup {
 	use AnchorTrait;
 	use BackgroundColorTrait;
 	use CustomClassTrait;
+	use InnerBlocksSupportTrait;
 	use TagNameTrait;
 	use TextColorTrait;
 	use DropCapTrait;
@@ -409,27 +411,59 @@ class GroupBlock extends BlockMarkup {
 	}
 
 	/**
-	 * Override render to apply layout classes before rendering.
+	 * Hydrate runtime state from parsed attrs.
 	 *
-	 * @since 1.0.0
-	 *
-	 * @return string The rendered block markup.
+	 * @param array $attributes Parsed Gutenberg attrs.
+	 * @param bool  $merge Merge or replace attributes.
+	 * @return self
 	 */
-	public function render(): string {
-		$this->build();
-		return parent::render();
-	}
+	public function hydrate( array $attributes, bool $merge = false ): self {
+		parent::hydrate( $attributes, $merge );
 
-	/**
-	 * Override echo method to apply layout classes before echoing.
-	 *
-	 * @since 1.0.0
-	 *
-	 * @return void
-	 */
-	public function echo(): void {
-		$this->build();
-		parent::echo();
+		$layout = is_array( $attributes['layout'] ?? null ) ? $attributes['layout'] : [];
+		$type   = $layout['type'] ?? null;
+
+		if ( 'flex' === $type ) {
+			$isVertical = 'vertical' === ( $layout['orientation'] ?? null );
+			$wrap       = null;
+
+			if ( isset( $layout['flexWrap'] ) ) {
+				$wrap = 'wrap' === $layout['flexWrap'];
+			}
+
+			if ( $isVertical ) {
+				$this->asFlexColumn( $wrap );
+			} else {
+				$this->asFlexRow( $wrap );
+			}
+		} elseif ( 'constrained' === $type ) {
+			$this->layoutConstrained();
+
+			if ( isset( $layout['contentSize'] ) ) {
+				$this->contentSize( (string) $layout['contentSize'] );
+			}
+
+			if ( isset( $layout['wideSize'] ) ) {
+				$this->wideSize( (string) $layout['wideSize'] );
+			}
+		} elseif ( 'grid' === $type ) {
+			$this->asGrid();
+
+			if ( isset( $layout['columnCount'] ) ) {
+				$this->columnCount( (int) $layout['columnCount'] );
+			}
+
+			if ( isset( $layout['minimumColumnWidth'] ) ) {
+				$this->minimumColumnWidth( (string) $layout['minimumColumnWidth'] );
+			}
+		} elseif ( 'flow' === $type ) {
+			$this->asBlock();
+		}
+
+		if ( isset( $layout['justifyContent'] ) ) {
+			$this->justifyContent( (string) $layout['justifyContent'] );
+		}
+
+		return $this;
 	}
 }
-

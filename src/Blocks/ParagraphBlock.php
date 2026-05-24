@@ -13,6 +13,7 @@ use MaxPertici\GutenbergMarkup\BlockMarkup;
 use MaxPertici\GutenbergMarkup\Concerns\Advanced\AnchorTrait;
 use MaxPertici\GutenbergMarkup\Concerns\Advanced\CustomClassTrait;
 use MaxPertici\GutenbergMarkup\Concerns\Block\BlockStyleTrait;
+use MaxPertici\GutenbergMarkup\Concerns\Block\InnerBlocksSupportTrait;
 use MaxPertici\GutenbergMarkup\Concerns\Color\BackgroundColorTrait;
 use MaxPertici\GutenbergMarkup\Concerns\Color\LinkColorTrait;
 use MaxPertici\GutenbergMarkup\Concerns\Color\TextColorTrait;
@@ -48,6 +49,7 @@ class ParagraphBlock extends BlockMarkup {
 	use AnchorTrait;
 	use BackgroundColorTrait;
 	use CustomClassTrait;
+	use InnerBlocksSupportTrait;
 	use DropCapTrait;
 	use FontSizeTrait;
 	use FontStyleTrait;
@@ -79,5 +81,16 @@ class ParagraphBlock extends BlockMarkup {
 			children: [ $content ]
 		);
 	}
-}
 
+	/**
+	 * Build paragraph runtime state before rendering/search.
+	 *
+	 * @since 1.1.0
+	 *
+	 * @return void
+	 */
+	protected function build(): void {
+		$this->addClass( 'wp-block-paragraph' );
+	}
+
+}
