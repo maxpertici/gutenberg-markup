@@ -11,6 +11,8 @@ Bibliothèque PHP pour écrire du markup Gutenberg (WordPress) de façon cohére
   - `InnerBlocksSupportTrait` pour les blocs qui acceptent des enfants.
   - `SelfClosingBlockSupportTrait` pour les blocs sans enfants (API de mutation ignorée).
 
+Guide détaillé d’implémentation d’un block : [`docs/BLOCK_WRITING_GUIDE.md`](docs/BLOCK_WRITING_GUIDE.md)
+
 ## Exemple basique — bloc Heading
 
 ```php
