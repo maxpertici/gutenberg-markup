@@ -257,12 +257,15 @@ class BlockMarkup extends Markup {
 	 * @return self
 	 */
 	public function addChildren( array $children ): self {
-		foreach ( $children as $child ) {
-			if ( ! $this->isValidChild( $child ) ) {
-				continue;
-			}
+		$validChildren = array_values(
+			array_filter(
+				$children,
+				fn ( mixed $child ): bool => $this->isValidChild( $child )
+			)
+		);
 
-			$this->children[] = $child;
+		if ( ! empty( $validChildren ) ) {
+			$this->children = array_merge( $this->children, $validChildren );
 		}
 
 		$this->afterChildrenMutation();
