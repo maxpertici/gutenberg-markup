@@ -43,7 +43,7 @@ class PostContentBlock extends BlockMarkup {
 		parent::__construct(
 			blockName: $blockName,
 			blockAttributes: $blockAttributes,
-			isSelfClosing: false,
+			isSelfClosing: empty( $innerContent ) && empty( $children ),
 			children: $children,
 		);
 
@@ -137,7 +137,7 @@ class PostContentBlock extends BlockMarkup {
 		}
 
 		$childCount = count( $this->children );
-		$missingSlots   = max( 0, $childCount - $slotCount );
+		$missingSlots = max( 0, $childCount - $slotCount );
 		$insertionIndex = count( $this->innerContent ) - 1;
 
 		if ( 0 === $missingSlots ) {
