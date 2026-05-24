@@ -411,14 +411,25 @@ class GroupBlock extends BlockMarkup {
 	}
 
 	/**
-	 * Override echo method to apply layout classes before echoing.
+	 * Prints the complete block markup with Gutenberg comments.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @return void
+	 */
+	public function print(): void {
+		parent::print();
+	}
+
+	/**
+	 * Backward-compatible alias for print().
 	 *
 	 * @since 1.0.0
 	 *
 	 * @return void
 	 */
 	public function echo(): void {
-		parent::print();
+		$this->print();
 	}
 
 	/**
