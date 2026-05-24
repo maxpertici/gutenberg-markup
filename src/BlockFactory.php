@@ -919,8 +919,8 @@ class BlockFactory {
 		$value     = self::extractTagInnerHtml( $innerHtml, 'p' ) ?? '';
 		$citation  = self::extractTagInnerHtml( $innerHtml, 'cite' );
 
-		$valueOrChildren = empty( $children ) ? $value : $children;
-		$block           = new PullquoteBlock( $valueOrChildren, $citation );
+		$contentOrChildren = empty( $children ) ? $value : $children;
+		$block             = new PullquoteBlock( $contentOrChildren, $citation );
 		$block->setBlockAttributes( $attrs, false );
 
 		if ( isset( $attrs['textAlign'] ) ) {
