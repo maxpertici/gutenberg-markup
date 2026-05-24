@@ -44,6 +44,18 @@ $blocks  = BlockFactory::parsePostContent( $content );
 - Les blocks non supportés restent en markup simple (fallback) avec commentaires Gutenberg conservés.
 - Les attributs inconnus sont conservés.
 
+Pour un block fallback (`UnsupportedBlock`), vous pouvez aussi manipuler explicitement les enfants :
+
+```php
+use MaxPertici\GutenbergMarkup\UnsupportedBlock;
+use MaxPertici\GutenbergMarkup\Blocks\ParagraphBlock;
+
+$unsupported = new UnsupportedBlock( 'core/group' );
+$unsupported
+	->addChild( new ParagraphBlock( 'Enfant 1' ) )
+	->addChildren( [ new ParagraphBlock( 'Enfant 2' ) ] );
+```
+
 ## Résolution auto + mapping custom
 
 La factory tente, dans cet ordre :

@@ -60,6 +60,61 @@ class UnsupportedBlock extends BlockMarkup {
 	}
 
 	/**
+	 * Add one child block/content to this unsupported block.
+	 *
+	 * @param object|string $child Child block or raw string content.
+	 * @return self
+	 */
+	public function addChild( object|string $child ): self {
+		$this->children[] = $child;
+		$this->ensureInnerContentSlotsForChildren();
+		$this->build();
+
+		return $this;
+	}
+
+	/**
+	 * Add multiple child blocks/content to this unsupported block.
+	 *
+	 * @param array<int, object|string> $children Children to append.
+	 * @return self
+	 */
+	public function addChildren( array $children ): self {
+		foreach ( $children as $child ) {
+			if ( ! is_string( $child ) && ! is_object( $child ) ) {
+				continue;
+			}
+
+			$this->children[] = $child;
+		}
+
+		$this->ensureInnerContentSlotsForChildren();
+		$this->build();
+
+		return $this;
+	}
+
+	/**
+	 * Replace all children for this unsupported block.
+	 *
+	 * @param array<int, object|string> $children Child block/content list.
+	 * @return self
+	 */
+	public function setChildren( array $children ): self {
+		$this->children = array_values(
+			array_filter(
+				$children,
+				static fn ( mixed $child ): bool => is_string( $child ) || is_object( $child )
+			)
+		);
+
+		$this->ensureInnerContentSlotsForChildren();
+		$this->build();
+
+		return $this;
+	}
+
+	/**
 	 * Reassemble the block markup by interleaving HTML chunks and rendered children.
 	 *
 	 * Bypasses BlockMarkup's $wrapper/$childrenWrapper pipeline and reproduces
@@ -103,5 +158,33 @@ class UnsupportedBlock extends BlockMarkup {
 		return '' === trim( $inner )
 			? $comments->selfClosingComment()
 			: $comments->wrapContent( $inner );
+	}
+
+	/**
+	 * Ensure innerContent has enough child slots (null placeholders).
+	 *
+	 * New slots are inserted before the trailing chunk so additional children
+	 * stay inside the original wrapper structure.
+	 *
+	 * @return void
+	 */
+	private function ensureInnerContentSlotsForChildren(): void {
+		if ( empty( $this->innerContent ) ) {
+			return;
+		}
+
+		$slotCount      = count(
+			array_filter(
+				$this->innerContent,
+				static fn ( mixed $chunk ): bool => null === $chunk
+			)
+		);
+		$childrenCount  = count( $this->children );
+		$missingSlots   = $childrenCount - $slotCount;
+		$insertionIndex = max( count( $this->innerContent ) - 1, 0 );
+
+		for ( $i = 0; $i < $missingSlots; $i++ ) {
+			array_splice( $this->innerContent, $insertionIndex, 0, [ null ] );
+		}
 	}
 }
