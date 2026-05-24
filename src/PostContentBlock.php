@@ -136,9 +136,12 @@ class PostContentBlock extends BlockMarkup {
 			}
 		}
 
-		$childCount = count( $this->children );
+		$childCount = count( $this->getChildren() );
 		$missingSlots = max( 0, $childCount - $slotCount );
-		$insertionIndex = count( $this->innerContent ) - 1;
+		$innerContentCount = count( $this->innerContent );
+		$insertionIndex = 1 === $innerContentCount
+			? $innerContentCount
+			: $innerContentCount - 1;
 
 		if ( 0 === $missingSlots ) {
 			return;
