@@ -180,18 +180,14 @@ class PostContentBlock extends BlockMarkup {
 	/**
 	 * Normalize one child to its string representation.
 	 *
-	 * @param object|string $child
+	 * @param \Stringable|string $child
 	 * @return string
 	 */
-	private function childToString( object|string $child ): string {
+	private function childToString( \Stringable|string $child ): string {
 		if ( is_string( $child ) ) {
 			return $child;
 		}
 
-		if ( $child instanceof \Stringable ) {
-			return (string) $child;
-		}
-
-		return '';
+		return (string) $child;
 	}
 }

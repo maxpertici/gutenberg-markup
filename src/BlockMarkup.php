@@ -233,6 +233,8 @@ class BlockMarkup extends Markup {
 	 * Leaf-like block subclasses may override this and return false to reject
 	 * child mutation APIs (`addChild`, `addChildren`, `setChildren`) semantically.
 	 * When false, mutation methods return early and keep current children unchanged.
+	 * This guard applies to mutation APIs only; constructor-provided children are
+	 * preserved as-is.
 	 *
 	 * @return bool
 	 */
@@ -353,6 +355,9 @@ class BlockMarkup extends Markup {
 
 	/**
 	 * Validate one child value accepted by the Markup tree.
+	 *
+	 * Accepts only `string` and `\Stringable` object values. Mutation APIs silently
+	 * ignore non-compatible values.
 	 *
 	 * @param mixed $child Candidate child value.
 	 * @return bool
