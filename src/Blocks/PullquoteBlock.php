@@ -81,14 +81,14 @@ class PullquoteBlock extends BlockMarkup {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @param array|string $contentOrChildren The quoted text or parsed inner children.
+	 * @param array|string $contentOrParsedChildren The quoted text or parsed inner children.
 	 * @param string|null $citation Optional. Citation text for the `<cite>` element. Default null.
 	 */
-	public function __construct( array|string $contentOrChildren = '', ?string $citation = null ) {
-		if ( is_array( $contentOrChildren ) ) {
-			$this->setInnerBlocks( $contentOrChildren );
+	public function __construct( array|string $contentOrParsedChildren = '', ?string $citation = null ) {
+		if ( is_array( $contentOrParsedChildren ) ) {
+			$this->setInnerBlocks( $contentOrParsedChildren );
 		} else {
-			$this->value = $contentOrChildren;
+			$this->value = $contentOrParsedChildren;
 		}
 
 		$this->citation = $citation;
