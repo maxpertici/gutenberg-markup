@@ -45,29 +45,4 @@ class ListItemBlock extends BlockMarkup {
 		$this->wrapper = "<{$this->tag} class=\"%classes%\" %attributes%>%children%</{$this->tag}>";
 	}
 
-	/**
-	 * Render block markup.
-	 *
-	 * @since 1.1.0
-	 *
-	 * @return string
-	 */
-	public function render(): string {
-		$this->build();
-
-		return parent::render();
-	}
-
-	/**
-	 * Print block markup.
-	 *
-	 * @since 1.1.0
-	 *
-	 * @return void
-	 */
-	public function print(): void {
-		$this->build();
-
-		parent::print();
-	}
 }

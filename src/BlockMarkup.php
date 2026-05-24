@@ -133,6 +133,15 @@ class BlockMarkup extends Markup {
 	}
 
 	/**
+	 * Build runtime state before rendering.
+	 *
+	 * Block classes can override this hook to compute wrapper/classes/attrs.
+	 *
+	 * @return void
+	 */
+	protected function build(): void {}
+
+	/**
 	 * Gets the complete block markup with Gutenberg comments.
 	 *
 	 * Wraps the parent markup with appropriate Gutenberg block comments.
@@ -146,6 +155,8 @@ class BlockMarkup extends Markup {
 	 * @return string The complete block markup including Gutenberg comment syntax.
 	 */
 	public function render(): string {
+		$this->build();
+
 		// Update the BlockComments instance with current attributes
 		$this->blockComments = new BlockComments( $this->blockName, $this->blockAttributes );
 
@@ -178,6 +189,8 @@ class BlockMarkup extends Markup {
 	 * @return void
 	 */
 	public function print(): void {
+		$this->build();
+
 		// Update the BlockComments instance with current attributes
 		$this->blockComments = new BlockComments( $this->blockName, $this->blockAttributes );
 

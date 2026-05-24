@@ -93,29 +93,4 @@ class ParagraphBlock extends BlockMarkup {
 		$this->addClass( 'wp-block-paragraph' );
 	}
 
-	/**
-	 * Render block markup.
-	 *
-	 * @since 1.1.0
-	 *
-	 * @return string
-	 */
-	public function render(): string {
-		$this->build();
-
-		return parent::render();
-	}
-
-	/**
-	 * Print block markup.
-	 *
-	 * @since 1.1.0
-	 *
-	 * @return void
-	 */
-	public function print(): void {
-		$this->build();
-
-		parent::print();
-	}
 }

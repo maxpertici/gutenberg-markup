@@ -223,30 +223,6 @@ class PullquoteBlock extends BlockMarkup {
 	}
 
 	/**
-	 * Gets the complete block markup with Gutenberg comments.
-	 *
-	 * @since 1.0.0
-	 *
-	 * @return string The complete block markup including Gutenberg comment syntax.
-	 */
-	public function render(): string {
-		$this->build();
-		return parent::render();
-	}
-
-	/**
-	 * Prints the complete block markup with Gutenberg comments.
-	 *
-	 * @since 1.0.0
-	 *
-	 * @return void
-	 */
-	public function print(): void {
-		$this->build();
-		parent::print();
-	}
-
-	/**
 	 * Hydrate runtime state from parsed attrs.
 	 *
 	 * @param array $attributes Parsed Gutenberg attrs.

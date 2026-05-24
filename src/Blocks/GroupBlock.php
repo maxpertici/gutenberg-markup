@@ -411,18 +411,6 @@ class GroupBlock extends BlockMarkup {
 	}
 
 	/**
-	 * Override render to apply layout classes before rendering.
-	 *
-	 * @since 1.0.0
-	 *
-	 * @return string The rendered block markup.
-	 */
-	public function render(): string {
-		$this->build();
-		return parent::render();
-	}
-
-	/**
 	 * Override echo method to apply layout classes before echoing.
 	 *
 	 * @since 1.0.0
@@ -430,7 +418,6 @@ class GroupBlock extends BlockMarkup {
 	 * @return void
 	 */
 	public function echo(): void {
-		$this->build();
 		parent::print();
 	}
 
