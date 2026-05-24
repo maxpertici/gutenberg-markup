@@ -244,6 +244,10 @@ class BlockMarkup extends Markup {
 	 * @return self
 	 */
 	public function addChild( object|string $child ): self {
+		if ( ! $this->isValidChild( $child ) ) {
+			return $this;
+		}
+
 		$this->children[] = $child;
 		$this->afterChildrenMutation();
 
