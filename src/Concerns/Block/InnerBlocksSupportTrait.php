@@ -16,7 +16,7 @@ trait InnerBlocksSupportTrait {
 	 *
 	 * @var array<int, object|string>
 	 */
-	protected array $innerBlocks = array();
+	protected array $innerBlocks = [];
 
 	/**
 	 * Replace stored inner block children.
