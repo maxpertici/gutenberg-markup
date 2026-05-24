@@ -422,17 +422,6 @@ class GroupBlock extends BlockMarkup {
 	}
 
 	/**
-	 * Backward-compatible alias for print().
-	 *
-	 * @since 1.0.0
-	 *
-	 * @return void
-	 */
-	public function echo(): void {
-		$this->print();
-	}
-
-	/**
 	 * Hydrate runtime state from parsed attrs.
 	 *
 	 * @param array $attributes Parsed Gutenberg attrs.
