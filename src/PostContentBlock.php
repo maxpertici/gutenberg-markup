@@ -43,11 +43,12 @@ class PostContentBlock extends BlockMarkup {
 		parent::__construct(
 			blockName: $blockName,
 			blockAttributes: $blockAttributes,
-			isSelfClosing: empty( $innerContent ) && empty( $children ),
+			isSelfClosing: false,
 			children: $children,
 		);
 
 		$this->innerContent = $innerContent;
+		$this->build();
 	}
 
 	/**
@@ -78,31 +79,10 @@ class PostContentBlock extends BlockMarkup {
 				return $comments->selfClosingComment();
 			}
 
-			$inner = '';
-			foreach ( $children as $child ) {
-				$inner .= is_string( $child ) ? $child : (string) $child;
-			}
-
-			return '' === trim( $inner )
-				? $comments->selfClosingComment()
-				: $comments->wrapContent( $inner );
+			return $this->wrapRenderedInnerContent( $comments, $this->renderChildren( $children ) );
 		}
 
-		$inner      = '';
-		$childIndex = 0;
-
-		foreach ( $this->innerContent as $chunk ) {
-			if ( null === $chunk ) {
-				$child  = $children[ $childIndex++ ] ?? '';
-				$inner .= is_string( $child ) ? $child : (string) $child;
-			} else {
-				$inner .= $chunk;
-			}
-		}
-
-		return '' === trim( $inner )
-			? $comments->selfClosingComment()
-			: $comments->wrapContent( $inner );
+		return $this->wrapRenderedInnerContent( $comments, $this->renderInnerContent( $children ) );
 	}
 
 	/**
@@ -144,5 +124,57 @@ class PostContentBlock extends BlockMarkup {
 		}
 
 		array_splice( $this->innerContent, $insertionIndex, 0, array_fill( 0, $missingSlots, null ) );
+	}
+
+	/**
+	 * Render children sequence as inner string.
+	 *
+	 * @param array<int, object|string> $children
+	 * @return string
+	 */
+	private function renderChildren( array $children ): string {
+		$inner = '';
+
+		foreach ( $children as $child ) {
+			$inner .= is_string( $child ) ? $child : (string) $child;
+		}
+
+		return $inner;
+	}
+
+	/**
+	 * Render interleaved innerContent chunks and children.
+	 *
+	 * @param array<int, object|string> $children
+	 * @return string
+	 */
+	private function renderInnerContent( array $children ): string {
+		$inner      = '';
+		$childIndex = 0;
+
+		foreach ( $this->innerContent as $chunk ) {
+			if ( null === $chunk ) {
+				$child  = $children[ $childIndex++ ] ?? '';
+				$inner .= is_string( $child ) ? $child : (string) $child;
+				continue;
+			}
+
+			$inner .= $chunk;
+		}
+
+		return $inner;
+	}
+
+	/**
+	 * Wrap rendered content or collapse to self-closing comment.
+	 *
+	 * @param BlockComments $comments
+	 * @param string        $inner
+	 * @return string
+	 */
+	private function wrapRenderedInnerContent( BlockComments $comments, string $inner ): string {
+		return '' === trim( $inner )
+			? $comments->selfClosingComment()
+			: $comments->wrapContent( $inner );
 	}
 }
