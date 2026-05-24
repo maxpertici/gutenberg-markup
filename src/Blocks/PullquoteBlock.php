@@ -13,6 +13,7 @@ use MaxPertici\GutenbergMarkup\BlockMarkup;
 use MaxPertici\GutenbergMarkup\Concerns\Advanced\AnchorTrait;
 use MaxPertici\GutenbergMarkup\Concerns\Advanced\CustomClassTrait;
 use MaxPertici\GutenbergMarkup\Concerns\Block\BlockStyleTrait;
+use MaxPertici\GutenbergMarkup\Concerns\Block\InnerBlocksSupportTrait;
 use MaxPertici\GutenbergMarkup\Concerns\Color\BackgroundColorTrait;
 use MaxPertici\GutenbergMarkup\Concerns\Color\TextColorTrait;
 use MaxPertici\GutenbergMarkup\Concerns\Dimensions\MarginTrait;
@@ -39,6 +40,7 @@ class PullquoteBlock extends BlockMarkup {
 	use TextColorTrait;
 	use FontSizeTrait;
 	use BlockStyleTrait;
+	use InnerBlocksSupportTrait;
 	use MarginTrait;
 	use PaddingTrait;
 
@@ -79,11 +81,17 @@ class PullquoteBlock extends BlockMarkup {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @param string      $value    The quoted text. May contain inline HTML.
+	 * @param array|string $valueOrChildren The quoted text or parsed inner children.
 	 * @param string|null $citation Optional. Citation text for the `<cite>` element. Default null.
 	 */
-	public function __construct( string $value = '', ?string $citation = null ) {
-		$this->value    = $value;
+	public function __construct( array|string $valueOrChildren = '', ?string $citation = null ) {
+		if ( is_array( $valueOrChildren ) ) {
+			$this->setInnerBlocks( $valueOrChildren );
+			$this->value = '';
+		} else {
+			$this->value = $valueOrChildren;
+		}
+
 		$this->citation = $citation;
 
 		parent::__construct(
@@ -198,10 +206,14 @@ class PullquoteBlock extends BlockMarkup {
 	protected function build(): void {
 		$this->addClass( 'wp-block-pullquote' );
 
-		// Allow inline HTML in quoted text (same as wp_kses_post context) but escape
-		// plain citation which should not contain markup.
-		$safeValue = \function_exists( 'wp_kses_post' ) ? \wp_kses_post( $this->value ) : $this->value;
-		$inner     = '<p>' . $safeValue . '</p>';
+		if ( $this->hasInnerBlocks() ) {
+			$inner = $this->renderInnerBlocks();
+		} else {
+			// Allow inline HTML in quoted text (same as wp_kses_post context) but escape
+			// plain citation which should not contain markup.
+			$safeValue = \function_exists( 'wp_kses_post' ) ? \wp_kses_post( $this->value ) : $this->value;
+			$inner     = '<p>' . $safeValue . '</p>';
+		}
 
 		if ( null !== $this->citation && '' !== $this->citation ) {
 			$safeCitation = \function_exists( 'esc_html' ) ? \esc_html( $this->citation ) : htmlspecialchars( $this->citation, ENT_QUOTES );

@@ -345,7 +345,7 @@ class BlockFactory {
 			'core/columns' => self::createColumnsBlock( $attrs, $parsedBlock, $blockParsers ),
 			'core/column' => self::createColumnBlock( $attrs, $parsedBlock, $blockParsers ),
 			'core/quote' => self::createQuoteBlock( $attrs, $parsedBlock, $blockParsers ),
-			'core/pullquote' => self::createPullquoteBlock( $attrs, $parsedBlock ),
+			'core/pullquote' => self::createPullquoteBlock( $attrs, $parsedBlock, $blockParsers ),
 			'core/list' => self::createListBlock( $attrs, $parsedBlock, $blockParsers ),
 			'core/list-item' => self::createListItemBlock( $attrs, $parsedBlock ),
 			'core/separator' => self::createSeparatorBlock( $attrs ),
@@ -913,12 +913,13 @@ class BlockFactory {
 	 * @param array $parsedBlock Parsed block.
 	 * @return PullquoteBlock
 	 */
-	private static function createPullquoteBlock( array $attrs, array $parsedBlock ): PullquoteBlock {
+	private static function createPullquoteBlock( array $attrs, array $parsedBlock, array $blockParsers = [] ): PullquoteBlock {
 		$innerHtml = (string) ( $parsedBlock['innerHTML'] ?? '' );
+		$children  = self::createChildrenFromInnerBlocks( $parsedBlock, $blockParsers );
 		$value     = self::extractTagInnerHtml( $innerHtml, 'p' ) ?? '';
 		$citation  = self::extractTagInnerHtml( $innerHtml, 'cite' );
 
-		$block = new PullquoteBlock( $value, $citation );
+		$block = new PullquoteBlock( empty( $children ) ? $value : $children, $citation );
 		$block->setBlockAttributes( $attrs, false );
 
 		if ( isset( $attrs['textAlign'] ) ) {
