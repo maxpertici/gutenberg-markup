@@ -411,17 +411,6 @@ class GroupBlock extends BlockMarkup {
 	}
 
 	/**
-	 * Prints the complete block markup with Gutenberg comments.
-	 *
-	 * @since 1.0.0
-	 *
-	 * @return void
-	 */
-	public function print(): void {
-		parent::print();
-	}
-
-	/**
 	 * Hydrate runtime state from parsed attrs.
 	 *
 	 * @param array $attributes Parsed Gutenberg attrs.
