@@ -258,7 +258,7 @@ class BlockMarkup extends Markup {
 	 */
 	public function addChildren( array $children ): self {
 		foreach ( $children as $child ) {
-			if ( ! is_string( $child ) && ! is_object( $child ) ) {
+			if ( ! $this->isValidChild( $child ) ) {
 				continue;
 			}
 
@@ -280,7 +280,7 @@ class BlockMarkup extends Markup {
 		$this->children = array_values(
 			array_filter(
 				$children,
-				static fn ( mixed $child ): bool => is_string( $child ) || is_object( $child )
+				fn ( mixed $child ): bool => $this->isValidChild( $child )
 			)
 		);
 
@@ -328,6 +328,16 @@ class BlockMarkup extends Markup {
 		if ( ! empty( $this->children ) ) {
 			$this->isSelfClosing = false;
 		}
+	}
+
+	/**
+	 * Validate one child value accepted by the Markup tree.
+	 *
+	 * @param mixed $child Candidate child value.
+	 * @return bool
+	 */
+	private function isValidChild( mixed $child ): bool {
+		return is_string( $child ) || is_object( $child );
 	}
 
 	/**

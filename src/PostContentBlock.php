@@ -48,6 +48,7 @@ class PostContentBlock extends BlockMarkup {
 		);
 
 		$this->innerContent = $innerContent;
+		$this->build();
 	}
 
 	/**
