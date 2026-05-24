@@ -136,7 +136,7 @@ class PostContentBlock extends BlockMarkup {
 		$inner = '';
 
 		foreach ( $children as $child ) {
-			$inner .= is_string( $child ) ? $child : (string) $child;
+			$inner .= $this->childToString( $child );
 		}
 
 		return $inner;
@@ -155,7 +155,7 @@ class PostContentBlock extends BlockMarkup {
 		foreach ( $this->innerContent as $chunk ) {
 			if ( null === $chunk ) {
 				$child  = $children[ $childIndex++ ] ?? '';
-				$inner .= is_string( $child ) ? $child : (string) $child;
+				$inner .= $this->childToString( $child );
 				continue;
 			}
 
@@ -176,5 +176,15 @@ class PostContentBlock extends BlockMarkup {
 		return '' === trim( $inner )
 			? $comments->selfClosingComment()
 			: $comments->wrapContent( $inner );
+	}
+
+	/**
+	 * Normalize one child to its string representation.
+	 *
+	 * @param object|string $child
+	 * @return string
+	 */
+	private function childToString( object|string $child ): string {
+		return is_string( $child ) ? $child : (string) $child;
 	}
 }
