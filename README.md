@@ -44,14 +44,14 @@ $blocks  = BlockFactory::parsePostContent( $content );
 - Les blocks non supportés restent en markup simple (fallback) avec commentaires Gutenberg conservés.
 - Les attributs inconnus sont conservés.
 
-Pour un block fallback (`UnsupportedBlock`), vous pouvez aussi manipuler explicitement les enfants :
+Pour un block de post content (`PostContentBlock`), vous pouvez manipuler explicitement les enfants :
 
 ```php
-use MaxPertici\GutenbergMarkup\UnsupportedBlock;
+use MaxPertici\GutenbergMarkup\PostContentBlock;
 use MaxPertici\GutenbergMarkup\Blocks\ParagraphBlock;
 
-$unsupported = new UnsupportedBlock( 'core/group' );
-$unsupported
+$postContentBlock = new PostContentBlock( 'core/group' );
+$postContentBlock
 	->addChild( new ParagraphBlock( 'Enfant 1' ) )
 	->addChild( new ParagraphBlock( 'Enfant 2' ) );
 ```

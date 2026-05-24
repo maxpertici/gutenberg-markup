@@ -227,6 +227,69 @@ class BlockMarkup extends Markup {
 	}
 
 	/**
+	 * Return whether this block can contain children.
+	 *
+	 * Gutenberg block validity is business-level, but markup composition is generic.
+	 *
+	 * @return bool
+	 */
+	public function supportsChildren(): bool {
+		return true;
+	}
+
+	/**
+	 * Add one child block/content.
+	 *
+	 * @param object|string $child Child block or raw string content.
+	 * @return self
+	 */
+	public function addChild( object|string $child ): self {
+		$this->children[] = $child;
+		$this->afterChildrenMutation();
+
+		return $this;
+	}
+
+	/**
+	 * Add multiple child blocks/content.
+	 *
+	 * @param array<int, object|string> $children Children to append.
+	 * @return self
+	 */
+	public function addChildren( array $children ): self {
+		foreach ( $children as $child ) {
+			if ( ! is_string( $child ) && ! is_object( $child ) ) {
+				continue;
+			}
+
+			$this->children[] = $child;
+		}
+
+		$this->afterChildrenMutation();
+
+		return $this;
+	}
+
+	/**
+	 * Replace all children.
+	 *
+	 * @param array<int, object|string> $children Child block/content list.
+	 * @return self
+	 */
+	public function setChildren( array $children ): self {
+		$this->children = array_values(
+			array_filter(
+				$children,
+				static fn ( mixed $child ): bool => is_string( $child ) || is_object( $child )
+			)
+		);
+
+		$this->afterChildrenMutation();
+
+		return $this;
+	}
+
+	/**
 	 * Sets or updates block attributes.
 	 *
 	 * Allows updating the block attributes after instantiation.
@@ -254,6 +317,17 @@ class BlockMarkup extends Markup {
 
 		// Update the BlockComments instance
 		$this->blockComments = new BlockComments( $this->blockName, $this->blockAttributes );
+	}
+
+	/**
+	 * Run shared state updates after child mutations.
+	 *
+	 * @return void
+	 */
+	protected function afterChildrenMutation(): void {
+		if ( ! empty( $this->children ) ) {
+			$this->isSelfClosing = false;
+		}
 	}
 
 	/**
@@ -478,4 +552,3 @@ class BlockMarkup extends Markup {
 	}
 
 }
-

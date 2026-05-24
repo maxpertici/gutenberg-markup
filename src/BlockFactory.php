@@ -569,13 +569,13 @@ class BlockFactory {
 	 * @param array  $attrs Block attributes.
 	 * @param array  $parsedBlock Full parsed block payload.
 	 * @param array<string, callable|string> $blockParsers Local parser mapping.
-	 * @return UnsupportedBlock
+	 * @return PostContentBlock
 	 */
-	private static function createSimpleMarkupBlock( string $blockName, array $attrs, array $parsedBlock, array $blockParsers = [] ): UnsupportedBlock {
+	private static function createSimpleMarkupBlock( string $blockName, array $attrs, array $parsedBlock, array $blockParsers = [] ): PostContentBlock {
 		$innerContent = is_array( $parsedBlock['innerContent'] ?? null ) ? $parsedBlock['innerContent'] : [];
 		$children     = self::createChildrenFromInnerBlocks( $parsedBlock, $blockParsers );
 
-		return new UnsupportedBlock( $blockName, $attrs, $innerContent, $children );
+		return new PostContentBlock( $blockName, $attrs, $innerContent, $children );
 	}
 
 	/**
