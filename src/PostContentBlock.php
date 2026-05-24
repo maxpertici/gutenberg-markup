@@ -43,12 +43,11 @@ class PostContentBlock extends BlockMarkup {
 		parent::__construct(
 			blockName: $blockName,
 			blockAttributes: $blockAttributes,
-			isSelfClosing: false,
+			isSelfClosing: empty( $innerContent ) && empty( $children ),
 			children: $children,
 		);
 
 		$this->innerContent = $innerContent;
-		$this->build();
 	}
 
 	/**

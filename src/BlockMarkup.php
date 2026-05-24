@@ -230,6 +230,8 @@ class BlockMarkup extends Markup {
 	 * Return whether this block can contain children.
 	 *
 	 * Gutenberg block validity is business-level, but markup composition is generic.
+	 * Leaf-like block subclasses may override this and return false to reject
+	 * child mutation APIs (`addChild`, `addChildren`, `setChildren`) semantically.
 	 *
 	 * @return bool
 	 */
