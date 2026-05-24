@@ -3,9 +3,12 @@
 namespace MaxPertici\GutenbergMarkup\Blocks;
 
 use MaxPertici\GutenbergMarkup\BlockMarkup;
+use MaxPertici\GutenbergMarkup\Concerns\Block\SelfClosingBlockSupportTrait;
 use MaxPertici\Markup\Markup;
 
 class ImageBlock extends BlockMarkup {
+
+	use SelfClosingBlockSupportTrait;
 
     /**
      * Block attribute: id.
@@ -456,34 +459,6 @@ class ImageBlock extends BlockMarkup {
         }
     }
 
-	/**
-	 * Gets the complete block markup with Gutenberg comments.
-	 *
-	 * Builds the wrapper and attributes before rendering the block.
-	 *
-	 * @since 1.0.0
-	 *
-	 * @return string The complete block markup including Gutenberg comment syntax.
-	 */
-	public function render(): string {
-		$this->build();
-		return parent::render();
-	}
-
-	/**
-	 * Prints the complete block markup with Gutenberg comments (echo mode).
-	 *
-	 * Builds the wrapper and attributes before printing the block.
-	 *
-	 * @since 1.0.0
-	 *
-	 * @return void
-	 */
-	public function print(): void {
-		$this->build();
-		parent::print();
-	}
-
     /**
      * Hydrate runtime state from parsed attrs.
      *
@@ -533,4 +508,3 @@ class ImageBlock extends BlockMarkup {
         return $this;
     }
 }
-

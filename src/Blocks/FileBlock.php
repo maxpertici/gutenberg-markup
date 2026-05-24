@@ -13,6 +13,7 @@ use MaxPertici\GutenbergMarkup\BlockMarkup;
 use MaxPertici\GutenbergMarkup\Concerns\Advanced\AnchorTrait;
 use MaxPertici\GutenbergMarkup\Concerns\Advanced\CustomClassTrait;
 use MaxPertici\GutenbergMarkup\Concerns\Block\BlockStyleTrait;
+use MaxPertici\GutenbergMarkup\Concerns\Block\SelfClosingBlockSupportTrait;
 
 /**
  * File Gutenberg Block implementation.
@@ -30,6 +31,7 @@ class FileBlock extends BlockMarkup {
 	use AnchorTrait;
 	use CustomClassTrait;
 	use BlockStyleTrait;
+	use SelfClosingBlockSupportTrait;
 
 	/**
 	 * Block attribute: id.
@@ -331,30 +333,6 @@ class FileBlock extends BlockMarkup {
 		if ( 'Download' !== $this->downloadButtonText && $this->showDownloadButton ) {
 			$this->blockAttributes['downloadButtonText'] = $this->downloadButtonText;
 		}
-	}
-
-	/**
-	 * Gets the complete block markup with Gutenberg comments.
-	 *
-	 * @since 1.0.0
-	 *
-	 * @return string The complete block markup including Gutenberg comment syntax.
-	 */
-	public function render(): string {
-		$this->build();
-		return parent::render();
-	}
-
-	/**
-	 * Prints the complete block markup with Gutenberg comments.
-	 *
-	 * @since 1.0.0
-	 *
-	 * @return void
-	 */
-	public function print(): void {
-		$this->build();
-		parent::print();
 	}
 
 	/**

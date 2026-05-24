@@ -6,6 +6,7 @@ use MaxPertici\GutenbergMarkup\BlockMarkup;
 use MaxPertici\GutenbergMarkup\Concerns\Advanced\AnchorTrait;
 use MaxPertici\GutenbergMarkup\Concerns\Advanced\CustomClassTrait;
 use MaxPertici\GutenbergMarkup\Concerns\Block\BlockStyleTrait;
+use MaxPertici\GutenbergMarkup\Concerns\Block\InnerBlocksSupportTrait;
 use MaxPertici\GutenbergMarkup\Concerns\Color\BackgroundColorTrait;
 use MaxPertici\GutenbergMarkup\Concerns\Color\LinkColorTrait;
 use MaxPertici\GutenbergMarkup\Concerns\Color\TextColorTrait;
@@ -24,6 +25,7 @@ class ListBlock extends BlockMarkup {
 	use AnchorTrait;
 	use BackgroundColorTrait;
 	use CustomClassTrait;
+	use InnerBlocksSupportTrait;
 	use TextColorTrait;
 	use FontSizeTrait;
 	use FontStyleTrait;
@@ -191,34 +193,6 @@ class ListBlock extends BlockMarkup {
 	}
 
 	/**
-	 * Gets the complete block markup with Gutenberg comments.
-	 *
-	 * Builds the wrapper and attributes before rendering the block.
-	 *
-	 * @since 1.0.0
-	 *
-	 * @return string The complete block markup including Gutenberg comment syntax.
-	 */
-	public function render(): string {
-		$this->build();
-		return parent::render();
-	}
-
-	/**
-	 * Prints the complete block markup with Gutenberg comments (echo mode).
-	 *
-	 * Builds the wrapper and attributes before printing the block.
-	 *
-	 * @since 1.0.0
-	 *
-	 * @return void
-	 */
-	public function print(): void {
-		$this->build();
-		parent::print();
-	}
-
-	/**
 	 * Hydrate runtime state from parsed attrs.
 	 *
 	 * @param array $attributes Parsed Gutenberg attrs.
@@ -247,4 +221,3 @@ class ListBlock extends BlockMarkup {
 		return $this;
 	}
 }
-

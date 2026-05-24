@@ -15,6 +15,7 @@ use MaxPertici\GutenbergMarkup\Concerns\Advanced\CustomClassTrait;
 use MaxPertici\GutenbergMarkup\Concerns\Advanced\TagNameTrait;
 use MaxPertici\GutenbergMarkup\Concerns\Block\BlockStyleTrait;
 use MaxPertici\GutenbergMarkup\Concerns\Block\HtmlElementTrait;
+use MaxPertici\GutenbergMarkup\Concerns\Block\InnerBlocksSupportTrait;
 use MaxPertici\GutenbergMarkup\Concerns\Color\BackgroundColorTrait;
 use MaxPertici\GutenbergMarkup\Concerns\Color\LinkColorTrait;
 use MaxPertici\GutenbergMarkup\Concerns\Color\TextColorTrait;
@@ -43,6 +44,7 @@ class GroupBlock extends BlockMarkup {
 	use AnchorTrait;
 	use BackgroundColorTrait;
 	use CustomClassTrait;
+	use InnerBlocksSupportTrait;
 	use TagNameTrait;
 	use TextColorTrait;
 	use DropCapTrait;
@@ -409,30 +411,6 @@ class GroupBlock extends BlockMarkup {
 	}
 
 	/**
-	 * Override render to apply layout classes before rendering.
-	 *
-	 * @since 1.0.0
-	 *
-	 * @return string The rendered block markup.
-	 */
-	public function render(): string {
-		$this->build();
-		return parent::render();
-	}
-
-	/**
-	 * Override echo method to apply layout classes before echoing.
-	 *
-	 * @since 1.0.0
-	 *
-	 * @return void
-	 */
-	public function echo(): void {
-		$this->build();
-		parent::print();
-	}
-
-	/**
 	 * Hydrate runtime state from parsed attrs.
 	 *
 	 * @param array $attributes Parsed Gutenberg attrs.
@@ -489,4 +467,3 @@ class GroupBlock extends BlockMarkup {
 		return $this;
 	}
 }
-

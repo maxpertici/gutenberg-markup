@@ -13,6 +13,7 @@ use MaxPertici\GutenbergMarkup\BlockMarkup;
 use MaxPertici\GutenbergMarkup\Concerns\Advanced\AnchorTrait;
 use MaxPertici\GutenbergMarkup\Concerns\Advanced\CustomClassTrait;
 use MaxPertici\GutenbergMarkup\Concerns\Block\BlockStyleTrait;
+use MaxPertici\GutenbergMarkup\Concerns\Block\InnerBlocksSupportTrait;
 use MaxPertici\GutenbergMarkup\Concerns\Color\BackgroundColorTrait;
 use MaxPertici\GutenbergMarkup\Concerns\Color\TextColorTrait;
 use MaxPertici\GutenbergMarkup\Concerns\Dimensions\MarginTrait;
@@ -37,6 +38,7 @@ class QuoteBlock extends BlockMarkup {
 	use TextColorTrait;
 	use FontSizeTrait;
 	use BlockStyleTrait;
+	use InnerBlocksSupportTrait;
 	use MarginTrait;
 	use PaddingTrait;
 
@@ -65,14 +67,6 @@ class QuoteBlock extends BlockMarkup {
 	protected ?string $citation = null;
 
 	/**
-	 * Inner block children stored before build.
-	 *
-	 * @since 1.0.0
-	 * @var array
-	 */
-	protected array $innerBlocks = array();
-
-	/**
 	 * Constructor.
 	 *
 	 * @since 1.0.0
@@ -81,7 +75,7 @@ class QuoteBlock extends BlockMarkup {
 	 * @param string|null $citation  Optional. Citation text for the `<cite>` element. Default null.
 	 */
 	public function __construct( array $children = [], ?string $citation = null ) {
-		$this->innerBlocks = $children;
+		$this->setInnerBlocks( $children );
 		$this->citation    = $citation;
 
 		parent::__construct(
@@ -189,30 +183,6 @@ class QuoteBlock extends BlockMarkup {
 		}
 
 		$this->children = $children;
-	}
-
-	/**
-	 * Gets the complete block markup with Gutenberg comments.
-	 *
-	 * @since 1.0.0
-	 *
-	 * @return string The complete block markup including Gutenberg comment syntax.
-	 */
-	public function render(): string {
-		$this->build();
-		return parent::render();
-	}
-
-	/**
-	 * Prints the complete block markup with Gutenberg comments.
-	 *
-	 * @since 1.0.0
-	 *
-	 * @return void
-	 */
-	public function print(): void {
-		$this->build();
-		parent::print();
 	}
 
 	/**

@@ -7,6 +7,11 @@ Bibliothèque PHP pour écrire du markup Gutenberg (WordPress) de façon cohére
 - Chaque bloc Gutenberg est représenté par une classe (ex. `HeadingBlock`).
 - Le markup est construit à partir d’attributs (attrs) fournis au bloc.
 - Des traits (`Concerns`) factorisent les comportements communs (couleurs, typographie, alignement, etc.).
+- Bonne pratique: chaque classe de bloc déclare explicitement sa capacité enfant via un trait:
+  - `InnerBlocksSupportTrait` pour les blocs qui acceptent des enfants.
+  - `SelfClosingBlockSupportTrait` pour les blocs sans enfants (API de mutation ignorée).
+
+Guide détaillé d’implémentation d’un block : [`docs/BLOCK_WRITING_GUIDE.md`](docs/BLOCK_WRITING_GUIDE.md)
 
 ## Exemple basique — bloc Heading
 
@@ -43,6 +48,18 @@ $blocks  = BlockFactory::parsePostContent( $content );
 - Les blocks supportés sont convertis en classes dédiées (`ParagraphBlock`, `HeadingBlock`, etc.).
 - Les blocks non supportés restent en markup simple (fallback) avec commentaires Gutenberg conservés.
 - Les attributs inconnus sont conservés.
+
+Pour un block de post content (`PostContentBlock`), vous pouvez manipuler explicitement les enfants :
+
+```php
+use MaxPertici\GutenbergMarkup\PostContentBlock;
+use MaxPertici\GutenbergMarkup\Blocks\ParagraphBlock;
+
+$postContentBlock = new PostContentBlock( 'core/group' );
+$postContentBlock
+	->addChild( new ParagraphBlock( 'Enfant 1' ) )
+	->addChild( new ParagraphBlock( 'Enfant 2' ) );
+```
 
 ## Résolution auto + mapping custom
 
@@ -180,6 +197,30 @@ $updatedBlocks = $postContent
 
 $updatedPostContent = $postContent->withBlocks( $updatedBlocks );
 $updatedBlocksArray = $updatedPostContent->toBlocks();
+$updatedMarkup = $updatedPostContent->toMarkup();
+```
+
+Exemple — gérer le spacing d’un `GroupBlock` de façon fluide :
+
+```php
+use MaxPertici\GutenbergMarkup\PostContent;
+use MaxPertici\GutenbergMarkup\Blocks\GroupBlock;
+
+$postContent = new PostContent( $rawGutenbergMarkup );
+
+$updatedBlocks = $postContent
+	->toBlocksCollection()
+	->map( function ( $block ) {
+		if ( ! $block instanceof GroupBlock ) {
+			return $block;
+		}
+
+		return $block
+			->padding( 'var:preset|spacing|small' ) // padding global
+			->blockSpacing( 'small' ); // gap interne du group
+	} );
+
+$updatedPostContent = $postContent->withBlocks( $updatedBlocks );
 $updatedMarkup = $updatedPostContent->toMarkup();
 ```
 

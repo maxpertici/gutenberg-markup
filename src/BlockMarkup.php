@@ -133,6 +133,15 @@ class BlockMarkup extends Markup {
 	}
 
 	/**
+	 * Build runtime state before rendering.
+	 *
+	 * Block classes can override this hook to compute wrapper/classes/attrs.
+	 *
+	 * @return void
+	 */
+	protected function build(): void {}
+
+	/**
 	 * Gets the complete block markup with Gutenberg comments.
 	 *
 	 * Wraps the parent markup with appropriate Gutenberg block comments.
@@ -146,6 +155,8 @@ class BlockMarkup extends Markup {
 	 * @return string The complete block markup including Gutenberg comment syntax.
 	 */
 	public function render(): string {
+		$this->build();
+
 		// Update the BlockComments instance with current attributes
 		$this->blockComments = new BlockComments( $this->blockName, $this->blockAttributes );
 
@@ -178,6 +189,8 @@ class BlockMarkup extends Markup {
 	 * @return void
 	 */
 	public function print(): void {
+		$this->build();
+
 		// Update the BlockComments instance with current attributes
 		$this->blockComments = new BlockComments( $this->blockName, $this->blockAttributes );
 
@@ -227,6 +240,92 @@ class BlockMarkup extends Markup {
 	}
 
 	/**
+	 * Return whether this block can contain children.
+	 *
+	 * Gutenberg block validity is business-level, but markup composition is generic.
+	 * Leaf-like block subclasses may override this and return false to reject
+	 * child mutation APIs (`addChild`, `addChildren`, `setChildren`) semantically.
+	 * When false, mutation methods return early and keep current children unchanged.
+	 * This guard applies to mutation APIs only; constructor-provided children are
+	 * preserved as-is.
+	 *
+	 * @return bool
+	 */
+	public function supportsChildren(): bool {
+		return true;
+	}
+
+	/**
+	 * Add one child block/content.
+	 *
+	 * @param object|string $child Child block or raw string content.
+	 * @return self
+	 */
+	public function addChild( object|string $child ): self {
+		if ( ! $this->supportsChildren() ) {
+			return $this;
+		}
+
+		if ( ! $this->isValidChild( $child ) ) {
+			return $this;
+		}
+
+		$this->children[] = $child;
+		$this->afterChildrenMutation();
+
+		return $this;
+	}
+
+	/**
+	 * Add multiple child blocks/content.
+	 *
+	 * @param array<int, object|string> $children Children to append.
+	 * @return self
+	 */
+	public function addChildren( array $children ): self {
+		if ( ! $this->supportsChildren() ) {
+			return $this;
+		}
+
+		$validChildren = array_values(
+			array_filter(
+				$children,
+				fn ( mixed $child ): bool => $this->isValidChild( $child )
+			)
+		);
+
+		if ( ! empty( $validChildren ) ) {
+			$this->children = array_merge( $this->children, $validChildren );
+			$this->afterChildrenMutation();
+		}
+
+		return $this;
+	}
+
+	/**
+	 * Replace all children.
+	 *
+	 * @param array<int, object|string> $children Child block/content list.
+	 * @return self
+	 */
+	public function setChildren( array $children ): self {
+		if ( ! $this->supportsChildren() ) {
+			return $this;
+		}
+
+		$this->children = array_values(
+			array_filter(
+				$children,
+				fn ( mixed $child ): bool => $this->isValidChild( $child )
+			)
+		);
+
+		$this->afterChildrenMutation();
+
+		return $this;
+	}
+
+	/**
 	 * Sets or updates block attributes.
 	 *
 	 * Allows updating the block attributes after instantiation.
@@ -254,6 +353,38 @@ class BlockMarkup extends Markup {
 
 		// Update the BlockComments instance
 		$this->blockComments = new BlockComments( $this->blockName, $this->blockAttributes );
+	}
+
+	/**
+	 * Run shared state updates after child mutations.
+	 *
+	 * @return void
+	 */
+	protected function afterChildrenMutation(): void {
+		if ( ! empty( $this->children ) ) {
+			$this->isSelfClosing = false;
+		}
+	}
+
+	/**
+	 * Validate one child value accepted by the Markup tree.
+	 *
+	 * Accepts only `string` and `\Stringable` object values. Mutation APIs silently
+	 * ignore non-compatible values.
+	 *
+	 * @param mixed $child Candidate child value.
+	 * @return bool
+	 */
+	private function isValidChild( mixed $child ): bool {
+		if ( is_string( $child ) ) {
+			return true;
+		}
+
+		if ( ! is_object( $child ) ) {
+			return false;
+		}
+
+		return $child instanceof \Stringable;
 	}
 
 	/**
@@ -478,4 +609,3 @@ class BlockMarkup extends Markup {
 	}
 
 }
-
