@@ -180,11 +180,13 @@ class UnsupportedBlock extends BlockMarkup {
 			)
 		);
 		$childrenCount  = count( $this->children );
-		$missingSlots   = $childrenCount - $slotCount;
+		$missingSlots   = max( 0, $childrenCount - $slotCount );
 		$insertionIndex = max( count( $this->innerContent ) - 1, 0 );
 
-		for ( $i = 0; $i < $missingSlots; $i++ ) {
-			array_splice( $this->innerContent, $insertionIndex, 0, [ null ] );
+		if ( 0 === $missingSlots ) {
+			return;
 		}
+
+		array_splice( $this->innerContent, $insertionIndex, 0, array_fill( 0, $missingSlots, null ) );
 	}
 }
