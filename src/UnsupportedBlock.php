@@ -43,7 +43,7 @@ class UnsupportedBlock extends BlockMarkup {
 		parent::__construct(
 			blockName: $blockName,
 			blockAttributes: $blockAttributes,
-			isSelfClosing: empty( $innerContent ),
+			isSelfClosing: empty( $innerContent ) && empty( $children ),
 			children: $children,
 		);
 
@@ -56,7 +56,7 @@ class UnsupportedBlock extends BlockMarkup {
 	 * @return void
 	 */
 	protected function build(): void {
-		$this->isSelfClosing = empty( $this->innerContent );
+		$this->isSelfClosing = empty( $this->innerContent ) && empty( $this->getChildren() );
 	}
 
 	/**
@@ -71,14 +71,25 @@ class UnsupportedBlock extends BlockMarkup {
 		$this->build();
 
 		$comments = new BlockComments( $this->blockName, $this->blockAttributes );
+		$children = $this->getChildren();
 
 		if ( empty( $this->innerContent ) ) {
-			return $comments->selfClosingComment();
+			if ( empty( $children ) ) {
+				return $comments->selfClosingComment();
+			}
+
+			$inner = '';
+			foreach ( $children as $child ) {
+				$inner .= is_string( $child ) ? $child : (string) $child;
+			}
+
+			return '' === trim( $inner )
+				? $comments->selfClosingComment()
+				: $comments->wrapContent( $inner );
 		}
 
 		$inner      = '';
 		$childIndex = 0;
-		$children   = $this->getChildren();
 
 		foreach ( $this->innerContent as $chunk ) {
 			if ( null === $chunk ) {
