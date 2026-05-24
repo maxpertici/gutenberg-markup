@@ -173,12 +173,13 @@ class UnsupportedBlock extends BlockMarkup {
 			return;
 		}
 
-		$slotCount      = count(
-			array_filter(
-				$this->innerContent,
-				static fn ( mixed $chunk ): bool => null === $chunk
-			)
-		);
+		$slotCount = 0;
+		foreach ( $this->innerContent as $chunk ) {
+			if ( null === $chunk ) {
+				$slotCount++;
+			}
+		}
+
 		$childrenCount  = count( $this->children );
 		$missingSlots   = max( 0, $childrenCount - $slotCount );
 		$insertionIndex = max( count( $this->innerContent ) - 1, 0 );

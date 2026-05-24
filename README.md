@@ -53,7 +53,7 @@ use MaxPertici\GutenbergMarkup\Blocks\ParagraphBlock;
 $unsupported = new UnsupportedBlock( 'core/group' );
 $unsupported
 	->addChild( new ParagraphBlock( 'Enfant 1' ) )
-	->addChildren( [ new ParagraphBlock( 'Enfant 2' ) ] );
+	->addChild( new ParagraphBlock( 'Enfant 2' ) );
 ```
 
 ## Résolution auto + mapping custom
