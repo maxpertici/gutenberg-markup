@@ -87,7 +87,6 @@ class PullquoteBlock extends BlockMarkup {
 	public function __construct( array|string $valueOrChildren = '', ?string $citation = null ) {
 		if ( is_array( $valueOrChildren ) ) {
 			$this->setInnerBlocks( $valueOrChildren );
-			$this->value = '';
 		} else {
 			$this->value = $valueOrChildren;
 		}
