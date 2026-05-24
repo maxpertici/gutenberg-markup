@@ -270,9 +270,8 @@ class BlockMarkup extends Markup {
 
 		if ( ! empty( $validChildren ) ) {
 			$this->children = array_merge( $this->children, $validChildren );
+			$this->afterChildrenMutation();
 		}
-
-		$this->afterChildrenMutation();
 
 		return $this;
 	}
