@@ -19,7 +19,7 @@ final class PostContentCollectionFlowTest extends TestCase {
 		BlockFactory::registerNativeSupportedBlock( 'core/paragraph' );
 	}
 
-	public function testCollectionUpdateFlowWithWithBlocksRemainsStable(): void {
+	public function testCollectionUpdateFlowWithBlocksRemainsStable(): void {
 		$initial = ( new ParagraphBlock( 'Initial title' ) )->render();
 		$postContent = new PostContent( $initial );
 

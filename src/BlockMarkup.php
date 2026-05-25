@@ -674,7 +674,7 @@ class BlockMarkup extends Markup {
 			return $url;
 		}
 
-		$allowedSchemes = [ 'http', 'https', 'mailto', 'tel', 'ftp' ];
+		$allowedSchemes = [ 'http', 'https', 'mailto', 'tel' ];
 
 		return in_array( $scheme, $allowedSchemes, true ) ? $url : '';
 	}
