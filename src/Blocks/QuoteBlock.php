@@ -178,7 +178,7 @@ class QuoteBlock extends BlockMarkup {
 		$children = $this->innerBlocks;
 
 		if ( null !== $this->citation && '' !== $this->citation ) {
-			$safeCitation = \function_exists( 'esc_html' ) ? \esc_html( $this->citation ) : htmlspecialchars( $this->citation, ENT_QUOTES );
+			$safeCitation = self::escapeText( $this->citation );
 			$children[]   = '<cite>' . $safeCitation . '</cite>';
 		}
 

@@ -215,7 +215,7 @@ class PullquoteBlock extends BlockMarkup {
 		}
 
 		if ( null !== $this->citation && '' !== $this->citation ) {
-			$safeCitation = \function_exists( 'esc_html' ) ? \esc_html( $this->citation ) : htmlspecialchars( $this->citation, ENT_QUOTES );
+			$safeCitation = self::escapeText( $this->citation );
 			$inner       .= '<cite>' . $safeCitation . '</cite>';
 		}
 

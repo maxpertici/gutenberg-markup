@@ -350,9 +350,14 @@ class ImageBlock extends BlockMarkup {
             return;
         }
 
-        $imageSrc = (string) \wp_get_attachment_image_url( $this->id, $this->sizeSlug );
+        $imageSrc = \function_exists( 'wp_get_attachment_image_url' )
+            ? (string) \wp_get_attachment_image_url( $this->id, $this->sizeSlug )
+            : '';
+        $imageSrc = self::sanitizeUrl( $imageSrc );
 
-        $imageAlt = (string) \get_post_meta( $this->id, '_wp_attachment_image_alt', true );
+        $imageAlt = \function_exists( 'get_post_meta' )
+            ? (string) \get_post_meta( $this->id, '_wp_attachment_image_alt', true )
+            : '';
         $imageAlt = ( null !== $this->alt ) ? $this->alt : (string) $imageAlt;
 
         $imgStyle = [];
@@ -394,12 +399,13 @@ class ImageBlock extends BlockMarkup {
             $linkHref = '';
 
             if ( 'attachment' === $this->linkDestination ) {
-                $linkHref = (string) \get_attachment_link( $this->id );
+                $linkHref = \function_exists( 'get_attachment_link' ) ? (string) \get_attachment_link( $this->id ) : '';
             } elseif ( 'media' === $this->linkDestination ) {
-                $linkHref = (string) \wp_get_attachment_url( $this->id );
+                $linkHref = \function_exists( 'wp_get_attachment_url' ) ? (string) \wp_get_attachment_url( $this->id ) : '';
             } elseif ( 'custom' === $this->linkDestination ) {
                 $linkHref = (string) $this->href;
             }
+            $linkHref = self::sanitizeUrl( $linkHref );
 
             if ( '' !== $linkHref ) {
                 $linkMarkup = new Markup(
@@ -455,7 +461,7 @@ class ImageBlock extends BlockMarkup {
         }
 
         if ( 'custom' === $this->linkDestination && ! empty( $this->href ) ) {
-            $this->blockAttributes['href'] = $this->href;
+            $this->blockAttributes['href'] = self::sanitizeUrl( $this->href );
         }
     }
 

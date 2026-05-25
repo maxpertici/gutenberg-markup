@@ -278,6 +278,7 @@ class FileBlock extends BlockMarkup {
 				? (string) \wp_get_attachment_url( $this->id )
 				: '';
 		}
+		$href = self::sanitizeUrl( (string) $href );
 
 		// Resolve display name.
 		$fileName = $this->fileName;
@@ -289,12 +290,12 @@ class FileBlock extends BlockMarkup {
 
 		$mediaId = 'wp-block-file--media-' . $this->generateMediaId();
 
-		$safeHref             = \function_exists( 'esc_url' ) ? \esc_url( $href ) : htmlspecialchars( $href, ENT_QUOTES );
-		$safeFileName         = \function_exists( 'esc_html' ) ? \esc_html( $fileName ) : htmlspecialchars( $fileName, ENT_QUOTES );
-		$safeDownloadText     = \function_exists( 'esc_html' ) ? \esc_html( $this->downloadButtonText ) : htmlspecialchars( $this->downloadButtonText, ENT_QUOTES );
+		$safeHref             = self::escapeUrlAttribute( $href );
+		$safeFileName         = self::escapeText( $fileName );
+		$safeDownloadText     = self::escapeText( $this->downloadButtonText );
 
 		// Build file link attributes.
-		$linkAttrs = sprintf( 'id="%s" href="%s"', $mediaId, $safeHref );
+		$linkAttrs = sprintf( 'id="%s" href="%s"', self::escapeAttribute( $mediaId ), $safeHref );
 		if ( $this->openInNewTab ) {
 			$linkAttrs .= ' target="_blank" rel="noreferrer noopener"';
 		}

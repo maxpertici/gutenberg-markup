@@ -75,3 +75,13 @@ Avant de considérer un block terminé, vérifier :
 - [ ] `build()` centralise l’état final
 - [ ] Méthodes publiques de manipulation disponibles
 - [ ] `hydrate()` mappe l’ensemble des attributs utiles
+- [ ] Règles sécurité respectées (voir `docs/SECURITY.md`)
+
+## 9) Exigences sécurité minimales
+
+Pour toute nouvelle classe de block :
+
+- échapper systématiquement texte + attributs HTML ;
+- sanitiser toute URL avant rendu ;
+- n’autoriser le HTML brut que dans les zones explicitement prévues ;
+- garantir un comportement sûr même hors runtime WordPress (pas de fatal sur fonctions WP absentes).

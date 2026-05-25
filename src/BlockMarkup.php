@@ -608,4 +608,92 @@ class BlockMarkup extends Markup {
 		echo $this->renderBlocks();
 	}
 
+	/**
+	 * Escape plain text for safe HTML output.
+	 *
+	 * @param string $value Raw text.
+	 * @return string
+	 */
+	protected static function escapeText( string $value ): string {
+		if ( \function_exists( 'esc_html' ) ) {
+			// @phpstan-ignore-next-line
+			return (string) \esc_html( $value );
+		}
+
+		return htmlspecialchars( $value, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8' );
+	}
+
+	/**
+	 * Escape an HTML attribute value.
+	 *
+	 * @param string $value Raw attribute value.
+	 * @return string
+	 */
+	protected static function escapeAttribute( string $value ): string {
+		if ( \function_exists( 'esc_attr' ) ) {
+			// @phpstan-ignore-next-line
+			return (string) \esc_attr( $value );
+		}
+
+		return htmlspecialchars( $value, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8' );
+	}
+
+	/**
+	 * Sanitize URL values with a safe protocol allowlist fallback.
+	 *
+	 * @param string $url Raw URL.
+	 * @return string
+	 */
+	protected static function sanitizeUrl( string $url ): string {
+		$url = trim( $url );
+		if ( '' === $url ) {
+			return '';
+		}
+
+		if ( \function_exists( 'esc_url_raw' ) ) {
+			// @phpstan-ignore-next-line
+			$sanitized = (string) \esc_url_raw( $url );
+			return '' === $sanitized ? '' : $sanitized;
+		}
+
+		if (
+			str_starts_with( $url, '/' )
+			|| str_starts_with( $url, '#' )
+			|| str_starts_with( $url, '?' )
+		) {
+			return $url;
+		}
+
+		$parsed = parse_url( $url );
+		if ( false === $parsed ) {
+			return '';
+		}
+
+		$scheme = strtolower( (string) ( $parsed['scheme'] ?? '' ) );
+		if ( '' === $scheme ) {
+			return $url;
+		}
+
+		$allowedSchemes = [ 'http', 'https', 'mailto', 'tel', 'ftp' ];
+
+		return in_array( $scheme, $allowedSchemes, true ) ? $url : '';
+	}
+
+	/**
+	 * Sanitize and escape URL for HTML attributes.
+	 *
+	 * @param string $url Raw URL.
+	 * @return string
+	 */
+	protected static function escapeUrlAttribute( string $url ): string {
+		$sanitized = self::sanitizeUrl( $url );
+
+		if ( \function_exists( 'esc_url' ) ) {
+			// @phpstan-ignore-next-line
+			return (string) \esc_url( $sanitized );
+		}
+
+		return self::escapeAttribute( $sanitized );
+	}
+
 }

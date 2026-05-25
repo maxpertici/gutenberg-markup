@@ -156,7 +156,7 @@ class ButtonBlock extends BlockMarkup {
 	protected function build(): void {
 		$attributes = $this->blockAttributes();
 		$attributes['text'] = $this->content;
-		$attributes['url']  = $this->url;
+		$attributes['url']  = self::sanitizeUrl( $this->url );
 
 		if ( null !== $this->linkTarget && '' !== $this->linkTarget ) {
 			$attributes['linkTarget'] = $this->linkTarget;
@@ -184,7 +184,7 @@ class ButtonBlock extends BlockMarkup {
 		$blockAttributes = $this->blockAttributes();
 		$wrapperClasses  = trim( 'wp-block-button ' . (string) ( $blockAttributes['className'] ?? '' ) );
 		$anchorClasses   = 'wp-block-button__link wp-element-button';
-		$anchorAttrs     = sprintf( ' href="%s"', self::escapeAttribute( $this->url ) );
+		$anchorAttrs     = sprintf( ' href="%s"', self::escapeUrlAttribute( $this->url ) );
 
 		if ( null !== $this->linkTarget && '' !== $this->linkTarget ) {
 			$anchorAttrs .= sprintf( ' target="%s"', self::escapeAttribute( $this->linkTarget ) );
@@ -199,7 +199,7 @@ class ButtonBlock extends BlockMarkup {
 			self::escapeAttribute( $wrapperClasses ),
 			self::escapeAttribute( $anchorClasses ),
 			$anchorAttrs,
-			$this->renderContent()
+			self::escapeText( $this->content )
 		);
 
 		return $this->blockComments()->wrapContent( $html );
@@ -247,24 +247,4 @@ class ButtonBlock extends BlockMarkup {
 		return $this;
 	}
 
-	/**
-	 * Escape an HTML attribute value.
-	 *
-	 * @param string $value Raw attribute value.
-	 * @return string
-	 */
-	private static function escapeAttribute( string $value ): string {
-		return htmlspecialchars( $value, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8' );
-	}
-
-	/**
-	 * Render button content safely.
-	 *
-	 * Button content is always rendered as escaped plain text.
-	 *
-	 * @return string
-	 */
-	private function renderContent(): string {
-		return htmlspecialchars( $this->content, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8' );
-	}
 }

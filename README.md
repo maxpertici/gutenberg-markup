@@ -12,6 +12,35 @@ Bibliothèque PHP pour écrire du markup Gutenberg (WordPress) de façon cohére
   - `SelfClosingBlockSupportTrait` pour les blocs sans enfants (API de mutation ignorée).
 
 Guide détaillé d’implémentation d’un block : [`docs/BLOCK_WRITING_GUIDE.md`](docs/BLOCK_WRITING_GUIDE.md)
+Politique sécurité/sanitization : [`docs/SECURITY.md`](docs/SECURITY.md)
+
+## Garanties API publiques
+
+Stables dans la série actuelle :
+
+- classes de blocks dans `src/Blocks`
+- `BlockFactory` (mapping local/global, parsing et fallback)
+- `PostContent` (flux collection-first, `withBlocks()`)
+- `PostContentBlock` comme fallback unique de parsing non supporté
+
+Internes (peuvent évoluer sans annonce majeure) :
+
+- détails internes de build/hydratation des blocks
+- helpers privés de parsing
+- structure interne des tests/stubs
+
+## Matrice de compatibilité
+
+- PHP : `>= 8.1`
+- WordPress : recommandé en runtime (fonctions `parse_blocks`, `do_blocks`, `esc_*`)
+- Mode hors WordPress : supporté avec fallback sûrs (parser minimal côté tests + guards runtime)
+- Dépendance : `maxpertici/markup` (`^0.9.3 || dev-main`)
+
+## Limites actuelles et fallback attendu
+
+- Les blocks non supportés restent rendus via `PostContentBlock` pour préserver le markup Gutenberg.
+- La conversion native des blocks est explicite (opt-in via `BlockFactory::registerNativeSupportedBlock(s)`).
+- En cas de payload incomplet/malformé, la librairie privilégie un fallback sûr plutôt qu’une transformation destructive.
 
 ## Exemple basique — bloc Heading
 
