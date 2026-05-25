@@ -12,6 +12,18 @@ if ( ! function_exists( 'parse_blocks' ) ) {
 	 * @return array<int, array<string, mixed>>
 	 */
 	function parse_blocks( string $content ): array {
+		if ( strlen( $content ) > 200000 ) {
+			return [
+				[
+					'blockName' => null,
+					'attrs' => [],
+					'innerBlocks' => [],
+					'innerHTML' => $content,
+					'innerContent' => [ $content ],
+				],
+			];
+		}
+
 		$results = [];
 
 		$pairedPattern = '/<!--\s+wp:([a-z0-9\/-]+)(?:\s+(\{.*?\}))?\s+-->(.*?)<!--\s+\/wp:\1\s+-->/si';

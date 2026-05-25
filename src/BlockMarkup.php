@@ -674,6 +674,7 @@ class BlockMarkup extends Markup {
 			return $url;
 		}
 
+		// Keep aligned with docs/SECURITY.md allowlist policy.
 		$allowedSchemes = [ 'http', 'https', 'mailto', 'tel' ];
 
 		return in_array( $scheme, $allowedSchemes, true ) ? $url : '';
