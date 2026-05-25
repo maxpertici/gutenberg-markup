@@ -686,14 +686,12 @@ class BlockMarkup extends Markup {
 	 * @return string
 	 */
 	protected static function escapeUrlAttribute( string $url ): string {
-		$sanitized = self::sanitizeUrl( $url );
-
 		if ( \function_exists( 'esc_url' ) ) {
 			// @phpstan-ignore-next-line
-			return (string) \esc_url( $sanitized );
+			return (string) \esc_url( $url );
 		}
 
-		return self::escapeAttribute( $sanitized );
+		return self::escapeAttribute( self::sanitizeUrl( $url ) );
 	}
 
 }

@@ -184,7 +184,8 @@ class ButtonBlock extends BlockMarkup {
 		$blockAttributes = $this->blockAttributes();
 		$wrapperClasses  = trim( 'wp-block-button ' . (string) ( $blockAttributes['className'] ?? '' ) );
 		$anchorClasses   = 'wp-block-button__link wp-element-button';
-		$anchorAttrs     = sprintf( ' href="%s"', self::escapeUrlAttribute( $this->url ) );
+		$anchorHref      = (string) ( $blockAttributes['url'] ?? '' );
+		$anchorAttrs     = sprintf( ' href="%s"', self::escapeUrlAttribute( $anchorHref ) );
 
 		if ( null !== $this->linkTarget && '' !== $this->linkTarget ) {
 			$anchorAttrs .= sprintf( ' target="%s"', self::escapeAttribute( $this->linkTarget ) );
